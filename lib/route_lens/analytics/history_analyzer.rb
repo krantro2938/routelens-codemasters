@@ -5,9 +5,9 @@ require_relative 'support'
 
 module RouteLens
   module Analytics
-    # Summarizes historical CSV rows without making them part of the live state.
-    # Live conversion and historical approval rate describe different windows and
-    # are deliberately kept separate for drift detection.
+    # Агрегирует исторический CSV отдельно от текущего состояния. Текущая
+    # конверсия и исторический approval rate не смешиваются: разница между
+    # окнами используется как сигнал дрейфа метрики.
     class HistoryAnalyzer
       STATUSES = %w[approved rejected expired].freeze
 

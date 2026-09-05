@@ -3,10 +3,9 @@
 require "json"
 
 module RouteLens
-  # Generates a portable, dependency-free view of persisted routing artifacts.
-  # All dynamic text is rendered through DOM textContent and the embedded JSON
-  # escapes HTML-significant characters, so operation/provider data cannot turn
-  # into executable markup.
+  # Генерирует переносимое представление сохранённых артефактов без зависимостей.
+  # Динамический текст выводится через DOM textContent, а встроенный JSON
+  # экранирует HTML-символы, поэтому входные данные не становятся разметкой.
   class Observatory
     class InputError < StandardError; end
 

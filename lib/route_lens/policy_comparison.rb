@@ -7,9 +7,9 @@ require_relative "router"
 require_relative "scoring/policy"
 
 module RouteLens
-  # Replays one queue under several policy presets and under the report's first
-  # safe target-vector recommendation. The comparison uses approve_all mode so
-  # provider selection, rather than simulated luck, explains every difference.
+  # Проигрывает одну очередь с несколькими пресетами и первой безопасной
+  # рекомендацией отчёта. approve_all убирает влияние смоделированных отказов,
+  # поэтому различия объясняются только политикой выбора.
   class PolicyComparison
     DEFAULT_PRESETS = %w[conversion_first cascade capacity_first].freeze
 

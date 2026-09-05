@@ -25,8 +25,8 @@ module RouteLens
         @rules = rules.freeze
       end
 
-      # Every rule is evaluated so the decision receipt can expose all causes.
-      # The first failure in the configured rule order is the stable primary cause.
+      # Выполняем все правила, чтобы показать полный набор причин. Первая ошибка
+      # в фиксированном порядке остаётся стабильной основной причиной.
       def evaluate(provider, operation, context: {})
         Evaluation.new(rules.map { |rule| rule.evaluate(provider, operation, context: context) })
       end

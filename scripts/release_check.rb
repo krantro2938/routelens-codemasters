@@ -53,6 +53,8 @@ def close_enough?(left, right, tolerance = 0.01)
 end
 
 def validate_state_lifecycle(operation_id, attempt, operation, errors)
+  # Проверяем доказательство резерва независимо от движка: во временном состоянии
+  # заняты слот, сумма и реквизит, а после расчёта они полностью возвращены.
   before = attempt["state_before"]
   reserved = attempt["state_reserved"]
   after = attempt["state_after"]
@@ -110,6 +112,8 @@ if provider_document && !(provider_document.is_a?(Hash) && provider_document["pr
 end
 
 if queue.is_a?(Array) && decisions.is_a?(Array)
+  # Сначала сверяем взаимно-однозначное покрытие очереди, затем проверяем каждое
+  # фактическое назначение и агрегаты отчёта.
   operations_by_id = queue.to_h { |operation| [operation["operation_id"], operation] }
   providers_by_name = if provider_document.is_a?(Hash) && provider_document["providers"].is_a?(Array)
                         provider_document["providers"].to_h { |provider| [provider["payment_system"], provider] }
@@ -190,6 +194,8 @@ if queue.is_a?(Array) && decisions.is_a?(Array)
             next
           end
 
+          # state_before позволяет проверять повтор с тем состоянием, которое
+          # реально существовало перед конкретной попыткой.
           provider = RouteLens::ProviderState.new(provider_attributes)
           fallback = provider.self_provider?
           evaluation = evaluator.evaluate(provider, operation, context: { fallback: fallback })

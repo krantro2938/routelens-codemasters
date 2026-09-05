@@ -124,6 +124,8 @@ module RouteLens
     end
 
     def atomic_json_write(path, value)
+      # Сначала записываем полный соседний файл и только затем переименовываем:
+      # при ошибке пользователь не получит обрезанный итоговый JSON.
       absolute = File.expand_path(path)
       directory = File.dirname(absolute)
       FileUtils.mkdir_p(directory)

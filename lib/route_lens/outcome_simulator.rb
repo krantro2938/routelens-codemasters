@@ -3,9 +3,9 @@
 require "digest"
 
 module RouteLens
-  # Produces replayable outcomes. Official result generation defaults to
-  # approve_all so routing choices remain stable; deterministic mode is useful
-  # for simulations, while overrides power guaranteed retry demonstrations.
+  # Генерирует воспроизводимые результаты. Детерминированный режим моделирует
+  # конверсию, approve_all изолирует влияние политики, а overrides используются
+  # только для гарантированных сценариев повторов в тестах и demo.
   class OutcomeSimulator
     VALID_RESULTS = %w[approved rejected expired].freeze
 
@@ -51,6 +51,8 @@ module RouteLens
     end
 
     def unit_interval(kind, operation, provider)
+      # Один и тот же seed и вход всегда дают одинаковое число, независимо от
+      # версии генератора случайных чисел и порядка других вызовов.
       key = [@seed, kind, fetch(operation, "operation_id"), fetch(provider, "payment_system")].join(":")
       Digest::SHA256.hexdigest(key)[0, 15].to_i(16).fdiv(16**15)
     end

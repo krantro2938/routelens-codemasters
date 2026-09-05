@@ -107,8 +107,8 @@ class EligibilityInputLoaderTest < Minitest::Test
   end
 
   def test_rejects_non_finite_provider_and_operation_numbers
-    # JSON itself rejects bare Infinity/NaN, so use oversized exponent syntax,
-    # which parses as Infinity on Ruby and must still be rejected by the schema.
+    # JSON не принимает литералы Infinity/NaN, поэтому используем слишком большую
+    # экспоненту: Ruby читает её как Infinity, а схема всё равно должна отклонить.
     Dir.mktmpdir do |dir|
       provider_path = File.join(dir, "providers.json")
       File.write(provider_path, '{"providers":[{"payment_system":"p","status":"active","conversion_24h":1e999,"banks":[]}]}')

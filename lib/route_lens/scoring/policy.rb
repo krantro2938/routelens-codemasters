@@ -47,6 +47,8 @@ module RouteLens
         @name = Support.fetch(policy, :name, "unnamed_policy").to_s
         @precision = Integer(Support.fetch(policy, :precision, 6))
         @weights = normalize_weights(Support.fetch(policy, :weights, {}))
+        # Конфигурация проверяется один раз при старте, чтобы неверный вес или
+        # процент не привёл к частично обработанной очереди.
         validate_weights!
         validate_targets!
         @components = @weights.to_h do |component_name, _weight|
@@ -79,6 +81,8 @@ module RouteLens
       end
 
       def score(provider:, state: nil, operation:, metrics: {})
+        # Каждый фактор возвращает нормализованное значение. Направление явно
+        # превращает нагрузку, задержку и стоимость в штрафы.
         breakdown = @components.to_h do |component_name, component|
           raw = rounded(component.call(provider: provider, state: state, operation: operation, metrics: metrics))
           weight = @weights.fetch(component_name)
@@ -99,6 +103,8 @@ module RouteLens
       end
 
       def rank(candidates:, operation:, metrics: {}, states: {})
+        # sort_key обеспечивает стабильный результат при равных суммах:
+        # приоритет, задержка, затем имя провайдера.
         enriched_metrics = metrics.merge(eligible_providers: candidates)
         candidates.map do |provider|
           provider_name = Support.provider_name(provider)

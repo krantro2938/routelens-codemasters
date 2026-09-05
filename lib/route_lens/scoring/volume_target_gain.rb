@@ -4,6 +4,8 @@ require_relative "component"
 
 module RouteLens
   module Scoring
+    # Измеряет, насколько сумма текущей операции приближает весь денежный
+    # портфель к целевым долям объёма.
     class VolumeTargetGain < Component
       def value(provider:, state:, operation:, metrics:)
         volumes = Support.metric_map(metrics, :volume_by_provider, :volumes, :routed_volumes)
@@ -25,6 +27,8 @@ module RouteLens
         providers.to_h do |item|
           name = Support.provider_name(item)
           configured_target = Support.fetch(configured, name, nil)
+          # Новый провайдер работает без правки политики: сначала используется
+          # его volume_share_pct, затем traffic_percentage как явный fallback.
           target = if configured_target.nil?
                      explicit = Support.fetch(item, :volume_share_pct, nil)
                      explicit.nil? ? Support.number(item, :traffic_percentage) : explicit.to_f

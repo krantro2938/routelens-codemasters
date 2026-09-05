@@ -4,6 +4,8 @@ require_relative "component"
 
 module RouteLens
   module Scoring
+    # Оценивает не сам размер цели, а уменьшение общей ошибки распределения
+    # после виртуального назначения текущей операции выбранному провайдеру.
     class CountTargetGain < Component
       def value(provider:, state:, operation:, metrics:)
         counts = Support.metric_map(metrics, :count_by_provider, :counts, :routed_counts)
@@ -29,6 +31,7 @@ module RouteLens
       end
 
       def normalize_targets(targets)
+        # Конфигурация всегда хранит проценты, включая точное значение 1%.
         targets.to_h do |name, target|
           [name.to_s, Support.number({ value: target }, :value) / 100.0]
         end

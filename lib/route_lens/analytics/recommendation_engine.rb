@@ -4,8 +4,8 @@ require_relative 'support'
 
 module RouteLens
   module Analytics
-    # Turns report measurements into recommendations that name both the evidence
-    # and the concrete parameter or rule to change.
+    # Превращает метрики отчёта в рекомендации с числовым доказательством,
+    # конкретным параметром для изменения и ожидаемым эффектом.
     class RecommendationEngine
       CAPACITY_WARNING_PCT = 90.0
       CRITICAL_CAPACITY_PCT = 95.0
@@ -217,6 +217,8 @@ module RouteLens
       end
 
       def rebalance_target(vector, constrained_provider:, proposed:)
+        # Высвобождённая доля уходит наименее загруженному внешнему провайдеру,
+        # после чего весь вектор нормализуется ровно до 100%.
         result = vector.dup
         current = Support.number(result[constrained_provider])
         result[constrained_provider] = [Support.number(proposed), current].min

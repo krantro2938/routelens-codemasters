@@ -11,8 +11,9 @@ module RouteLens
 
   RunResult = Struct.new(:decisions, :provider_states, :routing_metrics, keyword_init: true)
 
-  # Coordinates eligibility, scoring, reservations, outcomes and retries.
-  # ProviderState owns mutable counters; Router owns batch-level traffic metrics.
+  # Управляет полным маршрутом операции: допустимостью, скорингом, резервом,
+  # результатом и повтором. Изменяемые лимиты принадлежат ProviderState,
+  # а распределение текущего пакета — Router.
   class Router
     FACTOR_LABELS = {
       "count_target_gain" => "count-share balance",
@@ -36,6 +37,8 @@ module RouteLens
       @evaluator = evaluator
       @provider_by_name = providers.to_h { |provider| [provider.payment_system, provider] }
       @initial_states = providers.to_h { |provider| [provider.payment_system, provider.snapshot] }
+      # Эти метрики описывают только финальное назначение каждой выплаты и
+      # поэтому используются для приближения к целевым долям.
       @metrics = {
         count_by_provider: Hash.new(0),
         volume_by_provider: Hash.new(0.0),
@@ -45,6 +48,8 @@ module RouteLens
           [provider.payment_system, provider["traffic_percentage"].to_f]
         end
       }
+      # Неудачные вызовы учитываются отдельно: они важны для нагрузки и RPM,
+      # но не должны считаться выполненной долей маршрутизации.
       @attempt_metrics = {
         count_by_provider: Hash.new(0),
         volume_by_provider: Hash.new(0.0),
@@ -77,6 +82,8 @@ module RouteLens
       append_initial_hard_exclusions(attempts, operation)
 
       loop do
+        # После каждой неудачи список строится заново по текущему состоянию:
+        # резерв предыдущей попытки уже снят, а лимиты могли измениться.
         candidates = current_external_candidates(operation, attempted_names)
         break if candidates.empty?
 
@@ -99,6 +106,8 @@ module RouteLens
             at: operation["created_at"] || Time.now
           )
         rescue StateError => e
+          # Между скорингом и резервом ёмкость могла измениться. Повторная
+          # проверка внутри ProviderState закрывает эту гонку безопасным skip.
           attempted_names << provider.payment_system
           attempts << {
             "provider" => provider.payment_system,
@@ -143,6 +152,8 @@ module RouteLens
       end
 
       unless final_provider
+        # Внутренний провайдер рассматривается только после исчерпания внешних,
+        # поэтому он не может случайно выиграть обычный мягкий скоринг.
         provider, outcome, fallback_attempt = execute_fallback(operation, selected_attempts.length + 1)
         attempts << fallback_attempt
         selected_attempts << fallback_attempt
@@ -268,9 +279,8 @@ module RouteLens
       @attempt_metrics[:total_volume] += amount
     end
 
-    # Count and volume targets describe the final provider allocation shown in
-    # routing_report.json. Failed provider calls remain visible separately as
-    # attempt traffic and therefore cannot make a final allocation goal appear met.
+    # Цели количества и объёма относятся к финальному распределению из отчёта.
+    # Неудачные вызовы видны в метриках попыток, но не могут ложно закрыть цель.
     def record_routing_assignment(provider_name, amount)
       @metrics[:count_by_provider][provider_name] += 1
       @metrics[:volume_by_provider][provider_name] += amount
@@ -279,6 +289,8 @@ module RouteLens
     end
 
     def scoring_metrics
+      # Компоненты долей получают единый снимок уже завершённых назначений;
+      # текущая операция добавляется каждым компонентом только виртуально.
       {
         count_by_provider: @metrics[:count_by_provider],
         volume_by_provider: @metrics[:volume_by_provider],
@@ -318,6 +330,8 @@ module RouteLens
     def unmet_goals_for(attempts)
       return [] unless @metrics[:total_count].positive?
 
+      # Фиксируем только недобор цели из-за жёсткого ограничения. Превышение
+      # цели не является невыполненной целью и не должно попадать в объяснение.
       attempts.filter_map do |attempt|
         next unless attempt["decision"] == "skipped"
         next if %w[lower_policy_score state_changed_during_selection].include?(attempt["reason"])

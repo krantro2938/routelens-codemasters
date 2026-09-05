@@ -1,657 +1,447 @@
-# RouteLens Implementation Summary
+# Сводка реализации RouteLens
 
-## Executive summary
+**Команда: Codemasters**
 
-RouteLens is a complete, deterministic, explainable payout-routing system implemented primarily in Ruby. It processes a queue of payout operations, removes providers that violate hard constraints, ranks the eligible providers through a configurable policy, safely updates provider state, retries after failures, uses SpacePayments only as the final fallback, and generates both operation-level explanations and aggregate business analytics.
+## Краткое резюме
 
-The solution was built to address the complete hackathon rubric rather than only the public validator. It includes the routing engine, policy configuration, input validation, provider-state lifecycle, deterministic outcome simulation, retry and fallback logic, analytics, evidence-backed recommendations, automated tests, release checks, documentation, and an offline interactive Routing Observatory.
+RouteLens — детерминированный и объяснимый маршрутизатор выплат на Ruby. Для каждой операции он:
 
-The supplied public queue passes the official validator with:
+1. проверяет все жёсткие ограничения провайдеров;
+2. оценивает допустимых внешних провайдеров по настраиваемой политике;
+3. атомарно резервирует ёмкость и реквизит;
+4. фиксирует результат попытки;
+5. после `rejected` или `expired` освобождает резерв и заново ранжирует оставшихся;
+6. использует SpacePayments только после исчерпания внешних маршрутов;
+7. формирует подробное решение и агрегированный аналитический отчёт.
 
-- **29 checks passed**
-- **0 errors**
-- **0 warnings**
+Решение покрывает не только публичный валидатор, но и полный цикл маршрутизации: валидацию входов, состояние провайдеров, конфигурируемый скоринг, повторы, fallback, аналитику, рекомендации, сравнение политик, автономный Observatory и защищённый выпуск для скрытой очереди.
 
-The complete automated suite passes with:
+Проверенный результат:
 
-- **81 tests**
-- **378 assertions**
-- **0 failures**
-- **0 errors**
-
-All generated public artifacts are deterministic: rerunning RouteLens with the same inputs, configuration, and seed produces byte-identical decision and report files.
-
----
-
-## 1. Starting point
-
-The initial workspace contained:
-
-- the Russian-language hackathon brief;
-- a provider-state snapshot;
-- 100 historical operations;
-- a public queue of ten operations;
-- sample routing decisions;
-- reference eligibility information;
-- the public Ruby validator.
-
-It did not contain:
-
-- an application architecture;
-- routing code;
-- state-management logic;
-- configurable policies;
-- analytics generation;
-- automated tests;
-- a README;
-- a release process;
-- a visualization;
-- an initialized Git repository.
-
-The work therefore began as a greenfield implementation based on the task specification and scoring rubric.
+- публичный валидатор: **29 пройдено, 0 ошибок, 0 предупреждений**;
+- автоматизированные тесты: **81 тест, 378 проверок, 0 сбоев**;
+- повторный запуск с одинаковыми входами и seed даёт побайтно одинаковые JSON-файлы;
+- маршрутизация работает офлайн на стандартной библиотеке Ruby.
 
 ---
 
-## 2. What was achieved
+## 1. Исходные данные
 
-### Core product
+В исходной рабочей области были:
 
-- Built an end-to-end payout router in Ruby.
-- Implemented every hard constraint described in the brief.
-- Implemented ten soft scoring factors covering all requested routing strategies.
-- Added explicit conflict resolution through normalized weighted scoring.
-- Added deterministic tie-breaking.
-- Added correct reservation, approval, rejection, expiry, and release transitions.
-- Added automatic retry with reranking after a provider failure.
-- Isolated SpacePayments from normal routing and used it only as fallback.
-- Added deterministic conversion-based outcome and latency simulation.
-- Added complete decision receipts for every operation.
+- русскоязычное описание задания;
+- снимок состояния провайдеров;
+- 100 исторических операций;
+- публичная очередь из десяти операций;
+- примеры решений и справочные данные допустимости;
+- публичный Ruby-валидатор.
 
-### Analytics and business value
-
-- Generated count and volume distributions.
-- Calculated actual, target, and deviation percentages.
-- Reported approvals, rejections, expirations, retries, and fallback usage.
-- Calculated average and p95 latency.
-- Reported provider capacity utilization and remaining headroom.
-- Separated hard exclusions from soft policy non-selections.
-- Compared live conversion with historical approval performance.
-- Generated human-readable and structured recommendations.
-
-### Reliability and delivery
-
-- Added strict JSON, CSV, and provider-schema validation.
-- Added boundary, malformed-input, retry, fallback, analytics, and integration tests.
-- Added an exact final-release command.
-- Protected the required final filenames from accidental overrides.
-- Added a release checker that validates coverage and required fields.
-- Added full operational documentation.
-- Initialized Git on the required `main` branch.
-- Created a clean initial implementation commit.
-
-### Judge-facing differentiation
-
-- Built a self-contained Routing Observatory.
-- Added actual-versus-target visual comparisons.
-- Added capacity meters and business recommendations.
-- Added an operation selector with ordered attempts.
-- Added expandable score breakdowns.
-- Verified the observatory in a browser at desktop and 360-pixel widths.
-- Added a guaranteed retry/fallback demonstration fixture.
+Архитектуру приложения, маршрутизацию, управление состоянием, политики, аналитику, тесты, выпуск и визуализацию требовалось реализовать с нуля.
 
 ---
 
-## 3. System architecture
+## 2. Что реализовано
 
-The routing pipeline is:
+### Маршрутизация
+
+- Все заявленные жёсткие ограничения вынесены в независимые правила.
+- Десять мягких факторов объединяются настраиваемыми весами.
+- Равные оценки разрешаются детерминированным tie-break.
+- Резервирование, одобрение, отклонение, истечение и освобождение имеют явные переходы состояния.
+- После неудачи выполняется новый расчёт по актуальному состоянию, а не используется старый рейтинг.
+- SpacePayments изолирован от обычного скоринга и используется только как fallback.
+- Каждое решение содержит полный список рассмотренных провайдеров и причины результата.
+
+### Аналитика
+
+- Рассчитываются распределения по количеству операций и денежному объёму.
+- Фактические доли сопоставляются с целями и их источниками.
+- Финальный результат выплаты отделён от результатов отдельных попыток.
+- Рассчитываются одобрения, отказы, истечения, повторы, fallback и восстановление.
+- Выводятся средняя, p95 и максимальная задержка.
+- Показываются утилизация дневного лимита и оставшийся запас.
+- Текущая конверсия сравнивается с исторической.
+- Рекомендации содержат числовое доказательство, действие и ожидаемый эффект.
+
+### Надёжность и выпуск
+
+- JSON, CSV, YAML и минимальная схема входных данных валидируются до запуска маршрутизации.
+- Итоговые JSON-файлы записываются атомарно.
+- Официальная release-команда защищает пути, policy, seed, режим симуляции и overrides от подмены.
+- Независимый release-checker проверяет структуру, покрытие, допустимость выбранных маршрутов, переходы состояния и сверку отчёта.
+- Есть unit- и integration-тесты для границ, ошибок, повторов, fallback и детерминизма.
+
+### Материалы для демонстрации
+
+- Автономный интерактивный Routing Observatory без сервера и внешних ресурсов.
+- Гарантированный сценарий повторов и fallback.
+- Policy Lab для сравнения четырёх политик на одинаковых операциях и результатах.
+- Русскоязычная презентация защиты `presentation/RouteLens_Defense_RU.pptx`.
+
+---
+
+## 3. Архитектура
 
 ```text
-Load and validate inputs
-        ↓
-Create isolated mutable provider states
-        ↓
-Evaluate all hard constraints
-        ↓
-Rank eligible external providers with the active policy
-        ↓
-Reserve provider capacity and a requisite
-        ↓
-Execute or deterministically simulate an outcome
-        ↓
-Approved → settle and finish
-Rejected/expired → release state and rerank remaining providers
-        ↓
-No external provider remains → SpacePayments fallback
-        ↓
-Persist decision receipts and build the aggregate report
+Загрузка и проверка входов
+          ↓
+Изолированные состояния провайдеров
+          ↓
+Проверка всех жёстких ограничений
+          ↓
+Скоринг допустимых внешних провайдеров
+          ↓
+Атомарное резервирование ёмкости и реквизита
+          ↓
+Выполнение или детерминированная симуляция
+          ↓
+approved → расчёт и завершение
+rejected/expired → освобождение и новый расчёт оставшихся
+          ↓
+Внешний пул исчерпан → fallback SpacePayments
+          ↓
+Квитанции решений и агрегированный отчёт
 ```
 
-The main components are intentionally separate:
+Основные компоненты:
 
-| Component | Responsibility |
+| Компонент | Ответственность |
 |---|---|
-| `InputLoader` | Parse and validate provider, operation, and history inputs |
-| `ProviderState` | Own mutable counters, reservations, requisites, and settlements |
-| `Eligibility::Evaluator` | Execute all hard rules and preserve every exclusion reason |
-| `Scoring::Policy` | Combine normalized soft factors and rank providers |
-| `OutcomeSimulator` | Produce reproducible outcomes and latency |
-| `Router` | Orchestrate selection, state transitions, retries, and fallback |
-| `HistoryAnalyzer` | Summarize historical success and latency |
-| `ReportBuilder` | Reconcile decisions into business and operational metrics |
-| `RecommendationEngine` | Turn measurements into concrete policy recommendations |
-| `Observatory` | Generate the offline interactive dashboard |
-| `CLI` | Provide one-command execution and atomic artifact writes |
+| `InputLoader` | Чтение и валидация провайдеров, операций и истории |
+| `ProviderState` | Счётчики, лимиты, реквизиты, резервы и расчёт |
+| `Eligibility::Evaluator` | Выполнение всех жёстких правил и сбор причин |
+| `Scoring::Policy` | Нормализация факторов, веса и ранжирование |
+| `OutcomeSimulator` | Воспроизводимые результаты и задержка |
+| `Router` | Выбор, переходы состояния, повторы и fallback |
+| `HistoryAnalyzer` | Агрегация исторических результатов |
+| `ReportBuilder` | Сверка решений и расчёт метрик |
+| `RecommendationEngine` | Преобразование метрик в конкретные действия |
+| `PolicyComparison` | Сравнение пресетов и воспроизведение рекомендации |
+| `Observatory` | Генерация автономного HTML-интерфейса |
+| `CLI` | Единая точка запуска и атомарная запись артефактов |
 
-This separation lets a new provider, hard rule, scoring factor, or recommendation be introduced without rewriting unrelated parts of the engine.
-
----
-
-## 4. Input loading and validation
-
-The input layer validates data before routing begins. Invalid input causes a clear error and prevents partially written final artifacts.
-
-Validation includes:
-
-- readable and valid JSON/CSV;
-- required provider and operation fields;
-- nonempty operation and provider identifiers;
-- unique operation IDs;
-- unique provider names;
-- finite numeric values;
-- positive operation amounts;
-- nonnegative limits and counters;
-- ISO 8601 operation timestamps;
-- conversion inside `0..1`;
-- traffic and volume percentages inside `0..100`;
-- minimum amount not exceeding maximum amount;
-- real booleans for bank and margin flags;
-- an array for the provider bank list.
-
-Provider status is accepted as any nonempty value for forward compatibility. The eligibility layer considers only the exact value `active` eligible, so a future status such as `unavailable` is safely excluded rather than crashing the entire batch.
-
-Relevant implementation:
-
-- `lib/route_lens/input_loader.rb`
-- `lib/route_lens/provider_state.rb`
+Такое разделение позволяет добавлять провайдеров данными, а правила и факторы — отдельными классами без переписывания маршрутизатора.
 
 ---
 
-## 5. Hard constraints
+## 4. Загрузка и валидация
 
-Hard constraints answer: **Can this operation be sent to this provider at all?**
+До начала обработки проверяются:
 
-Each hard constraint is an independent Ruby rule. Every rule is evaluated, even after one fails, so the decision receipt can preserve the complete explanation. The first failure in the documented rule order becomes the stable primary reason expected by validators.
+- доступность и корректность JSON/CSV/YAML;
+- обязательные поля операций и провайдеров;
+- уникальность `operation_id` и `payment_system`;
+- конечность чисел и неотрицательность лимитов;
+- положительная сумма операции;
+- ISO 8601 для `created_at`;
+- `conversion_24h` в диапазоне `0..1`;
+- процентные цели в диапазоне `0..100`;
+- непротиворечивость минимальной и максимальной суммы;
+- логический тип флагов;
+- массив для списка банков.
 
-| Rule | Behavior | Reason code |
+Неизвестный непустой статус разрешён валидатором ради совместимости с будущими статусами, но жёсткое правило допускает только точное значение `active`. Поэтому новый статус безопасно исключает провайдера, а не останавливает пакет.
+
+Код: `lib/route_lens/input_loader.rb`, `lib/route_lens/config_loader.rb`.
+
+---
+
+## 5. Жёсткие ограничения
+
+Жёсткие правила отвечают на вопрос: **можно ли вообще отправить эту операцию провайдеру?**
+
+| Правило | Проверка | Код причины |
 |---|---|---|
-| Status | Requires `status == active` | `provider_inactive` |
-| Self-provider | Excludes SpacePayments from normal ranking | `self_provider_reserved_for_fallback` |
-| Traffic enabled | Excludes ordinary external providers with zero traffic | `traffic_disabled` |
-| Minimum amount | Rejects amounts below provider minimum | `amount_below_minimum` |
-| Maximum amount | Rejects amounts above provider maximum | `amount_exceeds_limit` |
-| Daily maximum | Checks current approved amount plus the operation | `daily_amount_limit_exceeded` |
-| In-progress count | Checks the next reservation against count capacity | `in_progress_count_limit_exceeded` |
-| In-progress amount | Checks the next amount against in-progress capacity | `in_progress_amount_limit_exceeded` |
-| Bank allowlist | Requires the bank to appear in an inclusive bank list | `bank_not_in_list` |
-| Bank denylist | Rejects banks appearing in an exclusion list | `bank_excluded` |
-| Margin | Prevents negative merchant economics unless allowed | `negative_margin_not_allowed` |
-| Requisites | Requires at least one available requisite | `no_available_requisites` |
-| Intensity | Enforces requests-per-minute capacity | `rate_limit_exceeded` |
+| Статус | `status == active` | `provider_inactive` |
+| Внутренний провайдер | Исключён из обычного ранжирования | `self_provider_reserved_for_fallback` |
+| Включённый трафик | Нулевая доля отключает внешний маршрут | `traffic_disabled` |
+| Минимальная сумма | Сумма не ниже минимума | `amount_below_minimum` |
+| Максимальная сумма | Сумма не выше максимума | `amount_exceeds_limit` |
+| Дневная сумма | Оборот с новой операцией входит в лимит | `daily_amount_limit_exceeded` |
+| Количество in-progress | Следующий резерв входит в лимит | `in_progress_count_limit_exceeded` |
+| Сумма in-progress | Новая сумма входит в лимит | `in_progress_amount_limit_exceeded` |
+| Банки | Allowlist или denylist | `bank_not_in_list`, `bank_excluded` |
+| Маржа | Экономика не становится отрицательной без разрешения | `negative_margin_not_allowed` |
+| Реквизиты | Есть доступный реквизит | `no_available_requisites` |
+| RPM | В минутном окне остаётся место | `rate_limit_exceeded` |
 
-Important boundary behavior:
+Оценщик выполняет все правила, даже если первое уже завершилось ошибкой. Так квитанция содержит полный набор причин, а первая причина в фиксированном порядке остаётся стабильной для машинной проверки.
 
-- equal to a maximum is allowed;
-- `null` limits are unbounded;
-- an empty bank list supports all banks;
-- an inclusive bank list is used when `exclude_banks` is false;
-- a denylist is used when `exclude_banks` is true;
-- soft policy weights can never override a hard exclusion.
+Границы заданы явно: значение, равное максимуму, допустимо; `null` означает отсутствие лимита; пустой список банков разрешает все банки; мягкий вес никогда не отменяет жёсткое исключение.
 
-Relevant implementation:
-
-- `lib/route_lens/eligibility/evaluator.rb`
-- `lib/route_lens/eligibility/rules.rb`
-- `lib/route_lens/eligibility/result.rb`
+Код: `lib/route_lens/eligibility/`.
 
 ---
 
-## 6. Configurable soft-policy scoring
+## 6. Мягкая политика и конфликты целей
 
-Soft policy answers: **Which eligible provider is currently preferable?**
-
-The policy is configured in `config/routing.yml`. RouteLens calculates a normalized value for every enabled factor and combines them as:
+После жёсткой фильтрации применяется формула:
 
 ```text
-score = Σ(normalized factor × configured weight × direction)
+оценка = Σ(нормализованный фактор × вес × направление)
 ```
 
-Positive factors increase a provider's score. Load, latency, and cost use an explicit negative direction.
+Реализованы десять факторов:
 
-### Implemented factors
-
-| Factor | What it measures |
+| Фактор | Назначение |
 |---|---|
-| Count target gain | How much the assignment improves the count-share distribution |
-| Volume target gain | How much it improves the monetary-volume distribution |
-| Conversion | Current `conversion_24h` quality |
-| Priority | Cascade position among current eligible candidates |
-| Amount preference | Whether the check is inside a configurable preferred band |
-| Capacity | Remaining daily and in-progress capacity after the operation |
-| Turnover obligation | Urgency to fulfill a configured minimum daily turnover |
-| Load | Current in-progress count and amount pressure |
-| Latency | Relative expected provider latency |
-| Cost | Provider margin relative to merchant margin |
+| `count_target_gain` | Улучшение распределения по количеству |
+| `volume_target_gain` | Улучшение распределения по денежному объёму |
+| `conversion` | Текущая конверсия провайдера |
+| `priority` | Позиция в каскаде |
+| `amount_preference` | Предпочтительный, но не обязательный диапазон суммы |
+| `capacity` | Запас дневной и текущей ёмкости после операции |
+| `turnover_obligation` | Срочность минимального обязательства по обороту |
+| `load` | Давление текущих незавершённых операций |
+| `latency` | Ожидаемая задержка |
+| `cost` | Стоимость провайдера относительно маржи мерчанта |
 
-Count and volume scoring evaluate the **gain created by the current assignment**. They do not simply reward large target percentages. This allows sequential decisions to move the complete batch toward its configured targets.
+`load`, `latency` и `cost` имеют отрицательное направление. Доли количества и объёма оценивают именно изменение ошибки всего портфеля после назначения текущей операции. Положительный `traffic_percentage` остаётся мягкой целью; нулевое значение отключает обычный внешний маршрут согласно входному контракту.
 
-The default policy deliberately has different count and volume targets. That forces the engine to reconcile genuine business objectives rather than treating both strategies as aliases.
+При равной итоговой оценке порядок определяется так:
 
-When total scores are equal, providers are ordered deterministically by:
+1. меньший числовой `priority`;
+2. меньший `avg_latency_sec`;
+3. имя провайдера.
 
-1. Lower numerical priority
-2. Lower latency
-3. Provider name
-
-Every score result includes the raw value, weight, direction, and weighted contribution of every factor.
-
-Relevant implementation:
-
-- `config/routing.yml`
-- `lib/route_lens/scoring/policy.rb`
-- `lib/route_lens/scoring/`
+Каждый результат скоринга сохраняет исходное значение, вес, направление и вклад фактора. Веса, цели, диапазоны и пресеты находятся в `config/routing.yml`.
 
 ---
 
-## 7. Provider-state lifecycle
+## 7. Жизненный цикл состояния
 
-Provider state is copied from the input snapshot so the source data is never modified. Each provider has an isolated, thread-safe `ProviderState` object.
+Исходный снимок копируется, поэтому входной JSON не изменяется. Для каждого провайдера создаётся отдельный потокобезопасный `ProviderState`.
 
-### Reservation
+При резервировании под одним mutex:
 
-Before an actual attempt, RouteLens atomically:
+- повторно проверяются лимиты ёмкости и RPM;
+- увеличиваются количество и сумма in-progress;
+- временно занимается реквизит;
+- фиксируется запрос в минутном окне;
+- сумма связывается с уникальным `reservation_id`.
 
-- increments in-progress count;
-- increments in-progress amount;
-- consumes one available requisite;
-- records one request in the correct minute bucket;
-- associates the changes with a unique reservation ID.
+При `approved` резерв освобождается, реквизит возвращается, а сумма добавляется в дневной одобренный оборот. При `rejected` или `expired` резерв и реквизит освобождаются без увеличения оборота.
 
-### Approval
+Идентификаторы резервов защищают от двойного освобождения и несовпадения суммы. Проверки не позволяют счётчикам стать отрицательными.
 
-On approval, RouteLens:
-
-- releases the in-progress count and amount;
-- returns the requisite;
-- adds the amount to daily approved turnover;
-- closes the reservation.
-
-### Rejection or expiry
-
-On rejection or expiry, RouteLens:
-
-- releases in-progress count and amount;
-- returns the requisite;
-- does not increase approved turnover;
-- closes the reservation;
-- removes that provider from the operation's candidate pool;
-- reevaluates and reranks the remaining providers.
-
-Reservation IDs prevent double release and amount mismatches. Tests verify that failed attempts leave provider capacity exactly as it was before the reservation, except for the recorded request-rate event.
-
-Relevant implementation:
-
-- `lib/route_lens/provider_state.rb`
-- `lib/route_lens/router.rb`
+Код: `lib/route_lens/provider_state.rb`.
 
 ---
 
-## 8. Retry and SpacePayments fallback
+## 8. Повторы и fallback
 
-Retry is part of the routing engine rather than a separate scripted demonstration.
+После `rejected` или `expired` маршрутизатор:
 
-After a rejection or expiry:
+1. рассчитывает и освобождает резерв неудачной попытки;
+2. сохраняет её в метриках нагрузки попыток;
+3. исключает провайдера только для текущей операции;
+4. заново проверяет допустимость остальных по актуальному состоянию;
+5. заново рассчитывает их оценки;
+6. резервирует следующий маршрут.
 
-1. The failed provider is settled and released.
-2. Attempt metrics are updated for provider-load diagnostics; failed attempts do not satisfy final allocation targets.
-3. The provider is excluded only for the current operation.
-4. Eligibility is recalculated against current provider state.
-5. Remaining candidates are rescored.
-6. The next candidate is reserved and attempted.
-7. Count and volume target metrics are updated exactly once for the provider that ultimately receives the operation.
+Метрики попыток и финального назначения разделены. Неудачный вызов виден в диагностике, но не может ложно приблизить итоговое распределение выплат к цели.
 
-If no eligible external provider remains, RouteLens evaluates SpacePayments with explicit fallback context. SpacePayments is never included in ordinary provider scoring.
+Когда внешний пул исчерпан, SpacePayments проходит отдельную проверку с контекстом fallback. Он никогда не участвует в обычном ранжировании.
 
-The judge-facing demonstration includes an external retry chain and a final fallback:
+Контролируемая демонстрация содержит пути:
 
 ```text
-vipay (rejected) → payflow (expired) → quickpay (approved)
-quickpay (expired) → spacepayments (approved)
+vipay rejected → payflow expired → quickpay approved
+quickpay expired → spacepayments approved
 ```
 
-Demo artifacts:
-
-- `demo/resilience_decisions.json`
-- `demo/resilience_report.json`
-- `demo/resilience_observatory.html`
-- `demo/policy_comparison.json`
-- `test/fixtures/resilience_outcomes.json`
-
-The defense artifact is `presentation/RouteLens_Defense_RU.pptx`: five Russian-language slides with editable native tables, an editable native chart, and repository source notes.
+Артефакты находятся в `demo/`, а управляемые результаты — в `test/fixtures/resilience_outcomes.json`.
 
 ---
 
-## 9. Deterministic simulation
+## 9. Детерминированная симуляция
 
-Outcome simulation uses a stable SHA-256 digest derived from:
+Симулятор строит SHA-256 из seed, типа величины, ID операции и имени провайдера. Часть хеша преобразуется в число `0..1`, которое определяет результат относительно конверсии. Другой детерминированный результат задаёт задержку около среднего значения провайдера.
 
-- the configured seed;
-- the operation ID;
-- the provider name;
-- the value being simulated.
+Режимы:
 
-The digest is converted into a reproducible unit interval and compared with provider conversion. A separate deterministic value produces latency around the configured average.
+- `deterministic` — воспроизводимые результаты на основе конверсии;
+- `approve_all` — изоляция влияния политики от неудач провайдера.
 
-Two modes are available:
+Overrides используются только в тестах и контролируемом demo. Защищённая release-команда не позволяет передать их для официальной очереди.
 
-- `deterministic` — conversion-based, reproducible outcomes;
-- `approve_all` — useful for format-only or non-failure test runs.
-
-Explicit outcome overrides exist only for controlled fixtures and demos. Official public output is generated without forced outcomes.
-
-Relevant implementation:
-
-- `lib/route_lens/outcome_simulator.rb`
+Код: `lib/route_lens/outcome_simulator.rb`.
 
 ---
 
-## 10. Decision receipts
+## 10. Квитанции решений
 
-Each decision preserves all mandatory challenge fields:
+Сохраняются обязательные поля задания:
 
-- `operation_id`
-- `selected_provider`
-- `attempts`
-- `simulated_result`
-- `latency_sec`
+- `operation_id`;
+- `selected_provider`;
+- `attempts`;
+- `simulated_result`;
+- `latency_sec`.
 
-It also adds:
+Дополнительно решение содержит активную policy, последовательность реальных попыток, скоринг выбранного и допустимых невыбранных провайдеров, все причины жёстких исключений, результаты и задержки попыток, состояния до/во время/после резерва и недостижимые для операции цели.
 
-- active policy name;
-- ordered routing sequence;
-- complete selected-provider score breakdown;
-- score and ranking for eligible non-selected providers;
-- precise reason and evidence for every hard exclusion;
-- every failure cause when several hard rules fail;
-- attempt outcome and latency;
-- provider state before and after each actual attempt;
-- unmet-goal information.
+По одному объекту можно ответить, почему выбран финальный маршрут, почему остальные не выбраны и корректно ли освободилось состояние после ошибки.
 
-The `attempts` array distinguishes:
-
-- hard exclusions;
-- soft policy non-selections;
-- actual selected attempts;
-- failed attempts followed by retries;
-- final self-provider fallback.
-
-The decision receipt lets a judge answer both “Why was this provider chosen?” and “Why was every other provider not chosen?” without reading the source code.
-
-Public artifact:
-
-- `routing_decisions.json`
+Артефакт: `routing_decisions.json`.
 
 ---
 
-## 11. Analytics and recommendations
+## 11. Аналитика и рекомендации
 
-The analytics report is generated from providers, operations, decisions, final state, and historical data.
+`routing_report.json` строится из входного снимка, очереди, решений, финального состояния и истории.
 
-### Distribution analytics
+Отчёт содержит:
 
-For each provider, the report contains:
+- распределение операций и сумм по провайдерам;
+- целевую, фактическую долю и отклонение;
+- источник цели объёма;
+- финальные результаты выплат;
+- отдельные результаты всех попыток;
+- повторы, восстановленные операции и fallback;
+- задержки;
+- утилизацию, лимит и запас ёмкости;
+- текущую и историческую конверсию;
+- жёсткие причины исключения отдельно от мягкого невыбора;
+- недостигнутые цели только для провайдеров ниже цели;
+- структурированные рекомендации.
 
-- selected-operation count;
-- actual count share;
-- target count share;
-- count-share deviation;
-- routed amount;
-- actual volume share;
-- target volume share;
-- volume-share deviation.
+Каждая рекомендация указывает тип, важность, провайдера, числовое доказательство, текущий параметр, предлагаемое действие и ожидаемый эффект. Например, публичный отчёт обнаруживает почти исчерпанный дневной лимит Payflow и расхождение текущей и исторической конверсии.
 
-### Outcome and resilience analytics
-
-The report contains:
-
-- approved, rejected, expired, and unknown outcomes;
-- approval and failure rates;
-- average, p95, and maximum latency;
-- retry count;
-- operations retried;
-- fallback count and share.
-
-### Provider analytics
-
-The report contains:
-
-- daily approved amount;
-- daily limit;
-- utilization percentage;
-- remaining headroom;
-- in-progress count and amount;
-- live conversion;
-- historical approval rate;
-- conversion drift in percentage points;
-- provider-specific outcomes and latency;
-- provider-specific hard exclusions.
-
-### Correct classification
-
-Hard eligibility exclusions are reported under `skip_reasons`. Soft choices such as `lower_policy_score` are reported separately under `policy_nonselections`. This prevents the report from falsely describing a lower ranking as a hard technical failure.
-
-### Recommendations
-
-Each structured recommendation contains:
-
-- type and severity;
-- affected provider;
-- numeric evidence;
-- current parameter value;
-- proposed parameter value or investigation;
-- expected impact;
-- a human-readable message.
-
-The public report detects, among other things:
-
-- Payflow reaching approximately **99.6% daily utilization**;
-- a large difference between Payflow's live 91% conversion and its 47.4% historical approval rate;
-- forced distribution deviations caused by bank and amount eligibility.
-
-Public artifact:
-
-- `routing_report.json`
-
-Relevant implementation:
-
-- `lib/route_lens/analytics/history_analyzer.rb`
-- `lib/route_lens/analytics/report_builder.rb`
-- `lib/route_lens/analytics/recommendation_engine.rb`
+Код: `lib/route_lens/analytics/`.
 
 ---
 
 ## 12. Routing Observatory
 
-The Routing Observatory is generated from persisted decision and report JSON. It is a single self-contained HTML file with no external assets, APIs, CDN requests, or server dependency.
+Observatory генерируется из сохранённых JSON и представляет собой один HTML-файл без API, CDN, сервера и внешних ресурсов. Он показывает KPI, распределения, ёмкость, рекомендации, подробности выбранной операции, порядок попыток, скоринг и переходы состояния.
 
-It presents:
+Меры безопасности и доступности:
 
-- operation, approval, retry, and fallback indicators;
-- actual-versus-target count bars;
-- daily-capacity utilization and headroom;
-- evidence-backed recommendations;
-- an operation selector;
-- final provider, outcome, latency, and attempt count;
-- every considered provider in sequence;
-- expandable score-breakdown tables.
+- строгая Content Security Policy;
+- экранирование встроенного JSON и статического текста;
+- вставка динамического текста через `textContent`;
+- клавиатурная навигация и семантические элементы;
+- светлая и тёмная тема;
+- адаптивная компоновка без горизонтального переполнения на 360 px.
 
-Security and usability measures include:
-
-- restrictive Content Security Policy;
-- escaped embedded JSON and static text;
-- dynamic insertion through `textContent`;
-- native keyboard-accessible controls;
-- semantic headings, regions, meters, and tables;
-- light and dark appearance support;
-- responsive layouts down to 320 pixels;
-- no horizontal overflow at the tested 360-pixel viewport.
-
-The observatory was verified through real browser interaction. The operation selector correctly updated the visible decision receipt, and the `op_103` view correctly showed ViPay and Payflow exclusions followed by Quickpay selection.
-
-Artifact:
-
-- `routing_observatory.html`
-
-Relevant implementation:
-
-- `lib/route_lens/observatory.rb`
-- `bin/observatory`
+Артефакт: `routing_observatory.html`. Генератор: `lib/route_lens/observatory.rb`.
 
 ---
 
-## 13. Commands and release safety
+## 13. Команды и безопасный выпуск
 
-### Standard public run
+Обычный запуск:
 
 ```bash
 ruby bin/route
 ```
 
-### Public validator
+Публичная проверка:
 
 ```bash
 ruby scripts/validate_10.rb routing_decisions.json
 ```
 
-### Dashboard generation
+Пересборка demo:
 
 ```bash
-bin/observatory \
-  --decisions routing_decisions.json \
-  --report routing_report.json \
-  --output routing_observatory.html
+ruby bin/build_demo
 ```
 
-### Final hidden test run
+Выпуск скрытой очереди после появления `operations_queue_test.json`:
 
 ```bash
 bin/release_test_case
 ```
 
-The release command intentionally protects the required input and output paths from accidental overrides. It always reads the root `operations_queue_test.json` and writes the exact required root filenames.
+Команда всегда использует официальные пути и создаёт `routing_decisions_test.json` и `routing_report_test.json`. Затем `scripts/release_check.rb` проверяет:
 
-After generation, `scripts/release_check.rb` verifies:
+- существование и тип всех документов;
+- полное и уникальное покрытие очереди;
+- обязательные поля и допустимые значения;
+- связь финальной попытки с `selected_provider` и результатом;
+- допустимость каждого реально выбранного провайдера;
+- переходы `state_before → state_reserved → state_after`;
+- последовательность попыток и суммарную задержку;
+- сверку количества, денежного объёма, повторов и fallback с отчётом;
+- наличие аналитики и рекомендаций.
 
-- all three files exist;
-- decisions and report are valid JSON;
-- queue and decisions are arrays of the expected type;
-- the report is an object;
-- all queue operation IDs are covered exactly once;
-- no extra operation IDs appear;
-- mandatory decision and attempt fields exist;
-- attempt decisions use only allowed values;
-- report totals match the queue;
-- required analytics and recommendations exist.
-
-Writes are atomic: each JSON artifact is completed in a temporary sibling file and then renamed into place.
+JSON сначала полностью записывается во временный соседний файл и только затем атомарно заменяет итоговый путь.
 
 ---
 
-## 14. Testing and verification
+## 14. Тестирование
 
-### Automated coverage
+Набор тестов покрывает:
 
-The suite covers:
+- публичные множества допустимых провайдеров;
+- все жёсткие правила и точные границы лимитов;
+- allowlist и denylist банков;
+- отсутствующие, отрицательные и не конечные значения;
+- резервирование, расчёт и восстановление реквизитов;
+- атомарное ограничение RPM;
+- все компоненты скоринга и tie-break;
+- точные цели 1% и добавление нового провайдера;
+- повтор после неудачи и оба варианта fallback;
+- разделение попыток и финальных назначений;
+- CLI, атомарные артефакты и защищённые release-опции;
+- сверку аналитики, рекомендации и Policy Lab;
+- безопасность и адаптивность Observatory.
 
-- public eligible-provider sets;
-- all four deterministic public cases;
-- every hard rule;
-- exact-limit boundary behavior;
-- bank allowlists and denylists;
-- invalid, negative, and non-finite inputs;
-- provider-state reservation and settlement;
-- requisite consumption and restoration;
-- RPM tracking;
-- every scoring factor;
-- policy combination and tie-breaking;
-- rejection followed by a second provider;
-- direct and post-failure SpacePayments fallback;
-- deterministic CLI artifacts;
-- protected final-release filenames;
-- history calculations;
-- report reconciliation;
-- hard versus soft skip classification;
-- recommendation evidence;
-- observatory content, escaping, and responsive behavior.
+Итог:
 
-### Final verification results
-
-| Verification | Result |
+| Проверка | Результат |
 |---|---|
-| Ruby syntax | 56 executable/source files valid |
-| Automated suite | 81 tests, 378 assertions, all passing |
-| Public validator | 29 passed, 0 errors, 0 warnings |
-| Release structure check | Passed |
-| Deterministic replay | Byte-identical outputs |
-| Desktop observatory | Visually and interactively verified |
-| 360px observatory | No horizontal overflow; interaction verified |
-| Git branch | Clean `main` branch |
+| Синтаксис Ruby | 56 исполняемых/исходных файлов корректны |
+| Тесты | 81 тест, 378 проверок, всё пройдено |
+| Публичный валидатор | 29 пройдено, 0 ошибок, 0 предупреждений |
+| Семантическая release-проверка | Пройдена |
+| Повторный запуск | JSON побайтно идентичен |
 
 ---
 
-## 15. Compliance
+## 15. Ограничения и соответствие условиям
 
-RouteLens complies with the challenge restrictions:
-
-- the implementation is primarily Ruby;
-- routing uses deterministic policy code rather than neural networks;
-- no AI model is used at runtime;
-- no operation or provider data is transmitted externally;
-- no proprietary routing or hosted decision service is used;
-- the runtime can operate offline;
-- runtime dependencies are Ruby standard-library components;
-- dependency and license information is documented in `LICENSES.md`.
+- Основная реализация написана на Ruby.
+- Во время маршрутизации не используются нейросети или модели ИИ.
+- Данные операций и провайдеров не передаются наружу.
+- Нет зависимости от проприетарного маршрутизатора или размещённого decision-сервиса.
+- Runtime работает офлайн на стандартной библиотеке Ruby.
+- Симулируется только внешний ответ провайдера; логика выбора, состояние, повторы, аналитика и выпуск реальны.
+- Состояние живёт в памяти одного запуска; производственное постоянное состояние потребовало бы адаптера БД.
+- Очередь обрабатывается последовательно ради воспроизводимого распределения.
+- Маленькая очередь может не попасть точно в мягкие цели, поэтому система показывает отклонение и причину.
+- Сведения о зависимостях и лицензиях находятся в `LICENSES.md`.
 
 ---
 
-## 16. Repository map
+## 16. Карта репозитория
 
 ```text
-bin/                         Executable entry points
-config/routing.yml           Routing policy and business targets
-data/                        Supplied public data and references
-demo/                        Guaranteed retry/fallback demonstration
-lib/route_lens/eligibility/  Hard rules and evaluations
-lib/route_lens/scoring/      Soft-policy factors and combination
-lib/route_lens/analytics/    History, reports, and recommendations
-lib/route_lens/router.rb      End-to-end routing orchestration
-lib/route_lens/observatory.rb Dashboard generator
-scripts/release_check.rb     Final artifact verification
-test/                        Unit and integration tests
-routing_decisions.json       Generated public decisions
-routing_report.json          Generated public report
-routing_observatory.html     Generated public dashboard
+bin/                             Команды запуска, demo, Observatory и выпуска
+config/routing.yml               Веса, цели, пресеты и нормализация
+data/                            Публичные входы и справочные данные
+demo/                            Гарантированные повторы, fallback и Policy Lab
+lib/route_lens/eligibility/      Жёсткие правила
+lib/route_lens/scoring/          Компоненты мягкой политики
+lib/route_lens/analytics/        История, отчёт и рекомендации
+lib/route_lens/router.rb         Основной сценарий маршрутизации
+lib/route_lens/provider_state.rb Состояние и резервы
+lib/route_lens/observatory.rb    Генератор панели
+scripts/release_check.rb         Независимая финальная проверка
+test/                            Unit- и integration-тесты
+routing_decisions.json           Публичные решения
+routing_report.json              Публичный отчёт
+routing_observatory.html         Автономная панель
 ```
 
-Additional documentation:
-
-- `README.md` — operation and development guide
-- `SUBMISSION_GUIDE.md` — exact hand-in package and final-hour procedure
-- `LICENSES.md` — dependency and compliance inventory
+Главная точка чтения кода — `lib/route_lens/router.rb`. Порядок дальнейшего изучения: `eligibility/rules.rb`, `scoring/policy.rb`, `provider_state.rb`, затем `analytics/report_builder.rb`.
 
 ---
 
-## 17. Release state
+## 17. Состояние выпуска
 
-The product is prepared for publication on a clean `main` branch containing only RouteLens source, tests, supplied data, generated evidence, presentation, and judge-facing documentation. Local agent metadata, checkpoint scripts, planning notes, source-brief working files, and presentation build intermediates are excluded.
+Публичный `main` содержит только продуктовые исходники, тесты, данные, сгенерированные доказательства, презентацию и документацию для жюри. Локальные файлы агентов, сценарии чекпоинтов, рабочие планы, исходный бриф и промежуточные файлы сборки исключены.
 
-The only unavailable external input is the competition's hidden `operations_queue_test.json`. No correct final hidden-test artifacts can be generated until that queue is issued. Once it arrives, the protected release command will generate and semantically verify the exact required files; they can then be committed and pushed to `main`.
+Единственный отсутствующий внешний вход — скрытая очередь `operations_queue_test.json`. После её получения защищённая команда сформирует и семантически проверит два обязательных итоговых JSON-файла.

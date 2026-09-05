@@ -7,8 +7,8 @@ require "time"
 require_relative "provider_state"
 
 module RouteLens
-  # Raised when an input file is missing, malformed, or violates the minimum
-  # schema required by the routing engine.
+  # Единая ошибка для отсутствующих, повреждённых или несовместимых входов.
+  # CLI ловит её до записи итоговых файлов.
   class InputError < StandardError; end
 
   class InputLoader

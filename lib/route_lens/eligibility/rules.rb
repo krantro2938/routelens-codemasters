@@ -30,7 +30,8 @@ module RouteLens
       end
     end
 
-    # A zero target disables a normal external route in the supplied contract.
+    # По входному контракту нулевая доля отключает обычный внешний маршрут;
+    # положительная доля остаётся мягкой целью и здесь не ограничивается.
     class TrafficEnabledRule < Rule
       def evaluate(provider, _operation, context: {})
         target = provider_value(provider, "traffic_percentage")

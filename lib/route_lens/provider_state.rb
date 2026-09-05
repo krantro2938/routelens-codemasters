@@ -8,8 +8,8 @@ module RouteLens
   class CapacityExceeded < StateError; end
   class UnknownReservation < StateError; end
 
-  # Mutable, thread-safe state for one provider. Input attributes are copied so
-  # routing never mutates the parsed source document.
+  # Изменяемое потокобезопасное состояние одного провайдера. Атрибуты копируются,
+  # поэтому маршрутизация никогда не меняет исходный JSON-документ.
   class ProviderState
     SELF_PROVIDER = "spacepayments"
 
@@ -54,8 +54,8 @@ module RouteLens
 
     alias snapshot to_h
 
-    # Atomically reserves in-progress capacity. reservation_id is optional for
-    # simple sequential runners, but supplying it protects against double release.
+    # Атомарно резервирует in-progress ёмкость и реквизит. reservation_id связывает
+    # последующий расчёт с конкретной попыткой и защищает от двойного освобождения.
     def reserve!(amount, reservation_id: nil, at: Time.now, record_request: true)
       amount = positive_number!(amount)
       @mutex.synchronize do
@@ -74,7 +74,7 @@ module RouteLens
       self
     end
 
-    # Releases in-progress capacity and adds the amount to approved turnover.
+    # Одобрение освобождает временный резерв и добавляет сумму в дневной оборот.
     def approve!(amount = nil, reservation_id: nil)
       settle!("approved", amount, reservation_id: reservation_id)
     end
@@ -97,6 +97,8 @@ module RouteLens
       end
 
       @mutex.synchronize do
+        # Все связанные счётчики меняются в одной критической секции, чтобы
+        # другой поток не увидел частично рассчитанный резерв.
         resolved_amount = reservation_amount!(amount, reservation_id)
         decrement!("in_progress_count", 1)
         decrement!("in_progress_amount", resolved_amount)
@@ -107,7 +109,7 @@ module RouteLens
       self
     end
 
-    # Records an attempt in the operation's minute bucket for RPM constraints.
+    # Записывает попытку в минутное окно, используемое ограничением RPM.
     def record_request!(at: Time.now)
       @mutex.synchronize { record_request_unlocked(at) }
       self
@@ -208,6 +210,8 @@ module RouteLens
 
     def request_count_unlocked(at)
       bucket = minute_bucket(at)
+      # Снимок может уже содержать внешнее значение RPM; локальные запросы
+      # текущего запуска добавляются к нему только внутри той же минуты.
       baseline = numeric_attribute("requests_last_minute", "current_requests_per_minute").to_i
       baseline + (@request_bucket == bucket ? @recorded_requests : 0)
     end

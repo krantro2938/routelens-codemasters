@@ -6,9 +6,8 @@ require_relative 'support'
 
 module RouteLens
   module Analytics
-    # Builds the required routing_report JSON shape plus operational detail used
-    # by the demo and by judges. It is deliberately independent from Router so a
-    # persisted decision file can be analyzed after the routing run.
+    # Строит обязательную структуру routing_report и операционные детали для demo.
+    # Не зависит от Router, поэтому сохранённые решения можно анализировать позже.
     class ReportBuilder
       OUTCOMES = %w[approved rejected expired].freeze
       SELF_PROVIDER = 'spacepayments'
@@ -83,7 +82,7 @@ module RouteLens
             'fallback_count' => fallback_count,
             'fallback_share_pct' => Support.percent(fallback_count, @decisions.length)
           },
-          # Name retained exactly as specified by the challenge brief.
+          # Имя поля сохранено точно по формату задания.
           'projected_daily_utilization' => utilization,
           'capacity_utilization' => utilization,
           'provider_metrics' => provider_details,
@@ -223,6 +222,8 @@ module RouteLens
       end
 
       def actual_attempt_records
+        # Финальное назначение и реальные вызовы — разные сущности: при retry
+        # одна выплата создаёт несколько записей попыток.
         @actual_attempt_records ||= @decisions.flat_map do |decision|
           operation_id = Support.fetch(decision, 'operation_id').to_s
           amount = decision_amount(decision)
@@ -312,6 +313,8 @@ module RouteLens
       end
 
       def skip_reason_metrics
+        # Мягкий невыбор не является техническим отказом. Разделение не даёт
+        # отчёту завышать количество нарушений жёстких правил.
         global = Hash.new(0)
         per_provider = Hash.new { |hash, provider| hash[provider] = Hash.new(0) }
         policy_global = Hash.new(0)
@@ -464,6 +467,8 @@ module RouteLens
           end
         end
 
+        # Производная цель считается невыполненной только при недоборе минимум
+        # пяти процентных пунктов; превышение цели не является ошибкой.
         derived = provider_names.filter_map do |name|
           next if name == SELF_PROVIDER
 

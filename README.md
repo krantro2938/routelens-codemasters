@@ -23,6 +23,20 @@ RouteLens выбирает платёжного провайдера для ка
 
 Публичный запуск сформировал [`routing_decisions.json`](routing_decisions.json), [`routing_report.json`](routing_report.json) и автономный [`routing_observatory.html`](routing_observatory.html).
 
+## Где находится главное
+
+Если на изучение кода есть несколько минут, начните с [`lib/route_lens/router.rb`](lib/route_lens/router.rb): это основной сценарий выбора, резервирования, повторной попытки и fallback. Остальные ключевые части отделены по ответственности:
+
+| Что проверять | Где находится код |
+|---|---|
+| Жёсткие ограничения и причины исключения | [`lib/route_lens/eligibility/rules.rb`](lib/route_lens/eligibility/rules.rb) |
+| Взвешенный скоринг и разрешение конфликтов | [`lib/route_lens/scoring/policy.rb`](lib/route_lens/scoring/policy.rb), [`lib/route_lens/scoring/`](lib/route_lens/scoring/) |
+| Атомарные резервы, лимиты и освобождение состояния | [`lib/route_lens/provider_state.rb`](lib/route_lens/provider_state.rb) |
+| Итоговый отчёт и рекомендации | [`lib/route_lens/analytics/report_builder.rb`](lib/route_lens/analytics/report_builder.rb), [`recommendation_engine.rb`](lib/route_lens/analytics/recommendation_engine.rb) |
+| Точка запуска и безопасная запись JSON | [`lib/route_lens/cli.rb`](lib/route_lens/cli.rb), [`bin/route`](bin/route) |
+
+Веса, цели и пресеты находятся в [`config/routing.yml`](config/routing.yml), а интеграционные сценарии — в [`test/integration/`](test/integration/).
+
 ## Пятиминутная проверка для жюри
 
 Рекомендуется Ruby 3.1 или новее. Не требуются сервис, база данных, API-ключ, установка пакетов или сетевое подключение.
@@ -347,7 +361,7 @@ bin/release_test_case
 
 Затем она проверяет JSON, уникальное и полное покрытие операций, обязательные поля, результаты, согласованность финальной попытки, допустимость каждого выбранного маршрута, переходы резервирования и освобождения состояния, последовательность попыток, итоги отчёта, сверку количества и объёма, повторы, fallback и непустые рекомендации. Защищённые опции CLI не позволят перенаправить официальный выпуск, подменить seed, симуляцию или результаты провайдеров.
 
-После успеха проверьте оба файла, закоммитьте их в `main`, отправьте изменения и убедитесь, что пути видны в удалённом репозитории. Полный список — в [`SUBMISSION_GUIDE.md`](SUBMISSION_GUIDE.md).
+После успеха проверьте оба файла, закоммитьте их в `main`, отправьте изменения и убедитесь, что пути видны в удалённом репозитории.
 
 ## Тестирование и воспроизводимость
 
