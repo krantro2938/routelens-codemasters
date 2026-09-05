@@ -4,6 +4,8 @@ require_relative "component"
 
 module RouteLens
   module Scoring
+    # Нормализует стоимость провайдера относительно маржи мерчанта. Policy
+    # применяет к этому значению отрицательное направление как к штрафу.
     class Cost < Component
       def value(provider:, state:, operation:, metrics:)
         provider_margin = Support.number(provider, :provider_margin_pct)

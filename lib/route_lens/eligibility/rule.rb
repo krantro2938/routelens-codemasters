@@ -4,6 +4,8 @@ require_relative "result"
 
 module RouteLens
   module Eligibility
+    # Общий контракт жёсткого правила и единый формат успешного/неуспешного
+    # результата для последующего объяснения решения.
     class Rule
       def evaluate(_provider, _operation, context: {})
         raise NotImplementedError, "#{self.class} must implement #evaluate"

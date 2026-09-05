@@ -2,6 +2,8 @@
 
 module RouteLens
   module Analytics
+    # Безопасные преобразования и статистические функции для построения отчёта.
+    # Некорректное необязательное значение заменяется предсказуемым default.
     module Support
       module_function
 
@@ -60,6 +62,8 @@ module RouteLens
         values = values.compact.map { |value| number(value) }.sort
         return 0.0 if values.empty?
 
+        # Используется nearest-rank: для небольших выборок p95 остаётся
+        # наблюдаемым значением, а не интерполяцией между операциями.
         rank = (percentile * values.length).ceil
         round(values[[rank - 1, 0].max])
       end

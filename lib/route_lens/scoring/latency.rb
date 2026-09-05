@@ -4,6 +4,8 @@ require_relative "component"
 
 module RouteLens
   module Scoring
+    # Сравнивает задержку только с текущими допустимыми кандидатами. Если они
+    # равны, используется абсолютный эталон из конфигурации.
     class Latency < Component
       def value(provider:, state:, operation:, metrics:)
         current = Support.number(provider, :avg_latency_sec)

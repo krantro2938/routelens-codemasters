@@ -4,6 +4,8 @@ require_relative "component"
 
 module RouteLens
   module Scoring
+    # Повышает срочность провайдера, пока его одобренный оборот не достигнет
+    # настроенного дневного минимума; после выполнения вклад становится нулевым.
     class TurnoverObligation < Component
       def value(provider:, state:, operation:, metrics:)
         configured = Support.config_for_provider(config, :daily_turnover_min, provider)

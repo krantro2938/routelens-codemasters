@@ -2,6 +2,8 @@
 
 module RouteLens
   module Scoring
+    # Адаптирует Hash, ProviderState и простые test doubles к одному интерфейсу,
+    # чтобы компоненты скоринга не зависели от конкретного типа входа.
     module Support
       module_function
 

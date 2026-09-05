@@ -4,6 +4,8 @@ require_relative "component"
 
 module RouteLens
   module Scoring
+    # Усредняет текущую загрузку по количеству и сумме in-progress. Чем выше
+    # значение, тем сильнее отрицательный вклад Policy.
     class Load < Component
       def value(provider:, state:, operation:, metrics:)
         utilizations = []

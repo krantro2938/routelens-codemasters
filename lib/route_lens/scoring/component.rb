@@ -4,6 +4,8 @@ require_relative "support"
 
 module RouteLens
   module Scoring
+    # Базовый контракт фактора: конкретный компонент вычисляет значение,
+    # а общий вызов гарантирует нормализованный диапазон -1..1.
     class Component
       attr_reader :config
 

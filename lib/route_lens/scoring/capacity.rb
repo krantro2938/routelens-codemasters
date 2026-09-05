@@ -4,6 +4,8 @@ require_relative "component"
 
 module RouteLens
   module Scoring
+    # Оценивает средний запас трёх ёмкостей после гипотетического резерва:
+    # дневной суммы, количества и суммы незавершённых операций.
     class Capacity < Component
       def value(provider:, state:, operation:, metrics:)
         amount = Support.number(operation, :amount)

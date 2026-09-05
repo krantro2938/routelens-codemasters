@@ -4,6 +4,8 @@ require_relative "component"
 
 module RouteLens
   module Scoring
+    # Даёт мягкий бонус суммам в предпочтительном диапазоне. Выход за диапазон
+    # не делает провайдера недопустимым — за это отвечают жёсткие правила.
     class AmountPreference < Component
       def value(provider:, state:, operation:, metrics:)
         band = Support.config_for_provider(config, :preferred_amount_bands, provider)

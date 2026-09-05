@@ -2,6 +2,7 @@
 
 module RouteLens
   module Eligibility
+    # Результат одного правила хранит стабильный код причины и конкретные детали.
     Result = Struct.new(:eligible, :reason, :details, :rule, keyword_init: true) do
       def eligible?
         eligible
@@ -23,6 +24,8 @@ module RouteLens
       end
     end
 
+    # Итоговая оценка сохраняет все нарушения, но основной причиной считает
+    # первое правило в документированном порядке Evaluator.
     class Evaluation
       attr_reader :results
 

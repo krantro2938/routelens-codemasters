@@ -4,6 +4,8 @@ require_relative "component"
 
 module RouteLens
   module Scoring
+    # Преобразует позицию каскада относительно текущих кандидатов: меньший
+    # числовой priority получает большее нормализованное значение.
     class Priority < Component
       def value(provider:, state:, operation:, metrics:)
         candidate_priorities = Support.candidates(metrics).map { |item| Support.number(item, :priority, 1.0) }
