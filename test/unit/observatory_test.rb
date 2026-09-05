@@ -56,15 +56,15 @@ class ObservatoryTest < Minitest::Test
   def test_render_contains_required_offline_dashboard_sections
     html = RouteLens::Observatory.new(decisions: decisions, report: report).render
 
-    assert_includes html, "Routing Observatory"
-    assert_includes html, "Count share: actual vs target"
-    assert_includes html, "Daily capacity"
-    assert_includes html, "Recommended actions"
-    assert_includes html, "Inspect an operation"
-    assert_includes html, "Score breakdown"
-    assert_includes html, "Retries"
-    assert_includes html, "Fallbacks"
-    assert_includes html, "Provider failures"
+    assert_includes html, "Центр<br>маршрутизации"
+    assert_includes html, "Доля операций: факт и цель"
+    assert_includes html, "Дневная ёмкость"
+    assert_includes html, "Рекомендуемые действия"
+    assert_includes html, "Разбор операции"
+    assert_includes html, "Разложение итоговой оценки"
+    assert_includes html, "Повторные попытки"
+    assert_includes html, "Fallback"
+    assert_includes html, "Сбои провайдеров"
     assert_includes html, "Codemasters · RouteLens"
     refute_match(%r{https?://}, html)
   end

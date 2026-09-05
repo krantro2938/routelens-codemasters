@@ -480,7 +480,7 @@ rake test
 └── routing_observatory.html     Публичная автономная панель
 ```
 
-Подробный перечень реализации: [`IMPLEMENTATION_SUMMARY.md`](IMPLEMENTATION_SUMMARY.md). Русскоязычная презентация защиты из пяти слайдов: [`presentation/RouteLens_Defense_RU.pptx`](presentation/RouteLens_Defense_RU.pptx).
+Подробный перечень реализации: [`IMPLEMENTATION_SUMMARY.md`](IMPLEMENTATION_SUMMARY.md). Русскоязычная презентация защиты из семи слайдов: [`presentation/RouteLens_Defense_RU.pptx`](presentation/RouteLens_Defense_RU.pptx).
 
 ## Область применения и осознанные компромиссы
 
