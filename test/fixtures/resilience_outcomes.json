@@ -1,0 +1,18 @@
+{
+  "op_101|vipay": {
+    "result": "rejected",
+    "latency_sec": 5
+  },
+  "op_101|payflow": {
+    "result": "expired",
+    "latency_sec": 20
+  },
+  "op_101|quickpay": {
+    "result": "approved",
+    "latency_sec": 25
+  },
+  "op_103|quickpay": {
+    "result": "expired",
+    "latency_sec": 90
+  }
+}

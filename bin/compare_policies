@@ -1,0 +1,48 @@
+#!/usr/bin/env ruby
+# frozen_string_literal: true
+
+require "fileutils"
+require "json"
+require "optparse"
+
+$LOAD_PATH.unshift File.expand_path("../lib", __dir__)
+require "route_lens"
+require "route_lens/analytics/history_analyzer"
+
+options = {
+  providers: "data/providers.json",
+  history: "data/operations_history.csv",
+  queue: "data/operations_queue_10.json",
+  policy: "config/routing.yml",
+  output: "demo/policy_comparison.json"
+}
+
+OptionParser.new do |parser|
+  parser.banner = "Usage: bin/compare_policies [options]"
+  parser.on("--providers PATH") { |value| options[:providers] = value }
+  parser.on("--history PATH") { |value| options[:history] = value }
+  parser.on("--queue PATH") { |value| options[:queue] = value }
+  parser.on("--policy PATH") { |value| options[:policy] = value }
+  parser.on("--output PATH") { |value| options[:output] = value }
+end.parse!
+
+begin
+  snapshot = RouteLens::InputLoader.load_provider_snapshot(options[:providers])
+  operations = RouteLens::InputLoader.load_operations(options[:queue])
+  history = RouteLens::Analytics::HistoryAnalyzer.new(RouteLens::InputLoader.load_history(options[:history])).analyze
+  comparison = RouteLens::PolicyComparison.new(
+    provider_snapshot: snapshot,
+    operations: operations,
+    policy_config: options[:policy],
+    history: history
+  ).build
+
+  output = File.expand_path(options[:output])
+  FileUtils.mkdir_p(File.dirname(output))
+  temporary = "#{output}.tmp-#{Process.pid}"
+  File.write(temporary, JSON.pretty_generate(comparison) + "\n")
+  File.rename(temporary, output)
+  puts "Wrote #{options[:output]}"
+ensure
+  File.delete(temporary) if defined?(temporary) && File.exist?(temporary)
+end

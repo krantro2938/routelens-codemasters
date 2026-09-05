@@ -1,0 +1,39 @@
+#!/usr/bin/env ruby
+# frozen_string_literal: true
+
+require "rbconfig"
+
+$LOAD_PATH.unshift File.expand_path("../lib", __dir__)
+require "route_lens/cli"
+
+root = File.expand_path("..", __dir__)
+protected_options = %w[
+  --providers --history --queue --policy --preset --decisions --report
+  --seed --simulation --outcome-overrides
+]
+if (override = ARGV.find { |argument| protected_options.include?(argument.split("=", 2).first) })
+  warn "#{override} cannot be overridden in the release command; use bin/route for custom runs"
+  exit 2
+end
+
+defaults = {
+  providers: File.join(root, "data/providers.json"),
+  history: File.join(root, "data/operations_history.csv"),
+  queue: File.join(root, "operations_queue_test.json"),
+  policy: File.join(root, "config/routing.yml"),
+  decisions: File.join(root, "routing_decisions_test.json"),
+  report: File.join(root, "routing_report_test.json")
+}
+
+status = RouteLens::CLI.run(ARGV, defaults: defaults)
+exit status unless status.zero?
+
+check = File.join(root, "scripts/release_check.rb")
+success = system(
+  RbConfig.ruby,
+  check,
+  "--queue", defaults[:queue],
+  "--decisions", defaults[:decisions],
+  "--report", defaults[:report]
+)
+exit(success ? 0 : 1)

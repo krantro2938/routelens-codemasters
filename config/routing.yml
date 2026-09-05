@@ -1,0 +1,64 @@
+---
+policy:
+  name: balanced_v2
+  precision: 6
+  weights:
+    count_target_gain: 2.5
+    volume_target_gain: 2.0
+    conversion: 1.5
+    priority: 1.0
+    amount_preference: 1.0
+    capacity: 1.0
+    turnover_obligation: 1.5
+    load: 1.0
+    latency: 0.5
+    cost: 0.5
+
+# Named presets make individual routing strategies demonstrable without
+# changing engine code. Omit --preset to use the balanced policy above.
+presets:
+  conversion_first:
+    name: conversion_first
+    weights:
+      conversion: 4.0
+      latency: 0.5
+      cost: 0.5
+  cascade:
+    name: cascade
+    weights:
+      priority: 4.0
+      conversion: 0.25
+  capacity_first:
+    name: capacity_first
+    weights:
+      capacity: 3.0
+      load: 2.0
+      conversion: 0.5
+
+# These are preferences, not eligibility limits. A value inside the configured
+# band receives the amount-preference boost; an amount outside it remains valid.
+preferred_amount_bands:
+  vipay:
+    min: 50001
+    max: 100000
+  payflow:
+    min: 500
+    max: 50000
+  quickpay:
+    min: 100001
+    max: 200000
+
+# Target share of approved monetary volume. Percentages are converted to 0..1
+# by the scorer. Runtime metrics may override these targets.
+volume_targets:
+  vipay: 50
+  payflow: 25
+  quickpay: 25
+
+# Optional commercial commitments that may be changed without changing Ruby.
+daily_turnover_min:
+  payflow: 2000000
+
+normalization:
+  latency_reference_sec: 120
+  cost_reference_pct: 2.0

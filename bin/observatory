@@ -1,0 +1,44 @@
+#!/usr/bin/env ruby
+# frozen_string_literal: true
+
+require "optparse"
+require_relative "../lib/route_lens/observatory"
+
+options = {
+  decisions: "routing_decisions.json",
+  report: "routing_report.json",
+  output: "routing_observatory.html",
+  comparison: nil
+}
+
+parser = OptionParser.new do |opts|
+  opts.banner = "Usage: bin/observatory [options]"
+  opts.on("--decisions PATH", "Routing decisions JSON (default: routing_decisions.json)") { |path| options[:decisions] = path }
+  opts.on("--report PATH", "Routing report JSON (default: routing_report.json)") { |path| options[:report] = path }
+  opts.on("--output PATH", "Standalone HTML output (default: routing_observatory.html)") { |path| options[:output] = path }
+  opts.on("--comparison PATH", "Optional policy-comparison JSON") { |path| options[:comparison] = path }
+  opts.on("-h", "--help", "Show this help") do
+    puts opts
+    exit 0
+  end
+end
+
+begin
+  parser.parse!
+  if ARGV.any?
+    warn "Unexpected arguments: #{ARGV.join(' ')}"
+    warn parser
+    exit 2
+  end
+
+  RouteLens::Observatory.generate(
+    decisions_path: options[:decisions],
+    report_path: options[:report],
+    output_path: options[:output],
+    comparison_path: options[:comparison]
+  )
+  puts "Wrote #{options[:output]}"
+rescue OptionParser::ParseError, RouteLens::Observatory::InputError, SystemCallError => e
+  warn "Observatory error: #{e.message}"
+  exit 1
+end
