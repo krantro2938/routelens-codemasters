@@ -57,8 +57,9 @@ class EligibilityRulesTest < Minitest::Test
     assert evaluate(rule, { banks: ["vtb"], exclude_banks: true }).eligible?
   end
 
-  def test_bank_comparison_is_case_insensitive
-    assert evaluate(RouteLens::Eligibility::BankRule, { banks: ["SBERBANK"] }).eligible?
+  def test_bank_comparison_matches_official_validator_exactly
+    result = evaluate(RouteLens::Eligibility::BankRule, { banks: ["SBERBANK"] })
+    assert_equal "bank_not_in_list", result.reason
   end
 
   def test_margin_rule_honors_negative_agreement

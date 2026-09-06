@@ -118,10 +118,14 @@ module RouteLens
 
     class BankRule < Rule
       def evaluate(provider, operation, context: {})
-        banks = Array(provider_value(provider, "banks")).map { |bank| normalize(bank) }
+        # Автопроверка организаторов использует точный Array#include? без
+        # изменения регистра или пробелов. Eligibility обязан применять тот же
+        # контракт, иначе движок может выбрать провайдера, которого валидатор
+        # считает недопустимым на скрытой очереди.
+        banks = Array(provider_value(provider, "banks"))
         return pass if banks.empty?
 
-        bank = normalize(operation_value(operation, "bank"))
+        bank = operation_value(operation, "bank")
         excluded = provider_value(provider, "exclude_banks") == true
         if excluded && banks.include?(bank)
           fail("bank_excluded", "банк #{bank} входит в список исключённых банков провайдера")
@@ -130,12 +134,6 @@ module RouteLens
         else
           pass
         end
-      end
-
-      private
-
-      def normalize(bank)
-        bank.to_s.strip.downcase
       end
     end
 
