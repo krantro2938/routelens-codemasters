@@ -356,6 +356,13 @@ module RouteLens
     end
 
     def localized_recommendation(item)
+      # ReportBuilder уже формирует полное русское сообщение с доказательствами.
+      # Оно точнее пересборки текста из части структурированных полей: например,
+      # conversion_drift объединяет нескольких провайдеров в evidence.providers,
+      # поэтому старый формат одного провайдера терял данные.
+      message = item["message"]
+      return message if message.is_a?(String) && !message.empty?
+
       provider = item["provider"] || "Провайдер"
       evidence = item["evidence"].is_a?(Hash) ? item["evidence"] : {}
       action = item["action"].is_a?(Hash) ? item["action"] : {}

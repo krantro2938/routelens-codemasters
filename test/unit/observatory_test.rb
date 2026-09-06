@@ -86,6 +86,28 @@ class ObservatoryTest < Minitest::Test
     assert_includes html, "\\u003c/script\\u003e\\u003cscript\\u003ealert(1)"
   end
 
+  def test_structured_recommendation_preserves_the_report_message
+    structured = report
+    structured["recommendation_details"] = [
+      {
+        "type" => "conversion_drift",
+        "provider" => nil,
+        "evidence" => {
+          "providers" => {
+            "payflow" => { "difference_pp" => 43.63 },
+            "quickpay" => { "difference_pp" => 11.5 }
+          }
+        },
+        "message" => "Payflow и Quickpay: окна конверсии расходятся."
+      }
+    ]
+
+    html = RouteLens::Observatory.new(decisions: decisions, report: structured).render
+
+    assert_includes html, "Payflow и Quickpay: окна конверсии расходятся."
+    refute_includes html, "Провайдер: conversion_24h %"
+  end
+
   def test_embedded_data_remains_valid_json
     html = RouteLens::Observatory.new(decisions: decisions, report: report).render
     payload = html.match(%r{<script id="route-lens-data" type="application/json">(.*?)</script>}m)[1]

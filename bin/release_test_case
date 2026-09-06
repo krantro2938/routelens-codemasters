@@ -5,6 +5,7 @@ require "rbconfig"
 
 $LOAD_PATH.unshift File.expand_path("../lib", __dir__)
 require "route_lens/cli"
+require "route_lens/observatory"
 
 root = File.expand_path("..", __dir__)
 # --compact тоже защищён: релизный артефакт обязан нести доказательства
@@ -26,6 +27,7 @@ defaults = {
   decisions: File.join(root, "routing_decisions_test.json"),
   report: File.join(root, "routing_report_test.json")
 }
+observatory = File.join(root, "routing_observatory_test.html")
 
 status = RouteLens::CLI.run(ARGV, defaults: defaults)
 exit status unless status.zero?
@@ -38,4 +40,16 @@ success = system(
   "--decisions", defaults[:decisions],
   "--report", defaults[:report]
 )
-exit(success ? 0 : 1)
+exit 1 unless success
+
+begin
+  RouteLens::Observatory.generate(
+    decisions_path: defaults[:decisions],
+    report_path: defaults[:report],
+    output_path: observatory
+  )
+  puts "Observatory: #{observatory}"
+rescue RouteLens::Observatory::InputError, SystemCallError => e
+  warn "Observatory error: #{e.message}"
+  exit 1
+end
