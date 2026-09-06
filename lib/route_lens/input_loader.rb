@@ -12,6 +12,8 @@ module RouteLens
   class InputError < StandardError; end
 
   class InputLoader
+    TARGET_SUM_TOLERANCE = 0.5
+
     class << self
       # overrides приходят из секции provider_overrides в policy YAML: входной
       # снимок организаторов остаётся байт-в-байт неизменным, а параметры правил
@@ -43,6 +45,7 @@ module RouteLens
         unless duplicate_names.empty?
           raise InputError, "#{path}: duplicate payment_system values: #{duplicate_names.join(', ')}"
         end
+        validate_external_traffic_targets!(providers, path)
 
         data.merge("providers" => providers)
       end
@@ -168,6 +171,24 @@ module RouteLens
 
           [name.to_s, attributes.transform_keys(&:to_s)]
         end
+      end
+
+      # traffic_percentage описывает один внешний портфель. Отдельно корректные
+      # проценты всё равно образуют невозможную модель, если вместе дают 300%.
+      # Внутренний spacepayments сюда не входит: он зарезервирован для fallback.
+      def validate_external_traffic_targets!(providers, path)
+        external = providers.reject(&:self_provider?)
+        return if external.empty?
+
+        total = external.sum { |provider| Float(provider["traffic_percentage"] || 0) }
+        return if (total - 100.0).abs <= TARGET_SUM_TOLERANCE
+
+        vector = external.map do |provider|
+          "#{provider.payment_system}=#{provider['traffic_percentage'] || 0}"
+        end.join(", ")
+        raise InputError,
+              "#{path}: external traffic_percentage values must sum to 100 " \
+              "(+/-#{TARGET_SUM_TOLERANCE}), got #{total.round(4)} (#{vector})"
       end
 
       def validate_range!(item, field, minimum, maximum, context)

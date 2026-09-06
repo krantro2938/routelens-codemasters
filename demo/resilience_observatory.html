@@ -287,7 +287,11 @@
       const reasonLabel = value => labelFor(reasonLabels, value);
 
       function decisionSummary(decision) {
+        const supplied = typeof decision.decision_summary === "string" ? decision.decision_summary.trim() : "";
+        if (supplied) return supplied;
+
         const attempts = Array.isArray(decision.attempts) ? decision.attempts.filter(item => item.outcome) : [];
+        if (!attempts.length && !decision.selected_provider) return "Ни один провайдер не смог принять выплату.";
         if (!attempts.length) return `Выбран маршрут ${valueOrDash(decision.selected_provider)}.`;
         if (attempts.length === 1) return `Выплата завершена через ${attempts[0].provider}: ${outcomeLabel(attempts[0].outcome)}.`;
         const chain = attempts.map(item => `${item.provider}: ${outcomeLabel(item.outcome)}`).join("; ");

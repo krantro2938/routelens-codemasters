@@ -8,7 +8,7 @@ class EligibilityInputLoaderTest < Minitest::Test
     {
       payment_system: "provider",
       status: "active",
-      traffic_percentage: 25,
+      traffic_percentage: 100,
       limit_amount_min: 100,
       limit_amount_max: 10_000,
       daily_amount_limit: 100_000,
@@ -114,6 +114,30 @@ class EligibilityInputLoaderTest < Minitest::Test
   def test_rejects_percentages_outside_zero_to_one_hundred
     assert_invalid_provider(traffic_percentage: 101, matching: /traffic_percentage must be between/)
     assert_invalid_provider(volume_share_pct: 100.1, matching: /volume_share_pct must be between/)
+  end
+
+  def test_rejects_external_traffic_target_vector_above_one_hundred_percent
+    Dir.mktmpdir do |dir|
+      path = File.join(dir, "providers.json")
+      providers = %w[a b c].map { |name| valid_provider(payment_system: name, traffic_percentage: 100) }
+      File.write(path, JSON.generate({ providers: providers }))
+
+      error = assert_raises(RouteLens::InputError) { RouteLens::InputLoader.load_providers(path) }
+
+      assert_match(/external traffic_percentage values must sum to 100/, error.message)
+      assert_match(/got 300\.0/, error.message)
+      assert_match(/a=100, b=100, c=100/, error.message)
+    end
+  end
+
+  def test_accepts_external_traffic_target_vector_with_rounding_tolerance
+    Dir.mktmpdir do |dir|
+      path = File.join(dir, "providers.json")
+      providers = %w[a b c].map { |name| valid_provider(payment_system: name, traffic_percentage: 33.3) }
+      File.write(path, JSON.generate({ providers: providers }))
+
+      assert_equal 3, RouteLens::InputLoader.load_providers(path).length
+    end
   end
 
   def test_rejects_negative_limits_and_counters

@@ -145,6 +145,15 @@ def test_template_placeholders_are_fully_substituted
   refute_match(/\{\{[A-Z_]+\}\}/, html)
 end
 
+def test_dashboard_prefers_router_summary_and_handles_legacy_unroutable_decisions
+  html = RouteLens::Observatory.new(decisions: decisions, report: report).render
+
+  assert_includes html, 'const supplied = typeof decision.decision_summary === "string"'
+  assert_includes html, 'if (supplied) return supplied;'
+  assert_includes html, 'if (!attempts.length && !decision.selected_provider)'
+  assert_includes html, 'return "Ни один провайдер не смог принять выплату.";'
+end
+
 # Вынос стилей и скрипта в отдельные файлы не должен ослабить защиту:
 # проверяем CSP, отсутствие внешних ссылок и запрет innerHTML.
 def test_inlined_assets_keep_the_offline_security_contract
