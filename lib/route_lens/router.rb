@@ -150,10 +150,8 @@ module RouteLens
         end
 
         state_reserved = provider.snapshot
-
-        outcome = @simulator.call(operation, provider)
-        settle(provider, outcome.fetch("result"), reservation_id)
         record_provider_attempt(provider.payment_system, amount)
+        outcome = call_reserved_provider(operation, provider, reservation_id)
         attempted_names << provider.payment_system
 
         attempt = {
@@ -317,15 +315,18 @@ module RouteLens
 
       reservation_id = "#{operation.fetch('operation_id')}:#{sequence}:#{provider.payment_system}"
       state_before = provider.snapshot
-      provider.reserve!(
-        operation.fetch("amount"),
-        reservation_id: reservation_id,
-        at: operation["created_at"] || Time.now
-      )
+      begin
+        provider.reserve!(
+          operation.fetch("amount"),
+          reservation_id: reservation_id,
+          at: operation["created_at"] || Time.now
+        )
+      rescue StateError => e
+        raise RoutingError, "Не удалось зарезервировать резервного провайдера: #{e.message}"
+      end
       state_reserved = provider.snapshot
-      outcome = @simulator.call(operation, provider)
-      settle(provider, outcome.fetch("result"), reservation_id)
       record_provider_attempt(provider.payment_system, operation.fetch("amount").to_f)
+      outcome = call_reserved_provider(operation, provider, reservation_id)
 
       attempt = {
         "provider" => provider.payment_system,
@@ -342,8 +343,20 @@ module RouteLens
       }
 
       [provider, outcome, attempt]
-    rescue StateError => e
-      raise RoutingError, "Не удалось зарезервировать резервного провайдера: #{e.message}"
+    end
+
+    # Внешний вызов выполняется только после атомарного резерва. Неожиданная
+    # ошибка адаптера не является бизнес-результатом rejected/expired, поэтому
+    # она не маскируется и не запускает fallback. Перед повторным выбросом
+    # исключения временная ёмкость и реквизит обязательно возвращаются. RPM не
+    # откатывается: запрос уже был начат и должен занимать место в минутном окне.
+    def call_reserved_provider(operation, provider, reservation_id)
+      outcome = @simulator.call(operation, provider)
+      settle(provider, outcome.fetch("result"), reservation_id)
+      outcome
+    rescue StandardError
+      provider.release!(reservation_id: reservation_id)
+      raise
     end
 
     def settle(provider, result, reservation_id)

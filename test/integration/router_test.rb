@@ -23,7 +23,7 @@ class RouterIntegrationTest < Minitest::Test
     assert result.decisions.all? { |decision| decision["attempts"].any? }
   end
 
-  def test_rejected_provider_is_released_and_next_candidate_is_selected
+  def test_failed_provider_calls_release_capacity_and_preserve_request_accounting
     operation = @operations.find { |item| item["operation_id"] == "op_101" }
     # approve_all изолирует проверку освобождения резерва от смоделированной
     # конверсии: единственная неудача в сценарии задана явным override.
@@ -41,10 +41,8 @@ class RouterIntegrationTest < Minitest::Test
     assert_equal "vipay", decision["routing_sequence"].first
     refute_equal "vipay", decision["selected_provider"]
     assert_equal %w[rejected approved], selected_attempts(decision).map { |attempt| attempt["outcome"] }
-    assert_equal vipay_before["daily_approved_amount"], vipay_after["daily_approved_amount"]
-    assert_equal vipay_before["in_progress_count"], vipay_after["in_progress_count"]
-    assert_equal vipay_before["in_progress_amount"], vipay_after["in_progress_amount"]
-    assert_equal vipay_before["available_requisites"], vipay_after["available_requisites"]
+    capacity_fields = %w[daily_approved_amount in_progress_count in_progress_amount available_requisites]
+    assert_equal vipay_before.slice(*capacity_fields), vipay_after.slice(*capacity_fields)
     failed_attempt = selected_attempts(decision).first
     assert_equal vipay_before["in_progress_count"] + 1, failed_attempt.dig("state_reserved", "in_progress_count")
     assert_equal vipay_before["available_requisites"] - 1, failed_attempt.dig("state_reserved", "available_requisites")
@@ -52,6 +50,21 @@ class RouterIntegrationTest < Minitest::Test
     assert_equal 2, result.routing_metrics["total_attempts"]
     assert_equal 1, result.routing_metrics["total_final_assignments"]
     assert_equal({ decision["selected_provider"] => 1 }, result.routing_metrics["final_count_by_provider"])
+
+    failing_simulator = Object.new
+    def failing_simulator.call(_operation, _provider)
+      raise IOError, "provider adapter unavailable"
+    end
+
+    failing_router = build_router(simulator: failing_simulator)
+    failing_provider = failing_router.providers.find { |provider| provider.payment_system == "vipay" }
+    failure_before = failing_provider.snapshot
+    request_time = operation.fetch("created_at")
+    rpm_before = failing_provider.requests_per_minute(at: request_time)
+
+    assert_raises(IOError) { failing_router.route([operation]) }
+    assert_equal failure_before.slice(*capacity_fields), failing_provider.snapshot.slice(*capacity_fields)
+    assert_equal rpm_before + 1, failing_provider.requests_per_minute(at: request_time)
   end
 
   def test_reranks_two_external_failures_before_external_success
