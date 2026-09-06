@@ -49,6 +49,40 @@ class CLIIntegrationTest < Minitest::Test
     end
   end
 
+  def test_pair_publication_rolls_back_first_output_when_second_rename_fails
+    Dir.mktmpdir("route-lens-pair") do |directory|
+      decisions = File.join(directory, "decisions.json")
+      report = File.join(directory, "report.json")
+      File.write(decisions, "old decisions\n")
+      File.write(report, "old report\n")
+      failing_cli = Class.new(RouteLens::CLI) do
+        def initialize(failure_target)
+          super([])
+          @failure_target = failure_target
+        end
+
+        private
+
+        def rename_file(source, target)
+          raise Errno::EIO, "injected report publish failure" if source.include?(".tmp-") && target == @failure_target
+
+          super
+        end
+      end
+
+      assert_raises(Errno::EIO) do
+        failing_cli.new(report).send(
+          :atomic_json_pair_write,
+          decisions => [{ "operation_id" => "new" }], report => { "total_operations" => 1 }
+        )
+      end
+
+      assert_equal "old decisions\n", File.read(decisions)
+      assert_equal "old report\n", File.read(report)
+      assert_empty Dir.glob(File.join(directory, "*.{tmp,bak}-*"))
+    end
+  end
+
   # Компактный файл — та же маршрутизация, но только поля спецификации.
   def test_compact_flag_emits_the_spec_minimal_shape
     Dir.mktmpdir("route-lens-cli") do |directory|

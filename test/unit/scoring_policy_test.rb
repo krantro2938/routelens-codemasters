@@ -133,4 +133,59 @@ class ScoringPolicyTest < Minitest::Test
 
     assert_equal "rounded", policy.name
   end
+
+  def test_rejects_invalid_precision_and_non_object_target_sections
+    assert_match(/precision/, assert_raises(ArgumentError) do
+      RouteLens::Scoring::Policy.new(policy: { precision: -1, weights: { conversion: 1 } })
+    end.message)
+
+    assert_match(/volume targets must be an object/, assert_raises(ArgumentError) do
+      RouteLens::Scoring::Policy.new(
+        policy: { weights: { conversion: 1 } }, volume_targets: "vipay: 100"
+      )
+    end.message)
+  end
+
+  def test_rejects_malformed_preferred_amount_bands
+    assert_match(/must be an object/, assert_raises(ArgumentError) do
+      RouteLens::Scoring::Policy.new(
+        policy: { weights: { amount_preference: 1 } }, preferred_amount_bands: { "vipay" => "50..100" }
+      )
+    end.message)
+
+    error = assert_raises(ArgumentError) do
+      RouteLens::Scoring::Policy.new(
+        policy: { weights: { amount_preference: 1 } },
+        preferred_amount_bands: { "vipay" => { min: 100, max: 50 } }
+      )
+    end
+    assert_match(/min cannot exceed max/, error.message)
+
+    assert_match(/finite number/, assert_raises(ArgumentError) do
+      RouteLens::Scoring::Policy.new(
+        policy: { weights: { amount_preference: 1 } },
+        preferred_amount_bands: { "vipay" => { min: "cheap" } }
+      )
+    end.message)
+  end
+
+  def test_rejects_invalid_turnover_and_normalization_values
+    assert_match(/daily_turnover_min\.vipay cannot be negative/, assert_raises(ArgumentError) do
+      RouteLens::Scoring::Policy.new(
+        policy: { weights: { turnover_obligation: 1 } }, daily_turnover_min: { "vipay" => -1 }
+      )
+    end.message)
+
+    assert_match(/greater than zero/, assert_raises(ArgumentError) do
+      RouteLens::Scoring::Policy.new(
+        policy: { weights: { latency: 1 } }, normalization: { latency_reference_sec: 0 }
+      )
+    end.message)
+
+    assert_match(/finite number/, assert_raises(ArgumentError) do
+      RouteLens::Scoring::Policy.new(
+        policy: { weights: { cost: 1 } }, normalization: { cost_reference_pct: "normal" }
+      )
+    end.message)
+  end
 end

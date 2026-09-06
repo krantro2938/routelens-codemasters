@@ -75,15 +75,31 @@ module RouteLens
         missing = required - Array(rows.headers)
         raise InputError, "#{path}: missing CSV columns: #{missing.join(', ')}" unless missing.empty?
 
-        rows.each_with_index.map do |row, index|
+        history = rows.each_with_index.map do |row, index|
           item = row.to_h
           context = "#{path}: row #{index + 2}"
           require_string!(item, "operation_id", context)
+          require_string!(item, "created_at", context)
+          require_string!(item, "bank", context)
           require_string!(item, "payment_system", context)
+          require_string!(item, "status", context)
+          validate_timestamp!(item["created_at"], "created_at", context)
+          unless %w[approved rejected expired].include?(item["status"])
+            raise InputError, "#{context}: status must be approved, rejected, or expired"
+          end
           item["amount"] = numeric!(item["amount"], "amount", context)
+          raise InputError, "#{context}: amount must be greater than zero" unless item["amount"].positive?
           item["latency_sec"] = numeric!(item["latency_sec"], "latency_sec", context)
           item
         end
+
+        duplicate_ids = history.group_by { |item| item["operation_id"] }
+                               .select { |_id, matches| matches.length > 1 }.keys
+        unless duplicate_ids.empty?
+          raise InputError, "#{path}: duplicate history operation_id values: #{duplicate_ids.join(', ')}"
+        end
+
+        history
       rescue CSV::MalformedCSVError => e
         raise InputError, "#{path}: invalid CSV: #{e.message}"
       rescue Errno::ENOENT, Errno::EACCES => e
@@ -186,6 +202,12 @@ module RouteLens
         return if value.is_a?(String) && !value.strip.empty?
 
         raise InputError, "#{context}: #{field} must be a non-empty string"
+      end
+
+      def validate_timestamp!(value, field, context)
+        Time.iso8601(value)
+      rescue ArgumentError, TypeError
+        raise InputError, "#{context}: #{field} must be an ISO 8601 timestamp"
       end
 
       def numeric!(value, field, context)

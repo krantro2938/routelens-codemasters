@@ -76,8 +76,10 @@ module RouteLens
       report["routing_attempts"] = run_result.routing_metrics
 
       decisions = @options[:compact] ? compact_decisions(run_result.decisions) : run_result.decisions
-      atomic_json_write(@options[:decisions], decisions)
-      atomic_json_write(@options[:report], report)
+      atomic_json_pair_write(
+        @options[:decisions] => decisions,
+        @options[:report] => report
+      )
       print_summary(run_result.decisions, report) unless @options[:quiet]
       exit_status(run_result.decisions)
     rescue InputError, ConfigError, RoutingError, ArgumentError, Psych::Exception,
@@ -175,21 +177,56 @@ module RouteLens
       unroutable_count(decisions) == decisions.length ? NOTHING_ROUTED_STATUS : 0
     end
 
-    def atomic_json_write(path, value)
-      # Сначала записываем полный соседний файл и только затем переименовываем:
-      # при ошибке пользователь не получит обрезанный итоговый JSON.
-      # temporary обнуляется заранее: defined? истинно уже на этапе разбора, и
-      # при падении до присваивания ensure получил бы File.exist?(nil) и подменил
-      # исходную ошибку на TypeError.
-      temporary = nil
-      absolute = File.expand_path(path)
-      directory = File.dirname(absolute)
-      FileUtils.mkdir_p(directory)
-      temporary = "#{absolute}.tmp-#{Process.pid}"
-      File.write(temporary, JSON.pretty_generate(value) + "\n")
-      File.rename(temporary, absolute)
+    # Оба JSON сначала полностью подготавливаются, и только затем публикуются.
+    # Файловая система не даёт одной атомарной операции для двух имён, поэтому
+    # при ошибке второго rename первый файл откатывается из соседней копии.
+    # Судья получает либо новую согласованную пару, либо предыдущую пару.
+    def atomic_json_pair_write(outputs)
+      nonce = "#{Process.pid}-#{object_id}"
+      records = []
+      outputs.each_with_index do |(path, value), index|
+        absolute = File.expand_path(path)
+        FileUtils.mkdir_p(File.dirname(absolute))
+        temporary = "#{absolute}.tmp-#{nonce}-#{index}"
+        backup = "#{absolute}.bak-#{nonce}-#{index}"
+        record = {
+          target: absolute, temporary: temporary, backup: backup,
+          existed: File.exist?(absolute), committed: false, rollback_failed: false
+        }
+        records << record
+        File.write(temporary, JSON.pretty_generate(value) + "\n")
+      end
+
+      records.each { |record| FileUtils.cp(record[:target], record[:backup]) if record[:existed] }
+      records.each do |record|
+        rename_file(record[:temporary], record[:target])
+        record[:committed] = true
+      end
+    rescue StandardError => original_error
+      Array(records).reverse_each do |record|
+        next unless record[:committed]
+
+        if record[:existed] && File.exist?(record[:backup])
+          rename_file(record[:backup], record[:target])
+        elsif File.exist?(record[:target])
+          File.delete(record[:target])
+        end
+      rescue StandardError
+        # Не маскируем исходную ошибку публикации. Неудалённый backup сохраняет
+        # предыдущую версию для ручного восстановления в крайне редком случае,
+        # когда не удался и сам rollback.
+        record[:rollback_failed] = true
+      end
+      raise original_error
     ensure
-      File.delete(temporary) if temporary && File.exist?(temporary)
+      Array(records).each do |record|
+        File.delete(record[:temporary]) if File.exist?(record[:temporary])
+        File.delete(record[:backup]) if !record[:rollback_failed] && File.exist?(record[:backup])
+      end
+    end
+
+    def rename_file(source, target)
+      File.rename(source, target)
     end
 
     def print_summary(decisions, report)

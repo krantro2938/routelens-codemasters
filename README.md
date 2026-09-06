@@ -116,7 +116,7 @@ ruby -Ilib:test -e 'Dir["test/**/*_test.rb"].sort.each { |file| require_relative
 | 3 | Очередь в каскаде | [`scoring/priority.rb`](lib/route_lens/scoring/priority.rb) и поле провайдера `priority` | Вес `priority`; готовый пресет `cascade` поднимает его до 4.0 | `ruby bin/route --preset cascade`; сценарий `cascade` в [`demo/policy_comparison.json`](demo/policy_comparison.json) |
 | 4 | По сумме чека | Мягкое предпочтение — [`scoring/amount_preference.rb`](lib/route_lens/scoring/amount_preference.rb); жёсткая проверка диапазона — `AmountRule` в [`eligibility/rules.rb`](lib/route_lens/eligibility/rules.rb) | Секция `preferred_amount_bands:`; вес `amount_preference` (0.5) | `score_breakdown.amount_preference` в `routing_decisions.json`: сумма внутри полосы даёт `raw: 1`, снаружи — `raw: 0` |
 | 5 | Приоритизация по конверсии | [`scoring/conversion.rb`](lib/route_lens/scoring/conversion.rb) | Вес `conversion` (1.5); пресет `conversion_first` поднимает его до 4.0 | `ruby bin/route --preset conversion_first`; в [`demo/policy_comparison.json`](demo/policy_comparison.json) пресет уводит `op_101` с vipay (0.87) на payflow (0.91) — лучшего конвертера из допустимых |
-| 6 | По интенсивности | `RateLimitRule` в [`eligibility/rules.rb`](lib/route_lens/eligibility/rules.rb) и минутное окно в [`provider_state.rb`](lib/route_lens/provider_state.rb) | Секция `provider_overrides:` в [`config/routing.yml`](config/routing.yml): payflow 7 запросов/мин, quickpay 15 | Отдельная плотная очередь — см. воспроизведение ниже |
+| 6 | По интенсивности | `RateLimitRule` в [`eligibility/rules.rb`](lib/route_lens/eligibility/rules.rb) и независимые минутные окна в [`provider_state.rb`](lib/route_lens/provider_state.rb) | Секция `provider_overrides:` в [`config/routing.yml`](config/routing.yml): payflow 7 запросов/мин, quickpay 15 | Отдельная плотная очередь — см. воспроизведение ниже |
 | 7 | По фин. обязательствам | [`scoring/turnover_obligation.rb`](lib/route_lens/scoring/turnover_obligation.rb) | Секция `daily_turnover_min:`; вес `turnover_obligation` (1.5) | Оба состояния фактора видны на публичных данных: payflow `raw: 0` (2 900 000 ₽ уже перекрывают минимум 2 000 000 ₽), quickpay `raw: 0.63` (1 100 000 ₽ из 3 000 000 ₽) |
 
 ### Стратегия 4: диапазон суммы влияет на выбор, а не только запрещает
@@ -135,6 +135,8 @@ ruby bin/route --queue /tmp/rate_limit_queue.json --decisions /tmp/rl_decisions.
 ```
 
 Двадцать четыре операции в одной минуте дают 20 пропусков с причиной `rate_limit_exceeded`: payflow закрывается начиная с `rl_009`, quickpay — с `rl_021`, после чего работу забирает fallback SpacePayments. Ни один файл в корне репозитория при этом не перезаписывается.
+
+Счётчик хранится отдельно для каждой встретившейся минуты, поэтому очередь не обязана быть отсортирована по `created_at`: возврат к прежней минуте не забывает уже сделанные вызовы. Baseline `requests_last_minute` / `current_requests_per_minute` из снимка относится только к первому наблюдаемому минутному окну запуска и не переносится во все будущие минуты.
 
 ### Стратегия 7: почему `daily_turnover_max` не отдельное поле
 
@@ -333,6 +335,7 @@ ruby bin/build_demo
 
 - распределение количества, целевые доли и отклонения;
 - распределение объёма, источник цели и отклонения;
+- отдельные `external_target_distribution` и `external_volume_target_distribution` с тем же знаменателем, который использует скоринг (только внешние назначения), тогда как обязательные `distribution` / `volume_distribution` сохраняют фактические доли всех операций, включая fallback;
 - финальные результаты клиентов отдельно от результатов попыток;
 - одобрения, отклонения, истечения срока, повторы, восстановление и fallback;
 - средняя, p95 и максимальная задержка в целом и по провайдерам;
@@ -350,7 +353,7 @@ ruby bin/build_demo
 Срок:               до сброса дневного лимита
 ```
 
-Вектор суммируется до 100%, а не оставляет оператору неполное указание «уменьшить Payflow». Policy Lab воспроизводит рекомендацию и показывает улучшения с компромиссами.
+Вектор суммируется до 100%, а не оставляет оператору неполное указание «уменьшить Payflow». Одинаковое изменение глобального веса конверсии выпускается один раз с доказательствами по всем затронутым провайдерам. Исторические доли также предлагаются единым долгосрочным вектором после снятия временных ограничений ёмкости, поэтому рекомендации не спорят друг с другом. Policy Lab воспроизводит рекомендацию и показывает улучшения с компромиссами.
 
 Реализация: [`lib/route_lens/analytics/report_builder.rb`](lib/route_lens/analytics/report_builder.rb) и [`lib/route_lens/analytics/recommendation_engine.rb`](lib/route_lens/analytics/recommendation_engine.rb).
 
@@ -450,7 +453,7 @@ ruby bin/route \
   --seed 2026
 ```
 
-Используйте `ruby bin/route --help` для полного списка опций. Пути решений и отчёта должны различаться. Запись атомарна: неудачный запуск не оставляет частично записанный итоговый JSON.
+Используйте `ruby bin/route --help` для полного списка опций. Пути решений и отчёта должны различаться. Оба JSON сначала полностью подготавливаются; если публикация второго файла завершается ошибкой, первый откатывается к предыдущей версии. Неудачный запуск не оставляет новую половину пары рядом со старой.
 
 ```bash
 # Анализ политики независимо от результатов провайдеров
@@ -470,7 +473,7 @@ ruby scripts/validate_10.rb /tmp/compact_decisions.json
 
 ### `provider_overrides`: параметры провайдеров из конфигурации
 
-`data/providers.json` — вход организаторов, и он остаётся байт-в-байт неизменным. Поэтому параметры, которых в снимке нет (например, `requests_per_minute_limit` для стратегии по интенсивности), задаются секцией `provider_overrides:` в [`config/routing.yml`](config/routing.yml) и применяются к загруженному снимку **до** валидации — с теми же числовыми проверками, что и родные поля. Неизвестный `payment_system` в этой секции — фатальная ошибка запуска, а не молчаливое игнорирование опечатки.
+`data/providers.json` — вход организаторов, и он остаётся байт-в-байт неизменным. Поэтому параметры, которых в снимке нет (например, `requests_per_minute_limit` для стратегии по интенсивности), задаются секцией `provider_overrides:` в [`config/routing.yml`](config/routing.yml) и применяются к загруженному снимку **до** валидации — с теми же числовыми проверками, что и родные поля. Неизвестный `payment_system` в этой секции — фатальная ошибка запуска, а не молчаливое игнорирование опечатки. До маршрутизации также проверяются диапазоны мягких сумм, минимумы оборота, эталоны нормализации, precision и полные векторы целей; история отклоняет неверные даты, статусы, пустые банки, нулевые суммы и дубликаты `operation_id`.
 
 ### Коды возврата
 
@@ -510,7 +513,7 @@ ruby -Ilib:test -e 'Dir["test/**/*_test.rb"].sort.each { |file| require_relative
 rake test
 ```
 
-Тесты покрывают наборы допустимых провайдеров и публичные случаи, каждое жёсткое правило и границы, невалидные входы, десять компонентов скоринга, резервы, повторы и fallback, детерминированный CLI, сверку отчётов, рекомендации, сравнение политик и безопасность Observatory. Итог: **140 тестов, 754 проверки, 0 сбоев, 0 ошибок** примерно за 1,6 секунды.
+Тесты покрывают наборы допустимых провайдеров и публичные случаи, каждое жёсткое правило и границы, невалидные входы, десять компонентов скоринга, резервы, повторы и fallback, детерминированный CLI, сверку отчётов, рекомендации, сравнение политик и безопасность Observatory. Итог: **151 тест, 823 проверки, 0 сбоев, 0 ошибок** примерно за 1,7 секунды.
 
 ### Регрессионные тесты качества маршрутизации
 

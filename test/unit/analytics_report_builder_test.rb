@@ -101,6 +101,12 @@ class AnalyticsReportBuilderTest < Minitest::Test
     assert_equal 50.0, report.dig('distribution', 'quickpay', 'share_pct')
     assert_equal 30.0, report.dig('distribution', 'quickpay', 'delta_pct')
     assert_equal 50.0, report.dig('volume_distribution', 'quickpay', 'share_pct')
+    assert_equal 66.67, report.dig('external_target_distribution', 'quickpay', 'share_pct')
+    assert_equal 46.67, report.dig('external_target_distribution', 'quickpay', 'delta_pct')
+    assert_equal 3, report.dig('external_target_distribution', 'quickpay', 'denominator_operations')
+    assert_equal 66.67, report.dig('external_volume_target_distribution', 'quickpay', 'share_pct')
+    assert_equal 300.0, report.dig('external_volume_target_distribution', 'quickpay', 'denominator_amount')
+    refute report['external_target_distribution'].key?('spacepayments')
     assert_equal 2, report.dig('outcomes', 'approved', 'count')
     assert_equal 50.0, report.dig('outcomes', 'approval_rate_pct')
     assert_equal 27.5, report.dig('latency', 'avg_sec')
@@ -144,7 +150,21 @@ class AnalyticsReportBuilderTest < Minitest::Test
     # Счётчики остаются на верхнем уровне: их читает проверка релиза.
     assert_equal 1, report['retry_count']
     assert_equal 1, report['fallback_count']
-    assert_equal 21, report.keys.length
+    assert_equal 23, report.keys.length
+  end
+
+  def test_required_distribution_and_router_target_distribution_have_explicit_scopes
+    report = RouteLens::Analytics::ReportBuilder.new(
+      providers: providers, operations: operations, decisions: decisions, history: history
+    ).build
+
+    # Формат задания: фактическая доля считается от всех четырёх операций.
+    assert_equal 25.0, report.dig('distribution', 'vipay', 'share_pct')
+    assert_equal 25.0, report.dig('distribution', 'spacepayments', 'share_pct')
+    # Управляющая цель роутера: fallback исключён, поэтому знаменатель равен 3.
+    assert_equal 33.33, report.dig('external_target_distribution', 'vipay', 'share_pct')
+    assert_equal 3, report.dig('external_target_distribution', 'vipay', 'denominator_operations')
+    assert_equal 33.33, report.dig('provider_metrics', 'vipay', 'external_count_share_pct')
   end
 
   # Жёсткие исключения собираются с суммами: из них выводится новое значение лимита.

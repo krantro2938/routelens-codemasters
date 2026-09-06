@@ -273,7 +273,10 @@ module RouteLens
       # --- Конверсия ----------------------------------------------------------
 
       def add_conversion_drift_recommendations
-        @providers.each do |provider|
+        current_weight = policy_weight('conversion')
+        return unless current_weight.positive?
+
+        drifts = @providers.filter_map do |provider|
           name = Support.provider_name(provider).to_s
           historical = historical_metrics(name)
           sample = Support.integer(Support.fetch(historical, 'operations'))
@@ -284,38 +287,42 @@ module RouteLens
           drift = live_pct - historical_pct
           next if drift.abs < CONVERSION_DRIFT_PCT
 
-          current_weight = policy_weight('conversion')
-          # Нулевой вес уменьшать некуда: рекомендация без изменения параметра
-          # бесполезна, поэтому она не выпускается.
-          next unless current_weight.positive?
-
-          proposed_weight = Support.round(current_weight / 2.0)
-
-          message = format(
-            '%<provider>s: conversion_24h %<live>s против исторического одобрения %<historical>s ' \
-            '(разница %<drift>+.1f п.п., n=%<sample>d). Временно снизить policy.weights.conversion ' \
-            'с %<current>.2f до %<proposed>.2f, пока окна метрик не сведены.',
-            provider: name, live: Support.percent_ru(live_pct), historical: Support.percent_ru(historical_pct),
-            drift: drift, sample: sample, current: current_weight, proposed: proposed_weight
-          )
-          add_detail(
-            type: 'conversion_drift', severity: 'warning', provider: name,
-            evidence: {
+          [name, {
               'conversion_24h_pct' => Support.round(live_pct),
               'historical_approval_rate_pct' => Support.round(historical_pct),
               'difference_pp' => Support.round(drift),
               'historical_operations' => sample
-            },
-            action: {
-              'parameter' => 'policy.weights.conversion',
-              'current' => Support.round(current_weight),
-              'proposed' => proposed_weight,
-              'until' => 'live_and_historical_metric_windows_are_reconciled'
-            },
-            expected_impact: 'Не дать метрике с несогласованным окном измерения доминировать при выборе провайдера.',
-            message: message
-          )
-        end
+            }]
+        end.to_h
+        return if drifts.empty?
+
+        proposed_weight = Support.round(current_weight / 2.0)
+        evidence_text = drifts.map do |name, metrics|
+          format('%<provider>s: %<live>s против %<historical>s (%<drift>+.1f п.п., n=%<sample>d)',
+                 provider: name,
+                 live: Support.percent_ru(metrics['conversion_24h_pct']),
+                 historical: Support.percent_ru(metrics['historical_approval_rate_pct']),
+                 drift: metrics['difference_pp'], sample: metrics['historical_operations'])
+        end.join('; ')
+        message = format(
+          'Окна conversion_24h и исторического одобрения расходятся: %<evidence>s. ' \
+          'Временно снизить единый policy.weights.conversion с %<current>.2f до %<proposed>.2f, ' \
+          'пока окна метрик не сведены; это одно изменение политики, а не отдельная правка на каждого провайдера.',
+          evidence: evidence_text, current: current_weight, proposed: proposed_weight
+        )
+        add_detail(
+          type: 'conversion_drift', severity: 'warning', provider: nil,
+          evidence: { 'providers' => drifts },
+          action: {
+            'parameter' => 'policy.weights.conversion',
+            'scope' => 'global_policy',
+            'current' => Support.round(current_weight),
+            'proposed' => proposed_weight,
+            'until' => 'live_and_historical_metric_windows_are_reconciled'
+          },
+          expected_impact: 'Не дать метрике с несогласованным окном измерения доминировать при выборе провайдера.',
+          message: message
+        )
       end
 
       # Заявленная conversion_24h не подтверждается историей, поэтому
@@ -375,7 +382,20 @@ module RouteLens
         total = Support.integer(Support.fetch(@history, 'total_operations'))
         return if total < MINIMUM_DISTRIBUTION_SAMPLE
 
-        @providers.each do |provider|
+        before_vector = traffic_target_vector
+        historical_vector = external_provider_names.to_h do |name|
+          historical = historical_metrics(name)
+          sample = Support.integer(Support.fetch(historical, 'operations'))
+          share = if sample >= MINIMUM_HISTORY_SAMPLE
+                    Support.number(Support.fetch(historical, 'count_share_pct'))
+                  else
+                    Support.number(before_vector[name])
+                  end
+          [name, share]
+        end
+        historical_vector = normalize_vector(historical_vector)
+
+        gaps = @providers.filter_map do |provider|
           name = Support.provider_name(provider).to_s
           next if name.empty? || name == SELF_PROVIDER
 
@@ -383,48 +403,53 @@ module RouteLens
           sample = Support.integer(Support.fetch(historical, 'operations'))
           next if sample < MINIMUM_HISTORY_SAMPLE
 
-          target = Support.number(Support.fetch(provider, 'traffic_percentage'))
-          historical_share = Support.number(Support.fetch(historical, 'count_share_pct'))
+          target = Support.number(before_vector[name])
+          historical_share = Support.number(historical_vector[name])
           delta = historical_share - target
           next if delta.abs < TARGET_DEVIATION_PCT
 
-          direction = delta.negative? ? 'ни разу не набиралась' : 'стабильно перевыполнялась'
-          remedy = if delta.negative?
-                     'либо устранить ограничение, из-за которого доля не набирается'
-                   else
-                     'либо перенести часть трафика на провайдеров, которые свою цель недобирают'
-                   end
-          message = format(
-            '%<provider>s: за историю %<period>s фактическая доля операций %<historical>s при цели %<target>s ' \
-            '(%<delta>+.1f п.п., %<sample>s, доля объёма %<volume>s) — цель %<direction>s. ' \
-            'Привести traffic_percentage к %<proposed>s %<remedy>s.',
-            provider: name, period: Support.fetch(@history, 'period') || 'наблюдений',
-            historical: Support.percent_ru(historical_share), target: Support.percent_ru(target), delta: delta,
-            sample: Support.counted_ru(sample, 'операция', 'операции', 'операций'),
-            volume: Support.percent_ru(Support.fetch(historical, 'volume_share_pct')),
-            direction: direction, proposed: Support.percent_ru(historical_share), remedy: remedy
-          )
-          add_detail(
-            type: 'historical_target_gap', severity: 'advisory', provider: name,
-            evidence: {
+          [name, {
               'historical_count_share_pct' => Support.round(historical_share),
               'historical_volume_share_pct' => Support.round(Support.fetch(historical, 'volume_share_pct')),
               'target_pct' => Support.round(target),
               'delta_pct' => Support.round(delta),
-              'historical_operations' => sample,
-              'historical_total_operations' => total,
-              'period' => Support.fetch(@history, 'period')
-            },
-            action: {
-              'parameter' => 'traffic_percentage',
-              'current' => Support.round(target),
-              'proposed' => Support.round(historical_share),
-              'basis' => 'historical_count_share'
-            },
-            expected_impact: 'Согласовать целевую долю с исторически достижимой или явно назвать ограничение, которое мешает цели.',
-            message: message
-          )
-        end
+              'historical_operations' => sample
+            }]
+        end.to_h
+        return if gaps.empty?
+
+        evidence_text = gaps.map do |name, metrics|
+          format('%<provider>s: %<historical>s при цели %<target>s (%<delta>+.1f п.п., n=%<sample>d)',
+                 provider: name,
+                 historical: Support.percent_ru(metrics['historical_count_share_pct']),
+                 target: Support.percent_ru(metrics['target_pct']),
+                 delta: metrics['delta_pct'], sample: metrics['historical_operations'])
+        end.join('; ')
+        message = format(
+          'Для базовой политики после снятия временных ограничений история %<period>s показывает устойчивое ' \
+          'отклонение долей: %<evidence>s. Рассматривать только единый внешний вектор traffic_percentage ' \
+          '%<before>s → %<after>s; не применять эти долгосрочные значения вместо временного ограничения ёмкости.',
+          period: Support.fetch(@history, 'period') || 'наблюдений', evidence: evidence_text,
+          before: format_target_vector(before_vector), after: format_target_vector(historical_vector)
+        )
+        add_detail(
+          type: 'historical_target_gap', severity: 'advisory', provider: nil,
+          evidence: {
+            'providers' => gaps,
+            'historical_total_operations' => total,
+            'period' => Support.fetch(@history, 'period')
+          },
+          action: {
+            'parameter' => 'traffic_percentage',
+            'scope' => 'external_vector',
+            'current' => before_vector,
+            'proposed' => historical_vector,
+            'basis' => 'normalized_historical_external_count_share',
+            'horizon' => 'long_term_after_temporary_constraints'
+          },
+          expected_impact: 'Согласовать полный вектор целей с исторически достижимым распределением без противоречащих одиночных правок.',
+          message: message
+        )
       end
 
       # --- Отклонение долей в текущем запуске ---------------------------------
@@ -764,6 +789,10 @@ module RouteLens
         first = normalized.keys.first
         normalized[first] = Support.round(normalized[first] + correction) if first
         normalized
+      end
+
+      def format_target_vector(vector)
+        vector.map { |name, value| "#{name}=#{Support.percent_ru(value)}" }.join(', ')
       end
 
       def receiver_for(vector, constrained_provider)

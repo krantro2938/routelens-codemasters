@@ -66,6 +66,7 @@ class AnalyticsRecommendationEngineTest < Minitest::Test
     assert_in_delta 100.0, capacity.dig('action', 'target_vector_after').values.sum, 0.001
     conversion = subject.details.find { |detail| detail['type'] == 'conversion_drift' }
     assert_equal 'policy.weights.conversion', conversion.dig('action', 'parameter')
+    assert_equal ['payflow'], conversion.dig('evidence', 'providers').keys
   end
 
   # Русская форма числительного вместо "1 times".
@@ -138,10 +139,55 @@ class AnalyticsRecommendationEngineTest < Minitest::Test
     assert_equal 0.697, calibration.dig('action', 'proposed')
     assert_equal 19, calibration.dig('evidence', 'historical_operations')
 
-    gap = details.find { |detail| detail['type'] == 'historical_target_gap' }
-    refute_nil gap
-    assert_equal 19.0, gap.dig('action', 'proposed')
-    assert_equal(-16.0, gap.dig('evidence', 'delta_pct'))
+  end
+
+  def test_history_proposes_one_coherent_long_term_target_vector
+    providers = [
+      { 'payment_system' => 'vipay', 'traffic_percentage' => 40, 'conversion_24h' => 0.87 },
+      { 'payment_system' => 'payflow', 'traffic_percentage' => 35, 'conversion_24h' => 0.91 },
+      { 'payment_system' => 'quickpay', 'traffic_percentage' => 25, 'conversion_24h' => 0.79 }
+    ]
+    history = {
+      'total_operations' => 100,
+      'period' => '2026-07-29',
+      'providers' => {
+        'vipay' => { 'operations' => 41, 'count_share_pct' => 41.0 },
+        'payflow' => { 'operations' => 19, 'count_share_pct' => 19.0 },
+        'quickpay' => { 'operations' => 40, 'count_share_pct' => 40.0 }
+      }
+    }
+    details = engine(providers: providers, history: history).tap(&:generate).details
+    gaps = details.select { |detail| detail['type'] == 'historical_target_gap' }
+
+    assert_equal 1, gaps.length
+    gap = gaps.first
+    assert_equal 'external_vector', gap.dig('action', 'scope')
+    assert_equal 'long_term_after_temporary_constraints', gap.dig('action', 'horizon')
+    assert_equal({ 'vipay' => 41.0, 'payflow' => 19.0, 'quickpay' => 40.0 }, gap.dig('action', 'proposed'))
+    assert_equal(-16.0, gap.dig('evidence', 'providers', 'payflow', 'delta_pct'))
+    assert_includes gap['message'], 'после снятия временных ограничений'
+  end
+
+
+  def test_global_conversion_weight_change_is_emitted_once_for_multiple_providers
+    providers = @providers + [
+      { 'payment_system' => 'quickpay', 'traffic_percentage' => 65,
+        'conversion_24h' => 0.79, 'daily_amount_limit' => 8_000_000 }
+    ]
+    history = {
+      'total_operations' => 100,
+      'providers' => {
+        'payflow' => { 'operations' => 19, 'approval_rate_pct' => 47.37, 'count_share_pct' => 19.0 },
+        'quickpay' => { 'operations' => 40, 'approval_rate_pct' => 60.0, 'count_share_pct' => 81.0 }
+      }
+    }
+    details = engine(providers: providers, history: history).tap(&:generate).details
+    drift = details.select { |detail| detail['type'] == 'conversion_drift' }
+
+    assert_equal 1, drift.length
+    assert_equal %w[payflow quickpay], drift.first.dig('evidence', 'providers').keys
+    assert_nil drift.first['provider']
+    assert_includes drift.first['message'], 'одно изменение политики'
   end
 
   # Насыщение пула: снижать доли некуда, поэтому советуется поднять ёмкость.

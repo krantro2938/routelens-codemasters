@@ -53,8 +53,10 @@ module RouteLens
         @weights = normalize_weights(Support.fetch(policy, :weights, {}))
         # Конфигурация проверяется один раз при старте, чтобы неверный вес или
         # процент не привёл к частично обработанной очереди.
+        validate_precision!
         validate_weights!
         validate_targets!
+        validate_scoring_configuration!
         @components = @weights.to_h do |component_name, _weight|
           [component_name, COMPONENTS.fetch(component_name).new(@config)]
         end
@@ -157,6 +159,12 @@ module RouteLens
         raise ArgumentError, "policy weights must be finite" unless @weights.values.all?(&:finite?)
       end
 
+      def validate_precision!
+        return if @precision.between?(0, 12)
+
+        raise ArgumentError, "policy precision must be an integer between 0 and 12"
+      end
+
       def validate_targets!
         validate_target_vector!("volume", Support.fetch(@config, :volume_targets, {}))
         validate_target_vector!("count", Support.fetch(@config, :traffic_targets, {}))
@@ -167,7 +175,9 @@ module RouteLens
       # молча искажает вклад целевых компонентов на всей очереди.
       def validate_target_vector!(label, targets)
         targets = targets || {}
-        return unless targets.respond_to?(:to_h)
+        unless targets.respond_to?(:to_h)
+          raise ArgumentError, "#{label} targets must be an object"
+        end
 
         values = targets.to_h.map do |provider, target|
           begin
@@ -188,6 +198,81 @@ module RouteLens
 
         raise ArgumentError,
               "#{label} targets must sum to 100 (+/-#{TARGET_SUM_TOLERANCE}), got #{sum.round(4)}"
+      end
+
+      def validate_scoring_configuration!
+        validate_amount_bands!
+        validate_turnover_minimums!
+        validate_normalization!
+      end
+
+      def validate_amount_bands!
+        bands = Support.fetch(@config, :preferred_amount_bands, {}) || {}
+        raise ArgumentError, "preferred_amount_bands must be an object" unless bands.respond_to?(:to_h)
+
+        bands.to_h.each do |provider, raw_band|
+          unless raw_band.respond_to?(:to_h)
+            raise ArgumentError, "preferred_amount_bands.#{provider} must be an object"
+          end
+
+          band = raw_band.to_h
+          minimum = optional_non_negative_number!(Support.fetch(band, :min, nil),
+                                                   "preferred_amount_bands.#{provider}.min")
+          maximum = optional_non_negative_number!(Support.fetch(band, :max, nil),
+                                                   "preferred_amount_bands.#{provider}.max")
+          if !minimum.nil? && !maximum.nil? && minimum > maximum
+            raise ArgumentError, "preferred_amount_bands.#{provider}.min cannot exceed max"
+          end
+        end
+      end
+
+      def validate_turnover_minimums!
+        minimums = Support.fetch(@config, :daily_turnover_min, {}) || {}
+        raise ArgumentError, "daily_turnover_min must be an object" unless minimums.respond_to?(:to_h)
+
+        minimums.to_h.each do |provider, raw_value|
+          value = if raw_value.respond_to?(:to_h)
+                    Support.fetch(raw_value.to_h, :amount, nil)
+                  else
+                    raw_value
+                  end
+          optional_non_negative_number!(value, "daily_turnover_min.#{provider}", required: true)
+        end
+      end
+
+      def validate_normalization!
+        normalization = Support.fetch(@config, :normalization, {}) || {}
+        raise ArgumentError, "normalization must be an object" unless normalization.respond_to?(:to_h)
+
+        %i[latency_reference_sec cost_reference_pct conversion_reference].each do |field|
+          value = Support.fetch(normalization, field, nil)
+          next if value.nil?
+
+          number = finite_number!(value, "normalization.#{field}")
+          raise ArgumentError, "normalization.#{field} must be greater than zero" unless number.positive?
+        end
+      end
+
+      def optional_non_negative_number!(value, label, required: false)
+        if value.nil? || value == ""
+          raise ArgumentError, "#{label} must be specified" if required
+
+          return nil
+        end
+
+        number = finite_number!(value, label)
+        raise ArgumentError, "#{label} cannot be negative" if number.negative?
+
+        number
+      end
+
+      def finite_number!(value, label)
+        number = Float(value)
+        raise ArgumentError, "#{label} must be a finite number" unless number.finite?
+
+        number
+      rescue TypeError, ArgumentError
+        raise ArgumentError, "#{label} must be a finite number"
       end
 
       def tie_break_for(provider)

@@ -46,6 +46,39 @@ class EligibilityInputLoaderTest < Minitest::Test
     assert_kind_of Float, history.first.fetch("amount")
   end
 
+  def test_history_rejects_invalid_timestamp_status_and_empty_bank
+    Dir.mktmpdir do |dir|
+      invalid_timestamp = write_history(dir, "bad-time.csv", created_at: "yesterday")
+      assert_match(/created_at must be an ISO 8601 timestamp/, assert_raises(RouteLens::InputError) do
+        RouteLens::InputLoader.load_history(invalid_timestamp)
+      end.message)
+
+      invalid_status = write_history(dir, "bad-status.csv", status: "success")
+      assert_match(/status must be approved, rejected, or expired/, assert_raises(RouteLens::InputError) do
+        RouteLens::InputLoader.load_history(invalid_status)
+      end.message)
+
+      empty_bank = write_history(dir, "empty-bank.csv", bank: "")
+      assert_match(/bank must be a non-empty string/, assert_raises(RouteLens::InputError) do
+        RouteLens::InputLoader.load_history(empty_bank)
+      end.message)
+    end
+  end
+
+  def test_history_rejects_duplicate_operation_ids_and_zero_amount
+    Dir.mktmpdir do |dir|
+      duplicate = write_history(dir, "duplicate.csv", rows: 2)
+      assert_match(/duplicate history operation_id/, assert_raises(RouteLens::InputError) do
+        RouteLens::InputLoader.load_history(duplicate)
+      end.message)
+
+      zero_amount = write_history(dir, "zero.csv", amount: 0)
+      assert_match(/amount must be greater than zero/, assert_raises(RouteLens::InputError) do
+        RouteLens::InputLoader.load_history(zero_amount)
+      end.message)
+    end
+  end
+
   def test_rejects_duplicate_operation_ids
     Dir.mktmpdir do |dir|
       path = File.join(dir, "queue.json")
@@ -204,6 +237,19 @@ class EligibilityInputLoaderTest < Minitest::Test
   end
 
   private
+
+  def write_history(directory, name, rows: 1, **overrides)
+    path = File.join(directory, name)
+    item = {
+      operation_id: "history_op", created_at: "2026-07-29T09:00:00+03:00",
+      amount: 1_000, bank: "vtb", payment_system: "provider",
+      status: "approved", latency_sec: 10
+    }.merge(overrides)
+    headers = %i[operation_id created_at amount bank payment_system status latency_sec]
+    body = ([headers.join(",")] + Array.new(rows) { headers.map { |header| item.fetch(header) }.join(",") }).join("\n")
+    File.write(path, "#{body}\n")
+    path
+  end
 
   def assert_invalid_provider(overrides)
     matching = overrides.delete(:matching)

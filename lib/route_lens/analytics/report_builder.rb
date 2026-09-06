@@ -44,10 +44,15 @@ module RouteLens
       def build
         distribution = count_distribution
         volumes = volume_distribution
+        external_distribution = external_count_distribution
+        external_volumes = external_volume_distribution
         skips, skips_by_provider, policy_nonselections = skip_reason_metrics
         utilization = projected_utilization
         attempts = attempt_outcome_metrics
-        provider_details = provider_metrics(distribution, volumes, utilization, skips_by_provider, attempts)
+        provider_details = provider_metrics(
+          distribution, volumes, external_distribution, external_volumes,
+          utilization, skips_by_provider, attempts
+        )
         unmet = unmet_goals(distribution, volumes, skips_by_provider)
         resilience = {
           'operations_retried' => retried_operation_count,
@@ -56,7 +61,11 @@ module RouteLens
 
         recommender = RecommendationEngine.new(
           providers: @providers,
-          distribution: distribution,
+          # Рекомендации по traffic_percentage должны смотреть на ту же область,
+          # что и скоринг: только назначения внешним провайдерам. Обязательная
+          # distribution ниже по-прежнему показывает фактическую долю всех
+          # операций, включая fallback, как требует формат задания.
+          distribution: external_distribution,
           projected_daily_utilization: utilization,
           provider_metrics: provider_details,
           history: @history,
@@ -65,7 +74,7 @@ module RouteLens
           # Доля fallback и счётчик берутся из уже посчитанной устойчивости:
           # по ним распознаётся исчерпание внешнего пула.
           resilience: resilience.merge('fallback_count' => fallback_count),
-          total_operations: @decisions.length
+          total_operations: external_decisions.length
         )
         recommendations = recommender.generate
 
@@ -76,6 +85,8 @@ module RouteLens
           'policy' => policy_summary,
           'distribution' => distribution,
           'volume_distribution' => volumes,
+          'external_target_distribution' => external_distribution,
+          'external_volume_target_distribution' => external_volumes,
           'outcomes' => outcome_metrics,
           'attempt_outcomes' => attempts,
           'latency' => latency_metrics,
@@ -172,6 +183,56 @@ module RouteLens
             'target_source' => source
           }]
         end
+      end
+
+      def external_count_distribution
+        total = external_decisions.length
+        external_provider_names.to_h do |name|
+          count = external_decisions.count { |decision| selected_provider(decision) == name }
+          target = Support.number(Support.fetch(@providers_by_name[name], 'traffic_percentage'))
+          share = Support.percent(count, total)
+          [name, {
+            'count' => count,
+            'share_pct' => share,
+            'target_pct' => Support.round(target),
+            'delta_pct' => Support.round(share - target),
+            'denominator_operations' => total
+          }]
+        end
+      end
+
+      def external_volume_distribution
+        total = external_routed_amount
+        external_provider_names.to_h do |name|
+          amount = external_decisions.sum do |decision|
+            selected_provider(decision) == name ? decision_amount(decision) : 0.0
+          end
+          target, source = volume_target(@providers_by_name[name])
+          share = Support.percent(amount, total)
+          [name, {
+            'amount' => Support.round(amount),
+            'share_pct' => share,
+            'target_pct' => Support.round(target),
+            'delta_pct' => Support.round(share - target),
+            'target_source' => source,
+            'denominator_amount' => Support.round(total)
+          }]
+        end
+      end
+
+      def external_provider_names
+        @external_provider_names ||= provider_names.reject { |name| name == SELF_PROVIDER }
+      end
+
+      def external_decisions
+        @external_decisions ||= @decisions.select do |decision|
+          name = selected_provider(decision)
+          !name.empty? && name != SELF_PROVIDER
+        end
+      end
+
+      def external_routed_amount
+        @external_routed_amount ||= external_decisions.sum { |decision| decision_amount(decision) }
       end
 
       def volume_target(provider)
@@ -484,7 +545,8 @@ module RouteLens
         }
       end
 
-      def provider_metrics(distribution, volumes, utilization, skips_by_provider, attempts)
+      def provider_metrics(distribution, volumes, external_distribution, external_volumes,
+                           utilization, skips_by_provider, attempts)
         historical = Support.hash(Support.fetch(@history, 'providers', {}))
         blocked = blocked_operations_by_provider
         provider_names.to_h do |name|
@@ -500,9 +562,13 @@ module RouteLens
             'count_share_pct' => distribution.dig(name, 'share_pct'),
             'count_target_pct' => distribution.dig(name, 'target_pct'),
             'count_delta_pct' => distribution.dig(name, 'delta_pct'),
+            'external_count_share_pct' => external_distribution.dig(name, 'share_pct'),
+            'external_count_delta_pct' => external_distribution.dig(name, 'delta_pct'),
             'volume_share_pct' => volumes.dig(name, 'share_pct'),
             'volume_target_pct' => volumes.dig(name, 'target_pct'),
             'volume_delta_pct' => volumes.dig(name, 'delta_pct'),
+            'external_volume_share_pct' => external_volumes.dig(name, 'share_pct'),
+            'external_volume_delta_pct' => external_volumes.dig(name, 'delta_pct'),
             'outcomes' => status_counts,
             'approval_rate_pct' => Support.percent(status_counts['approved'], decisions.length),
             'attempts' => attempts.dig('by_provider', name, 'total_attempts') || 0,

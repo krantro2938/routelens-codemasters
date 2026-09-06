@@ -22,8 +22,14 @@ module RouteLens
       @payment_system = @attributes.fetch("payment_system")
       @mutex = Mutex.new
       @reservations = {}
-      @request_bucket = nil
-      @recorded_requests = 0
+      # Локальные запросы хранятся по каждому минутному окну: очередь может
+      # прийти не по времени, и возврат к уже встречавшейся минуте не должен
+      # обнулять её счётчик. Значение из снимка относится только к первому
+      # наблюдаемому окну запуска — без временной метки переносить baseline во
+      # все будущие минуты было бы заведомо неверно.
+      @recorded_requests_by_bucket = Hash.new(0)
+      @baseline_requests = numeric_attribute("requests_last_minute", "current_requests_per_minute").to_i
+      @baseline_request_bucket = nil
     end
 
     alias name payment_system
@@ -201,19 +207,21 @@ module RouteLens
 
     def record_request_unlocked(at)
       bucket = minute_bucket(at)
-      if @request_bucket != bucket
-        @request_bucket = bucket
-        @recorded_requests = 0
-      end
-      @recorded_requests += 1
+      attach_request_baseline_to(bucket)
+      @recorded_requests_by_bucket[bucket] += 1
     end
 
     def request_count_unlocked(at)
       bucket = minute_bucket(at)
-      # Снимок может уже содержать внешнее значение RPM; локальные запросы
-      # текущего запуска добавляются к нему только внутри той же минуты.
-      baseline = numeric_attribute("requests_last_minute", "current_requests_per_minute").to_i
-      baseline + (@request_bucket == bucket ? @recorded_requests : 0)
+      attach_request_baseline_to(bucket)
+      baseline = @baseline_request_bucket == bucket ? @baseline_requests : 0
+      baseline + @recorded_requests_by_bucket[bucket]
+    end
+
+    def attach_request_baseline_to(bucket)
+      return unless @baseline_request_bucket.nil? && @baseline_requests.positive?
+
+      @baseline_request_bucket = bucket
     end
 
     def deep_copy(value)

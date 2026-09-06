@@ -66,7 +66,34 @@ class ProviderStateTest < Minitest::Test
     next_minute = Time.iso8601("2026-07-30T09:06:00+03:00")
     state.record_request!(at: first_minute)
     assert_equal 3, state.requests_per_minute(at: first_minute)
-    assert_equal 2, state.requests_per_minute(at: next_minute)
+    assert_equal 0, state.requests_per_minute(at: next_minute)
+  end
+
+  def test_rate_counter_retains_each_minute_when_operations_are_out_of_order
+    state = provider(requests_per_minute_limit: 2)
+    first_minute = Time.iso8601("2026-07-30T09:05:00+03:00")
+    next_minute = Time.iso8601("2026-07-30T09:06:00+03:00")
+
+    state.record_request!(at: first_minute)
+    state.record_request!(at: next_minute)
+    state.record_request!(at: first_minute)
+
+    assert_equal 2, state.requests_per_minute(at: first_minute)
+    assert_equal 1, state.requests_per_minute(at: next_minute)
+    assert_raises(RouteLens::CapacityExceeded) do
+      state.reserve!(500, reservation_id: "third-in-first-minute", at: first_minute)
+    end
+  end
+
+  def test_snapshot_rate_baseline_applies_only_to_first_observed_minute
+    state = provider(requests_per_minute_limit: 3, current_requests_per_minute: 2)
+    first_minute = Time.iso8601("2026-07-30T09:05:00+03:00")
+    next_minute = Time.iso8601("2026-07-30T09:06:00+03:00")
+
+    assert_equal 2, state.requests_per_minute(at: first_minute)
+    state.record_request!(at: first_minute)
+    assert_equal 3, state.requests_per_minute(at: first_minute)
+    assert_equal 0, state.requests_per_minute(at: next_minute)
   end
 
   def test_reservation_enforces_rate_limit_atomically

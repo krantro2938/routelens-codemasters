@@ -84,6 +84,55 @@
       "target_source": "traffic_percentage_fallback"
     }
   },
+  "external_target_distribution": {
+    "vipay": {
+      "count": 4,
+      "share_pct": 40.0,
+      "target_pct": 40.0,
+      "delta_pct": 0.0,
+      "denominator_operations": 10
+    },
+    "payflow": {
+      "count": 3,
+      "share_pct": 30.0,
+      "target_pct": 35.0,
+      "delta_pct": -5.0,
+      "denominator_operations": 10
+    },
+    "quickpay": {
+      "count": 3,
+      "share_pct": 30.0,
+      "target_pct": 25.0,
+      "delta_pct": 5.0,
+      "denominator_operations": 10
+    }
+  },
+  "external_volume_target_distribution": {
+    "vipay": {
+      "amount": 102000.0,
+      "share_pct": 26.44,
+      "target_pct": 50.0,
+      "delta_pct": -23.56,
+      "target_source": "policy.volume_targets",
+      "denominator_amount": 385800.0
+    },
+    "payflow": {
+      "amount": 88800.0,
+      "share_pct": 23.02,
+      "target_pct": 25.0,
+      "delta_pct": -1.98,
+      "target_source": "policy.volume_targets",
+      "denominator_amount": 385800.0
+    },
+    "quickpay": {
+      "amount": 195000.0,
+      "share_pct": 50.54,
+      "target_pct": 25.0,
+      "delta_pct": 25.54,
+      "target_source": "policy.volume_targets",
+      "denominator_amount": 385800.0
+    }
+  },
   "outcomes": {
     "approved": {
       "count": 10,
@@ -299,9 +348,13 @@
       "count_share_pct": 40.0,
       "count_target_pct": 40.0,
       "count_delta_pct": 0.0,
+      "external_count_share_pct": 40.0,
+      "external_count_delta_pct": 0.0,
       "volume_share_pct": 26.44,
       "volume_target_pct": 50.0,
       "volume_delta_pct": -23.56,
+      "external_volume_share_pct": 26.44,
+      "external_volume_delta_pct": -23.56,
       "outcomes": {
         "approved": 4,
         "rejected": 0,
@@ -387,9 +440,13 @@
       "count_share_pct": 30.0,
       "count_target_pct": 35.0,
       "count_delta_pct": -5.0,
+      "external_count_share_pct": 30.0,
+      "external_count_delta_pct": -5.0,
       "volume_share_pct": 23.02,
       "volume_target_pct": 25.0,
       "volume_delta_pct": -1.98,
+      "external_volume_share_pct": 23.02,
+      "external_volume_delta_pct": -1.98,
       "outcomes": {
         "approved": 3,
         "rejected": 0,
@@ -469,9 +526,13 @@
       "count_share_pct": 30.0,
       "count_target_pct": 25.0,
       "count_delta_pct": 5.0,
+      "external_count_share_pct": 30.0,
+      "external_count_delta_pct": 5.0,
       "volume_share_pct": 50.54,
       "volume_target_pct": 25.0,
       "volume_delta_pct": 25.54,
+      "external_volume_share_pct": 50.54,
+      "external_volume_delta_pct": 25.54,
       "outcomes": {
         "approved": 3,
         "rejected": 0,
@@ -538,9 +599,13 @@
       "count_share_pct": 0.0,
       "count_target_pct": 0.0,
       "count_delta_pct": 0.0,
+      "external_count_share_pct": null,
+      "external_count_delta_pct": null,
       "volume_share_pct": 0.0,
       "volume_target_pct": 0.0,
       "volume_delta_pct": 0.0,
+      "external_volume_share_pct": null,
+      "external_volume_delta_pct": null,
       "outcomes": {
         "approved": 0,
         "rejected": 0,
@@ -894,13 +959,11 @@
   },
   "recommendations": [
     "payflow: дневной лимит использован на 99.6% (2 988 800 ₽ из 3 000 000 ₽, запас 11 200 ₽). Временно изменить traffic_percentage с 35.0% до 10.0% и перераспределить долю на quickpay до сброса дневного лимита.",
-    "payflow: conversion_24h 91.0% против исторического одобрения 47.4% (разница +43.6 п.п., n=19). Временно снизить policy.weights.conversion с 1.50 до 0.75, пока окна метрик не сведены.",
-    "quickpay: conversion_24h 79.0% против исторического одобрения 67.5% (разница +11.5 п.п., n=40). Временно снизить policy.weights.conversion с 1.50 до 0.75, пока окна метрик не сведены.",
+    "Окна conversion_24h и исторического одобрения расходятся: payflow: 91.0% против 47.4% (+43.6 п.п., n=19); quickpay: 79.0% против 67.5% (+11.5 п.п., n=40). Временно снизить единый policy.weights.conversion с 1.50 до 0.75, пока окна метрик не сведены; это одно изменение политики, а не отдельная правка на каждого провайдера.",
     "vipay: заявленная conversion_24h 0.87 не подтверждается историей — одобрено 78.0% из 41 исторической операции. Установить providers.vipay.conversion_24h в 0.810 (сжатая оценка: n=41 против априорного веса 20, сдвиг -6.0 п.п.) либо пересчитать метрику на едином окне.",
     "payflow: заявленная conversion_24h 0.91 не подтверждается историей — одобрено 47.4% из 19 исторических операций. Установить providers.payflow.conversion_24h в 0.697 (сжатая оценка: n=19 против априорного веса 20, сдвиг -21.3 п.п.) либо пересчитать метрику на едином окне.",
     "quickpay: заявленная conversion_24h 0.79 не подтверждается историей — одобрено 67.5% из 40 исторических операций. Установить providers.quickpay.conversion_24h в 0.713 (сжатая оценка: n=40 против априорного веса 20, сдвиг -7.7 п.п.) либо пересчитать метрику на едином окне.",
-    "payflow: за историю 2026-07-29 фактическая доля операций 19.0% при цели 35.0% (-16.0 п.п., 19 операций, доля объёма 8.5%) — цель ни разу не набиралась. Привести traffic_percentage к 19.0% либо устранить ограничение, из-за которого доля не набирается.",
-    "quickpay: за историю 2026-07-29 фактическая доля операций 40.0% при цели 25.0% (+15.0 п.п., 40 операций, доля объёма 55.6%) — цель стабильно перевыполнялась. Привести traffic_percentage к 40.0% либо перенести часть трафика на провайдеров, которые свою цель недобирают."
+    "Для базовой политики после снятия временных ограничений история 2026-07-29 показывает устойчивое отклонение долей: payflow: 19.0% при цели 35.0% (-16.0 п.п., n=19); quickpay: 40.0% при цели 25.0% (+15.0 п.п., n=40). Рассматривать только единый внешний вектор traffic_percentage vipay=40.0%, payflow=35.0%, quickpay=25.0% → vipay=41.0%, payflow=19.0%, quickpay=40.0%; не применять эти долгосрочные значения вместо временного ограничения ёмкости."
   ],
   "recommendation_details": [
     {
@@ -935,40 +998,32 @@
     {
       "type": "conversion_drift",
       "severity": "warning",
-      "provider": "payflow",
+      "provider": null,
       "evidence": {
-        "conversion_24h_pct": 91.0,
-        "historical_approval_rate_pct": 47.37,
-        "difference_pp": 43.63,
-        "historical_operations": 19
+        "providers": {
+          "payflow": {
+            "conversion_24h_pct": 91.0,
+            "historical_approval_rate_pct": 47.37,
+            "difference_pp": 43.63,
+            "historical_operations": 19
+          },
+          "quickpay": {
+            "conversion_24h_pct": 79.0,
+            "historical_approval_rate_pct": 67.5,
+            "difference_pp": 11.5,
+            "historical_operations": 40
+          }
+        }
       },
       "action": {
         "parameter": "policy.weights.conversion",
+        "scope": "global_policy",
         "current": 1.5,
         "proposed": 0.75,
         "until": "live_and_historical_metric_windows_are_reconciled"
       },
       "expected_impact": "Не дать метрике с несогласованным окном измерения доминировать при выборе провайдера.",
-      "message": "payflow: conversion_24h 91.0% против исторического одобрения 47.4% (разница +43.6 п.п., n=19). Временно снизить policy.weights.conversion с 1.50 до 0.75, пока окна метрик не сведены."
-    },
-    {
-      "type": "conversion_drift",
-      "severity": "warning",
-      "provider": "quickpay",
-      "evidence": {
-        "conversion_24h_pct": 79.0,
-        "historical_approval_rate_pct": 67.5,
-        "difference_pp": 11.5,
-        "historical_operations": 40
-      },
-      "action": {
-        "parameter": "policy.weights.conversion",
-        "current": 1.5,
-        "proposed": 0.75,
-        "until": "live_and_historical_metric_windows_are_reconciled"
-      },
-      "expected_impact": "Не дать метрике с несогласованным окном измерения доминировать при выборе провайдера.",
-      "message": "quickpay: conversion_24h 79.0% против исторического одобрения 67.5% (разница +11.5 п.п., n=40). Временно снизить policy.weights.conversion с 1.50 до 0.75, пока окна метрик не сведены."
+      "message": "Окна conversion_24h и исторического одобрения расходятся: payflow: 91.0% против 47.4% (+43.6 п.п., n=19); quickpay: 79.0% против 67.5% (+11.5 п.п., n=40). Временно снизить единый policy.weights.conversion с 1.50 до 0.75, пока окна метрик не сведены; это одно изменение политики, а не отдельная правка на каждого провайдера."
     },
     {
       "type": "conversion_calibration",
@@ -1036,46 +1091,45 @@
     {
       "type": "historical_target_gap",
       "severity": "advisory",
-      "provider": "payflow",
+      "provider": null,
       "evidence": {
-        "historical_count_share_pct": 19.0,
-        "historical_volume_share_pct": 8.48,
-        "target_pct": 35.0,
-        "delta_pct": -16.0,
-        "historical_operations": 19,
+        "providers": {
+          "payflow": {
+            "historical_count_share_pct": 19.0,
+            "historical_volume_share_pct": 8.48,
+            "target_pct": 35.0,
+            "delta_pct": -16.0,
+            "historical_operations": 19
+          },
+          "quickpay": {
+            "historical_count_share_pct": 40.0,
+            "historical_volume_share_pct": 55.58,
+            "target_pct": 25.0,
+            "delta_pct": 15.0,
+            "historical_operations": 40
+          }
+        },
         "historical_total_operations": 100,
         "period": "2026-07-29"
       },
       "action": {
         "parameter": "traffic_percentage",
-        "current": 35.0,
-        "proposed": 19.0,
-        "basis": "historical_count_share"
+        "scope": "external_vector",
+        "current": {
+          "vipay": 40.0,
+          "payflow": 35.0,
+          "quickpay": 25.0
+        },
+        "proposed": {
+          "vipay": 41.0,
+          "payflow": 19.0,
+          "quickpay": 40.0
+        },
+        "basis": "normalized_historical_external_count_share",
+        "horizon": "long_term_after_temporary_constraints"
       },
-      "expected_impact": "Согласовать целевую долю с исторически достижимой или явно назвать ограничение, которое мешает цели.",
-      "message": "payflow: за историю 2026-07-29 фактическая доля операций 19.0% при цели 35.0% (-16.0 п.п., 19 операций, доля объёма 8.5%) — цель ни разу не набиралась. Привести traffic_percentage к 19.0% либо устранить ограничение, из-за которого доля не набирается."
-    },
-    {
-      "type": "historical_target_gap",
-      "severity": "advisory",
-      "provider": "quickpay",
-      "evidence": {
-        "historical_count_share_pct": 40.0,
-        "historical_volume_share_pct": 55.58,
-        "target_pct": 25.0,
-        "delta_pct": 15.0,
-        "historical_operations": 40,
-        "historical_total_operations": 100,
-        "period": "2026-07-29"
-      },
-      "action": {
-        "parameter": "traffic_percentage",
-        "current": 25.0,
-        "proposed": 40.0,
-        "basis": "historical_count_share"
-      },
-      "expected_impact": "Согласовать целевую долю с исторически достижимой или явно назвать ограничение, которое мешает цели.",
-      "message": "quickpay: за историю 2026-07-29 фактическая доля операций 40.0% при цели 25.0% (+15.0 п.п., 40 операций, доля объёма 55.6%) — цель стабильно перевыполнялась. Привести traffic_percentage к 40.0% либо перенести часть трафика на провайдеров, которые свою цель недобирают."
+      "expected_impact": "Согласовать полный вектор целей с исторически достижимым распределением без противоречащих одиночных правок.",
+      "message": "Для базовой политики после снятия временных ограничений история 2026-07-29 показывает устойчивое отклонение долей: payflow: 19.0% при цели 35.0% (-16.0 п.п., n=19); quickpay: 40.0% при цели 25.0% (+15.0 п.п., n=40). Рассматривать только единый внешний вектор traffic_percentage vipay=40.0%, payflow=35.0%, quickpay=25.0% → vipay=41.0%, payflow=19.0%, quickpay=40.0%; не применять эти долгосрочные значения вместо временного ограничения ёмкости."
     }
   ],
   "routing_attempts": {
