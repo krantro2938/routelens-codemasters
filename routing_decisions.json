@@ -4,18 +4,164 @@
     "selected_provider": "vipay",
     "attempts": [
       {
+        "provider": "payflow",
+        "decision": "skipped",
+        "reason": "lower_policy_score",
+        "details": "оценка -1.833889 ниже оценки выбранного провайдера",
+        "stage": "policy_ranking",
+        "round": 1,
+        "rank": 2,
+        "score": -1.833889,
+        "score_breakdown": {
+          "count_target_gain": {
+            "raw": -0.6,
+            "weight": 3,
+            "direction": 1,
+            "contribution": -1.8
+          },
+          "volume_target_gain": {
+            "raw": -1,
+            "weight": 2,
+            "direction": 1,
+            "contribution": -2
+          },
+          "conversion": {
+            "raw": 1,
+            "weight": 1.5,
+            "direction": 1,
+            "contribution": 1.5
+          },
+          "turnover_obligation": {
+            "raw": 0,
+            "weight": 1.5,
+            "direction": 1,
+            "contribution": 0
+          },
+          "priority": {
+            "raw": 0.5,
+            "weight": 1,
+            "direction": 1,
+            "contribution": 0.5
+          },
+          "capacity": {
+            "raw": 0.46,
+            "weight": 1,
+            "direction": 1,
+            "contribution": 0.46
+          },
+          "load": {
+            "raw": 0.25,
+            "weight": 1,
+            "direction": -1,
+            "contribution": -0.25
+          },
+          "amount_preference": {
+            "raw": 1,
+            "weight": 0.5,
+            "direction": 1,
+            "contribution": 0.5
+          },
+          "latency": {
+            "raw": 1,
+            "weight": 0.5,
+            "direction": -1,
+            "contribution": -0.5
+          },
+          "cost": {
+            "raw": 0.5,
+            "weight": 0.5,
+            "direction": -1,
+            "contribution": -0.25
+          }
+        }
+      },
+      {
+        "provider": "quickpay",
+        "decision": "skipped",
+        "reason": "lower_policy_score",
+        "details": "оценка -3.197569 ниже оценки выбранного провайдера",
+        "stage": "policy_ranking",
+        "round": 1,
+        "rank": 3,
+        "score": -3.197569,
+        "score_breakdown": {
+          "count_target_gain": {
+            "raw": -1,
+            "weight": 3,
+            "direction": 1,
+            "contribution": -3
+          },
+          "volume_target_gain": {
+            "raw": -1,
+            "weight": 2,
+            "direction": 1,
+            "contribution": -2
+          },
+          "conversion": {
+            "raw": 0,
+            "weight": 1.5,
+            "direction": 1,
+            "contribution": 0
+          },
+          "turnover_obligation": {
+            "raw": 0.63,
+            "weight": 1.5,
+            "direction": 1,
+            "contribution": 0.95
+          },
+          "priority": {
+            "raw": 0,
+            "weight": 1,
+            "direction": 1,
+            "contribution": 0
+          },
+          "capacity": {
+            "raw": 0.9,
+            "weight": 1,
+            "direction": 1,
+            "contribution": 0.9
+          },
+          "load": {
+            "raw": 0.05,
+            "weight": 1,
+            "direction": -1,
+            "contribution": -0.05
+          },
+          "amount_preference": {
+            "raw": 0,
+            "weight": 0.5,
+            "direction": 1,
+            "contribution": 0
+          },
+          "latency": {
+            "raw": 0,
+            "weight": 0.5,
+            "direction": -1,
+            "contribution": 0
+          },
+          "cost": {
+            "raw": 0,
+            "weight": 0.5,
+            "direction": -1,
+            "contribution": 0
+          }
+        }
+      },
+      {
         "provider": "vipay",
         "decision": "selected",
         "reason": "highest_policy_score",
-        "details": "Selected because volume-share balance (+0.5) and cascade priority (+0.5); score 1.556681 versus 1.372777.",
+        "details": "Выбран, потому что баланс денежного объёма (+2) и баланс доли операций (+0.6); оценка 0.201682 против -1.833889.",
+        "stage": "selection",
+        "round": 1,
         "rank": 1,
-        "score": 1.556681,
+        "score": 0.201682,
         "score_breakdown": {
           "count_target_gain": {
-            "raw": -0.1,
-            "weight": 2.5,
+            "raw": -0.4,
+            "weight": 3,
             "direction": 1,
-            "contribution": -0.25
+            "contribution": -1.2
           },
           "volume_target_gain": {
             "raw": 0,
@@ -24,28 +170,10 @@
             "contribution": 0
           },
           "conversion": {
-            "raw": 0.87,
+            "raw": 0.67,
             "weight": 1.5,
             "direction": 1,
-            "contribution": 1.31
-          },
-          "priority": {
-            "raw": 1,
-            "weight": 1,
-            "direction": 1,
-            "contribution": 1
-          },
-          "amount_preference": {
-            "raw": 0,
-            "weight": 1,
-            "direction": 1,
-            "contribution": 0
-          },
-          "capacity": {
-            "raw": 0.49,
-            "weight": 1,
-            "direction": 1,
-            "contribution": 0.49
+            "contribution": 1.0
           },
           "turnover_obligation": {
             "raw": 0,
@@ -53,11 +181,29 @@
             "direction": 1,
             "contribution": 0
           },
+          "priority": {
+            "raw": 1,
+            "weight": 1,
+            "direction": 1,
+            "contribution": 1
+          },
+          "capacity": {
+            "raw": 0.49,
+            "weight": 1,
+            "direction": 1,
+            "contribution": 0.49
+          },
           "load": {
             "raw": 0.39,
             "weight": 1,
             "direction": -1,
             "contribution": -0.39
+          },
+          "amount_preference": {
+            "raw": 0,
+            "weight": 0.5,
+            "direction": 1,
+            "contribution": 0
           },
           "latency": {
             "raw": 0.39,
@@ -66,10 +212,10 @@
             "contribution": -0.2
           },
           "cost": {
-            "raw": 0.8,
+            "raw": 1,
             "weight": 0.5,
             "direction": -1,
-            "contribution": -0.4
+            "contribution": -0.5
           }
         },
         "outcome": "approved",
@@ -154,158 +300,18 @@
         },
         "attempt_number": 1,
         "final": true
-      },
-      {
-        "provider": "payflow",
-        "decision": "skipped",
-        "reason": "lower_policy_score",
-        "details": "score 1.372777 ranked below selected provider",
-        "rank": 2,
-        "score": 1.372777,
-        "score_breakdown": {
-          "count_target_gain": {
-            "raw": -0.15,
-            "weight": 2.5,
-            "direction": 1,
-            "contribution": -0.38
-          },
-          "volume_target_gain": {
-            "raw": -0.25,
-            "weight": 2,
-            "direction": 1,
-            "contribution": -0.5
-          },
-          "conversion": {
-            "raw": 0.91,
-            "weight": 1.5,
-            "direction": 1,
-            "contribution": 1.37
-          },
-          "priority": {
-            "raw": 0.5,
-            "weight": 1,
-            "direction": 1,
-            "contribution": 0.5
-          },
-          "amount_preference": {
-            "raw": 1,
-            "weight": 1,
-            "direction": 1,
-            "contribution": 1
-          },
-          "capacity": {
-            "raw": 0.46,
-            "weight": 1,
-            "direction": 1,
-            "contribution": 0.46
-          },
-          "turnover_obligation": {
-            "raw": 0,
-            "weight": 1.5,
-            "direction": 1,
-            "contribution": 0
-          },
-          "load": {
-            "raw": 0.25,
-            "weight": 1,
-            "direction": -1,
-            "contribution": -0.25
-          },
-          "latency": {
-            "raw": 1,
-            "weight": 0.5,
-            "direction": -1,
-            "contribution": -0.5
-          },
-          "cost": {
-            "raw": 0.67,
-            "weight": 0.5,
-            "direction": -1,
-            "contribution": -0.33
-          }
-        }
-      },
-      {
-        "provider": "quickpay",
-        "decision": "skipped",
-        "reason": "lower_policy_score",
-        "details": "score 0.645764 ranked below selected provider",
-        "rank": 3,
-        "score": 0.645764,
-        "score_breakdown": {
-          "count_target_gain": {
-            "raw": -0.25,
-            "weight": 2.5,
-            "direction": 1,
-            "contribution": -0.63
-          },
-          "volume_target_gain": {
-            "raw": -0.25,
-            "weight": 2,
-            "direction": 1,
-            "contribution": -0.5
-          },
-          "conversion": {
-            "raw": 0.79,
-            "weight": 1.5,
-            "direction": 1,
-            "contribution": 1.19
-          },
-          "priority": {
-            "raw": 0,
-            "weight": 1,
-            "direction": 1,
-            "contribution": 0
-          },
-          "amount_preference": {
-            "raw": 0,
-            "weight": 1,
-            "direction": 1,
-            "contribution": 0
-          },
-          "capacity": {
-            "raw": 0.9,
-            "weight": 1,
-            "direction": 1,
-            "contribution": 0.9
-          },
-          "turnover_obligation": {
-            "raw": 0,
-            "weight": 1.5,
-            "direction": 1,
-            "contribution": 0
-          },
-          "load": {
-            "raw": 0.05,
-            "weight": 1,
-            "direction": -1,
-            "contribution": -0.05
-          },
-          "latency": {
-            "raw": 0,
-            "weight": 0.5,
-            "direction": -1,
-            "contribution": 0
-          },
-          "cost": {
-            "raw": 0.53,
-            "weight": 0.5,
-            "direction": -1,
-            "contribution": -0.27
-          }
-        }
       }
     ],
     "simulated_result": "approved",
     "latency_sec": 35,
     "policy": "balanced_v2",
-    "decision_summary": "vipay completed the payout. Selected because volume-share balance (+0.5) and cascade priority (+0.5); score 1.556681 versus 1.372777.",
+    "decision_summary": "Выплату исполнил vipay. Выбран, потому что баланс денежного объёма (+2) и баланс доли операций (+0.6); оценка 0.201682 против -1.833889.",
     "score_breakdown": {
       "count_target_gain": {
-        "raw": -0.1,
-        "weight": 2.5,
+        "raw": -0.4,
+        "weight": 3,
         "direction": 1,
-        "contribution": -0.25
+        "contribution": -1.2
       },
       "volume_target_gain": {
         "raw": 0,
@@ -314,28 +320,10 @@
         "contribution": 0
       },
       "conversion": {
-        "raw": 0.87,
+        "raw": 0.67,
         "weight": 1.5,
         "direction": 1,
-        "contribution": 1.31
-      },
-      "priority": {
-        "raw": 1,
-        "weight": 1,
-        "direction": 1,
-        "contribution": 1
-      },
-      "amount_preference": {
-        "raw": 0,
-        "weight": 1,
-        "direction": 1,
-        "contribution": 0
-      },
-      "capacity": {
-        "raw": 0.49,
-        "weight": 1,
-        "direction": 1,
-        "contribution": 0.49
+        "contribution": 1.0
       },
       "turnover_obligation": {
         "raw": 0,
@@ -343,11 +331,29 @@
         "direction": 1,
         "contribution": 0
       },
+      "priority": {
+        "raw": 1,
+        "weight": 1,
+        "direction": 1,
+        "contribution": 1
+      },
+      "capacity": {
+        "raw": 0.49,
+        "weight": 1,
+        "direction": 1,
+        "contribution": 0.49
+      },
       "load": {
         "raw": 0.39,
         "weight": 1,
         "direction": -1,
         "contribution": -0.39
+      },
+      "amount_preference": {
+        "raw": 0,
+        "weight": 0.5,
+        "direction": 1,
+        "contribution": 0
       },
       "latency": {
         "raw": 0.39,
@@ -356,71 +362,15 @@
         "contribution": -0.2
       },
       "cost": {
-        "raw": 0.8,
+        "raw": 1,
         "weight": 0.5,
         "direction": -1,
-        "contribution": -0.4
+        "contribution": -0.5
       }
     },
     "routing_sequence": [
       "vipay"
     ],
-    "state_changes": {
-      "vipay": {
-        "before": {
-          "payment_system": "vipay",
-          "status": "active",
-          "traffic_percentage": 40,
-          "priority": 1,
-          "limit_amount_min": 1000,
-          "limit_amount_max": 100000,
-          "daily_amount_limit": 5000000,
-          "daily_approved_amount": 3200000,
-          "in_progress_count_limit": 10,
-          "in_progress_count": 4,
-          "in_progress_amount_limit": 1000000,
-          "in_progress_amount": 380000,
-          "available_requisites": 12,
-          "conversion_24h": 0.87,
-          "avg_latency_sec": 38,
-          "banks": [
-            "sberbank",
-            "tinkoff",
-            "vtb"
-          ],
-          "exclude_banks": false,
-          "provider_margin_pct": 1.2,
-          "merchant_margin_pct": 1.5,
-          "allow_negative_agreement": false
-        },
-        "after": {
-          "payment_system": "vipay",
-          "status": "active",
-          "traffic_percentage": 40,
-          "priority": 1,
-          "limit_amount_min": 1000,
-          "limit_amount_max": 100000,
-          "daily_amount_limit": 5000000,
-          "daily_approved_amount": 3215000,
-          "in_progress_count_limit": 10,
-          "in_progress_count": 4,
-          "in_progress_amount_limit": 1000000,
-          "in_progress_amount": 380000,
-          "available_requisites": 12,
-          "conversion_24h": 0.87,
-          "avg_latency_sec": 38,
-          "banks": [
-            "sberbank",
-            "tinkoff",
-            "vtb"
-          ],
-          "exclude_banks": false,
-          "provider_margin_pct": 1.2,
-          "merchant_margin_pct": 1.5,
-          "allow_negative_agreement": false
-        }
-      }
-    },
     "unmet_goals": []
   },
   {
@@ -431,49 +381,125 @@
         "provider": "vipay",
         "decision": "skipped",
         "reason": "bank_not_in_list",
-        "details": "alfa is not in the provider's supported banks list",
+        "details": "банк alfa отсутствует в списке поддерживаемых банков провайдера",
+        "stage": "eligibility_screen",
+        "round": 0,
         "all_reasons": [
           {
             "eligible": false,
             "reason": "bank_not_in_list",
-            "details": "alfa is not in the provider's supported banks list",
+            "details": "банк alfa отсутствует в списке поддерживаемых банков провайдера",
             "rule": "bank"
           }
         ]
       },
       {
+        "provider": "quickpay",
+        "decision": "skipped",
+        "reason": "lower_policy_score",
+        "details": "оценка 1.938414 ниже оценки выбранного провайдера",
+        "stage": "policy_ranking",
+        "round": 1,
+        "rank": 2,
+        "score": 1.938414,
+        "score_breakdown": {
+          "count_target_gain": {
+            "raw": 0.71,
+            "weight": 3,
+            "direction": 1,
+            "contribution": 2.14
+          },
+          "volume_target_gain": {
+            "raw": -1,
+            "weight": 2,
+            "direction": 1,
+            "contribution": -2
+          },
+          "conversion": {
+            "raw": 0,
+            "weight": 1.5,
+            "direction": 1,
+            "contribution": 0
+          },
+          "turnover_obligation": {
+            "raw": 0.63,
+            "weight": 1.5,
+            "direction": 1,
+            "contribution": 0.95
+          },
+          "priority": {
+            "raw": 0,
+            "weight": 1,
+            "direction": 1,
+            "contribution": 0
+          },
+          "capacity": {
+            "raw": 0.89,
+            "weight": 1,
+            "direction": 1,
+            "contribution": 0.89
+          },
+          "load": {
+            "raw": 0.05,
+            "weight": 1,
+            "direction": -1,
+            "contribution": -0.05
+          },
+          "amount_preference": {
+            "raw": 0,
+            "weight": 0.5,
+            "direction": 1,
+            "contribution": 0
+          },
+          "latency": {
+            "raw": 0,
+            "weight": 0.5,
+            "direction": -1,
+            "contribution": 0
+          },
+          "cost": {
+            "raw": 0,
+            "weight": 0.5,
+            "direction": -1,
+            "contribution": 0
+          }
+        }
+      },
+      {
         "provider": "payflow",
         "decision": "selected",
         "reason": "highest_policy_score",
-        "details": "Selected because cascade priority (+1) and preferred amount band (+1); score 4.09711 versus 2.888889.",
+        "details": "Выбран, потому что конверсия (+1.5) и приоритет каскада (+1); оценка 3.190444 против 1.938414.",
+        "stage": "selection",
+        "round": 1,
         "rank": 1,
-        "score": 4.09711,
+        "score": 3.190444,
         "score_breakdown": {
           "count_target_gain": {
-            "raw": 0.35,
-            "weight": 2.5,
+            "raw": 1,
+            "weight": 3,
             "direction": 1,
-            "contribution": 0.88
+            "contribution": 3
           },
           "volume_target_gain": {
-            "raw": 0.25,
+            "raw": -1,
             "weight": 2,
             "direction": 1,
-            "contribution": 0.5
+            "contribution": -2
           },
           "conversion": {
-            "raw": 0.91,
+            "raw": 1,
             "weight": 1.5,
             "direction": 1,
-            "contribution": 1.37
+            "contribution": 1.5
+          },
+          "turnover_obligation": {
+            "raw": 0,
+            "weight": 1.5,
+            "direction": 1,
+            "contribution": 0
           },
           "priority": {
-            "raw": 1,
-            "weight": 1,
-            "direction": 1,
-            "contribution": 1
-          },
-          "amount_preference": {
             "raw": 1,
             "weight": 1,
             "direction": 1,
@@ -485,17 +511,17 @@
             "direction": 1,
             "contribution": 0.44
           },
-          "turnover_obligation": {
-            "raw": 0,
-            "weight": 1.5,
-            "direction": 1,
-            "contribution": 0
-          },
           "load": {
             "raw": 0.25,
             "weight": 1,
             "direction": -1,
             "contribution": -0.25
+          },
+          "amount_preference": {
+            "raw": 1,
+            "weight": 0.5,
+            "direction": 1,
+            "contribution": 0.5
           },
           "latency": {
             "raw": 1,
@@ -504,10 +530,10 @@
             "contribution": -0.5
           },
           "cost": {
-            "raw": 0.67,
+            "raw": 1,
             "weight": 0.5,
             "direction": -1,
-            "contribution": -0.33
+            "contribution": -0.5
           }
         },
         "outcome": "approved",
@@ -535,7 +561,8 @@
           "exclude_banks": false,
           "provider_margin_pct": 1.0,
           "merchant_margin_pct": 1.5,
-          "allow_negative_agreement": false
+          "allow_negative_agreement": false,
+          "requests_per_minute_limit": 7
         },
         "state_reserved": {
           "payment_system": "payflow",
@@ -560,7 +587,8 @@
           "exclude_banks": false,
           "provider_margin_pct": 1.0,
           "merchant_margin_pct": 1.5,
-          "allow_negative_agreement": false
+          "allow_negative_agreement": false,
+          "requests_per_minute_limit": 7
         },
         "state_after": {
           "payment_system": "payflow",
@@ -585,112 +613,43 @@
           "exclude_banks": false,
           "provider_margin_pct": 1.0,
           "merchant_margin_pct": 1.5,
-          "allow_negative_agreement": false
+          "allow_negative_agreement": false,
+          "requests_per_minute_limit": 7
         },
         "attempt_number": 1,
         "final": true
-      },
-      {
-        "provider": "quickpay",
-        "decision": "skipped",
-        "reason": "lower_policy_score",
-        "details": "score 2.888889 ranked below selected provider",
-        "rank": 2,
-        "score": 2.888889,
-        "score_breakdown": {
-          "count_target_gain": {
-            "raw": 0.25,
-            "weight": 2.5,
-            "direction": 1,
-            "contribution": 0.63
-          },
-          "volume_target_gain": {
-            "raw": 0.25,
-            "weight": 2,
-            "direction": 1,
-            "contribution": 0.5
-          },
-          "conversion": {
-            "raw": 0.79,
-            "weight": 1.5,
-            "direction": 1,
-            "contribution": 1.19
-          },
-          "priority": {
-            "raw": 0,
-            "weight": 1,
-            "direction": 1,
-            "contribution": 0
-          },
-          "amount_preference": {
-            "raw": 0,
-            "weight": 1,
-            "direction": 1,
-            "contribution": 0
-          },
-          "capacity": {
-            "raw": 0.89,
-            "weight": 1,
-            "direction": 1,
-            "contribution": 0.89
-          },
-          "turnover_obligation": {
-            "raw": 0,
-            "weight": 1.5,
-            "direction": 1,
-            "contribution": 0
-          },
-          "load": {
-            "raw": 0.05,
-            "weight": 1,
-            "direction": -1,
-            "contribution": -0.05
-          },
-          "latency": {
-            "raw": 0,
-            "weight": 0.5,
-            "direction": -1,
-            "contribution": 0
-          },
-          "cost": {
-            "raw": 0.53,
-            "weight": 0.5,
-            "direction": -1,
-            "contribution": -0.27
-          }
-        }
       }
     ],
     "simulated_result": "approved",
     "latency_sec": 48,
     "policy": "balanced_v2",
-    "decision_summary": "payflow completed the payout. Selected because cascade priority (+1) and preferred amount band (+1); score 4.09711 versus 2.888889.",
+    "decision_summary": "Выплату исполнил payflow. Выбран, потому что конверсия (+1.5) и приоритет каскада (+1); оценка 3.190444 против 1.938414.",
     "score_breakdown": {
       "count_target_gain": {
-        "raw": 0.35,
-        "weight": 2.5,
+        "raw": 1,
+        "weight": 3,
         "direction": 1,
-        "contribution": 0.88
+        "contribution": 3
       },
       "volume_target_gain": {
-        "raw": 0.25,
+        "raw": -1,
         "weight": 2,
         "direction": 1,
-        "contribution": 0.5
+        "contribution": -2
       },
       "conversion": {
-        "raw": 0.91,
+        "raw": 1,
         "weight": 1.5,
         "direction": 1,
-        "contribution": 1.37
+        "contribution": 1.5
+      },
+      "turnover_obligation": {
+        "raw": 0,
+        "weight": 1.5,
+        "direction": 1,
+        "contribution": 0
       },
       "priority": {
-        "raw": 1,
-        "weight": 1,
-        "direction": 1,
-        "contribution": 1
-      },
-      "amount_preference": {
         "raw": 1,
         "weight": 1,
         "direction": 1,
@@ -702,17 +661,17 @@
         "direction": 1,
         "contribution": 0.44
       },
-      "turnover_obligation": {
-        "raw": 0,
-        "weight": 1.5,
-        "direction": 1,
-        "contribution": 0
-      },
       "load": {
         "raw": 0.25,
         "weight": 1,
         "direction": -1,
         "contribution": -0.25
+      },
+      "amount_preference": {
+        "raw": 1,
+        "weight": 0.5,
+        "direction": 1,
+        "contribution": 0.5
       },
       "latency": {
         "raw": 1,
@@ -721,70 +680,26 @@
         "contribution": -0.5
       },
       "cost": {
-        "raw": 0.67,
+        "raw": 1,
         "weight": 0.5,
         "direction": -1,
-        "contribution": -0.33
+        "contribution": -0.5
       }
     },
     "routing_sequence": [
       "payflow"
     ],
-    "state_changes": {
-      "payflow": {
-        "before": {
-          "payment_system": "payflow",
-          "status": "active",
-          "traffic_percentage": 35,
-          "priority": 2,
-          "limit_amount_min": 500,
-          "limit_amount_max": 50000,
-          "daily_amount_limit": 3000000,
-          "daily_approved_amount": 2900000,
-          "in_progress_count_limit": 8,
-          "in_progress_count": 2,
-          "in_progress_amount_limit": 500000,
-          "in_progress_amount": 120000,
-          "available_requisites": 5,
-          "conversion_24h": 0.91,
-          "avg_latency_sec": 52,
-          "banks": [
-            "sberbank",
-            "alfa"
-          ],
-          "exclude_banks": false,
-          "provider_margin_pct": 1.0,
-          "merchant_margin_pct": 1.5,
-          "allow_negative_agreement": false
-        },
-        "after": {
-          "payment_system": "payflow",
-          "status": "active",
-          "traffic_percentage": 35,
-          "priority": 2,
-          "limit_amount_min": 500,
-          "limit_amount_max": 50000,
-          "daily_amount_limit": 3000000,
-          "daily_approved_amount": 2948000,
-          "in_progress_count_limit": 8,
-          "in_progress_count": 2,
-          "in_progress_amount_limit": 500000,
-          "in_progress_amount": 120000,
-          "available_requisites": 5,
-          "conversion_24h": 0.91,
-          "avg_latency_sec": 52,
-          "banks": [
-            "sberbank",
-            "alfa"
-          ],
-          "exclude_banks": false,
-          "provider_margin_pct": 1.0,
-          "merchant_margin_pct": 1.5,
-          "allow_negative_agreement": false
-        }
+    "unmet_goals": [
+      {
+        "goal": "volume_share_target",
+        "provider": "vipay",
+        "status": "unreachable_for_operation",
+        "target_pct": 50,
+        "current_attempt_share_pct": 23.81,
+        "reason": "bank_not_in_list",
+        "details": "банк alfa отсутствует в списке поддерживаемых банков провайдера"
       }
-    },
-    "unmet_goals": []
+    ]
   },
   {
     "operation_id": "op_103",
@@ -795,6 +710,8 @@
         "decision": "skipped",
         "reason": "amount_exceeds_limit",
         "details": "150000 > limit_amount_max 100000",
+        "stage": "eligibility_screen",
+        "round": 0,
         "all_reasons": [
           {
             "eligible": false,
@@ -809,6 +726,8 @@
         "decision": "skipped",
         "reason": "amount_exceeds_limit",
         "details": "150000 > limit_amount_max 50000",
+        "stage": "eligibility_screen",
+        "round": 0,
         "all_reasons": [
           {
             "eligible": false,
@@ -828,21 +747,23 @@
         "provider": "quickpay",
         "decision": "selected",
         "reason": "only_eligible_provider",
-        "details": "Only provider remaining after hard constraints.",
+        "details": "Единственный провайдер, оставшийся после жёстких ограничений.",
+        "stage": "selection",
+        "round": 1,
         "rank": 1,
-        "score": 4.538473,
+        "score": 9.071805,
         "score_breakdown": {
           "count_target_gain": {
-            "raw": 0.17,
-            "weight": 2.5,
+            "raw": 1,
+            "weight": 3,
             "direction": 1,
-            "contribution": 0.42
+            "contribution": 3
           },
           "volume_target_gain": {
-            "raw": 0.25,
+            "raw": 1,
             "weight": 2,
             "direction": 1,
-            "contribution": 0.5
+            "contribution": 2
           },
           "conversion": {
             "raw": 0.79,
@@ -850,13 +771,13 @@
             "direction": 1,
             "contribution": 1.19
           },
-          "priority": {
-            "raw": 1,
-            "weight": 1,
+          "turnover_obligation": {
+            "raw": 0.63,
+            "weight": 1.5,
             "direction": 1,
-            "contribution": 1
+            "contribution": 0.95
           },
-          "amount_preference": {
+          "priority": {
             "raw": 1,
             "weight": 1,
             "direction": 1,
@@ -868,17 +789,17 @@
             "direction": 1,
             "contribution": 0.87
           },
-          "turnover_obligation": {
-            "raw": 0,
-            "weight": 1.5,
-            "direction": 1,
-            "contribution": 0
-          },
           "load": {
             "raw": 0.05,
             "weight": 1,
             "direction": -1,
             "contribution": -0.05
+          },
+          "amount_preference": {
+            "raw": 1,
+            "weight": 0.5,
+            "direction": 1,
+            "contribution": 0.5
           },
           "latency": {
             "raw": 0.24,
@@ -915,7 +836,8 @@
           "exclude_banks": false,
           "provider_margin_pct": 0.8,
           "merchant_margin_pct": 1.5,
-          "allow_negative_agreement": false
+          "allow_negative_agreement": false,
+          "requests_per_minute_limit": 15
         },
         "state_reserved": {
           "payment_system": "quickpay",
@@ -937,7 +859,8 @@
           "exclude_banks": false,
           "provider_margin_pct": 0.8,
           "merchant_margin_pct": 1.5,
-          "allow_negative_agreement": false
+          "allow_negative_agreement": false,
+          "requests_per_minute_limit": 15
         },
         "state_after": {
           "payment_system": "quickpay",
@@ -959,7 +882,8 @@
           "exclude_banks": false,
           "provider_margin_pct": 0.8,
           "merchant_margin_pct": 1.5,
-          "allow_negative_agreement": false
+          "allow_negative_agreement": false,
+          "requests_per_minute_limit": 15
         },
         "attempt_number": 1,
         "final": true
@@ -968,19 +892,19 @@
     "simulated_result": "approved",
     "latency_sec": 35,
     "policy": "balanced_v2",
-    "decision_summary": "quickpay completed the payout. Only provider remaining after hard constraints.",
+    "decision_summary": "Выплату исполнил quickpay. Единственный провайдер, оставшийся после жёстких ограничений.",
     "score_breakdown": {
       "count_target_gain": {
-        "raw": 0.17,
-        "weight": 2.5,
+        "raw": 1,
+        "weight": 3,
         "direction": 1,
-        "contribution": 0.42
+        "contribution": 3
       },
       "volume_target_gain": {
-        "raw": 0.25,
+        "raw": 1,
         "weight": 2,
         "direction": 1,
-        "contribution": 0.5
+        "contribution": 2
       },
       "conversion": {
         "raw": 0.79,
@@ -988,13 +912,13 @@
         "direction": 1,
         "contribution": 1.19
       },
-      "priority": {
-        "raw": 1,
-        "weight": 1,
+      "turnover_obligation": {
+        "raw": 0.63,
+        "weight": 1.5,
         "direction": 1,
-        "contribution": 1
+        "contribution": 0.95
       },
-      "amount_preference": {
+      "priority": {
         "raw": 1,
         "weight": 1,
         "direction": 1,
@@ -1006,17 +930,17 @@
         "direction": 1,
         "contribution": 0.87
       },
-      "turnover_obligation": {
-        "raw": 0,
-        "weight": 1.5,
-        "direction": 1,
-        "contribution": 0
-      },
       "load": {
         "raw": 0.05,
         "weight": 1,
         "direction": -1,
         "contribution": -0.05
+      },
+      "amount_preference": {
+        "raw": 1,
+        "weight": 0.5,
+        "direction": 1,
+        "contribution": 0.5
       },
       "latency": {
         "raw": 0.24,
@@ -1034,54 +958,6 @@
     "routing_sequence": [
       "quickpay"
     ],
-    "state_changes": {
-      "quickpay": {
-        "before": {
-          "payment_system": "quickpay",
-          "status": "active",
-          "traffic_percentage": 25,
-          "priority": 3,
-          "limit_amount_min": 1000,
-          "limit_amount_max": 200000,
-          "daily_amount_limit": 8000000,
-          "daily_approved_amount": 1100000,
-          "in_progress_count_limit": 15,
-          "in_progress_count": 1,
-          "in_progress_amount_limit": 2000000,
-          "in_progress_amount": 50000,
-          "available_requisites": 20,
-          "conversion_24h": 0.79,
-          "avg_latency_sec": 29,
-          "banks": [],
-          "exclude_banks": false,
-          "provider_margin_pct": 0.8,
-          "merchant_margin_pct": 1.5,
-          "allow_negative_agreement": false
-        },
-        "after": {
-          "payment_system": "quickpay",
-          "status": "active",
-          "traffic_percentage": 25,
-          "priority": 3,
-          "limit_amount_min": 1000,
-          "limit_amount_max": 200000,
-          "daily_amount_limit": 8000000,
-          "daily_approved_amount": 1250000,
-          "in_progress_count_limit": 15,
-          "in_progress_count": 1,
-          "in_progress_amount_limit": 2000000,
-          "in_progress_amount": 50000,
-          "available_requisites": 20,
-          "conversion_24h": 0.79,
-          "avg_latency_sec": 29,
-          "banks": [],
-          "exclude_banks": false,
-          "provider_margin_pct": 0.8,
-          "merchant_margin_pct": 1.5,
-          "allow_negative_agreement": false
-        }
-      }
-    },
     "unmet_goals": [
       {
         "goal": "count_share_target",
@@ -1093,11 +969,29 @@
         "details": "150000 > limit_amount_max 100000"
       },
       {
+        "goal": "volume_share_target",
+        "provider": "vipay",
+        "status": "unreachable_for_operation",
+        "target_pct": 50,
+        "current_attempt_share_pct": 7.04,
+        "reason": "amount_exceeds_limit",
+        "details": "150000 > limit_amount_max 100000"
+      },
+      {
         "goal": "count_share_target",
         "provider": "payflow",
         "status": "unreachable_for_operation",
         "target_pct": 35,
         "current_attempt_share_pct": 33.33,
+        "reason": "amount_exceeds_limit",
+        "details": "150000 > limit_amount_max 50000"
+      },
+      {
+        "goal": "volume_share_target",
+        "provider": "payflow",
+        "status": "unreachable_for_operation",
+        "target_pct": 25,
+        "current_attempt_share_pct": 22.54,
         "reason": "amount_exceeds_limit",
         "details": "150000 > limit_amount_max 50000"
       }
@@ -1111,12 +1005,14 @@
         "provider": "vipay",
         "decision": "skipped",
         "reason": "bank_not_in_list",
-        "details": "gazprombank is not in the provider's supported banks list",
+        "details": "банк gazprombank отсутствует в списке поддерживаемых банков провайдера",
+        "stage": "eligibility_screen",
+        "round": 0,
         "all_reasons": [
           {
             "eligible": false,
             "reason": "bank_not_in_list",
-            "details": "gazprombank is not in the provider's supported banks list",
+            "details": "банк gazprombank отсутствует в списке поддерживаемых банков провайдера",
             "rule": "bank"
           }
         ]
@@ -1125,12 +1021,14 @@
         "provider": "payflow",
         "decision": "skipped",
         "reason": "bank_not_in_list",
-        "details": "gazprombank is not in the provider's supported banks list",
+        "details": "банк gazprombank отсутствует в списке поддерживаемых банков провайдера",
+        "stage": "eligibility_screen",
+        "round": 0,
         "all_reasons": [
           {
             "eligible": false,
             "reason": "bank_not_in_list",
-            "details": "gazprombank is not in the provider's supported banks list",
+            "details": "банк gazprombank отсутствует в списке поддерживаемых банков провайдера",
             "rule": "bank"
           }
         ]
@@ -1139,21 +1037,23 @@
         "provider": "quickpay",
         "decision": "selected",
         "reason": "only_eligible_provider",
-        "details": "Only provider remaining after hard constraints.",
+        "details": "Единственный провайдер, оставшийся после жёстких ограничений.",
+        "stage": "selection",
+        "round": 1,
         "rank": 1,
-        "score": 2.229512,
+        "score": -1.478821,
         "score_breakdown": {
           "count_target_gain": {
-            "raw": -0.17,
-            "weight": 2.5,
+            "raw": -1,
+            "weight": 3,
             "direction": 1,
-            "contribution": -0.42
+            "contribution": -3
           },
           "volume_target_gain": {
-            "raw": 0,
+            "raw": -1,
             "weight": 2,
             "direction": 1,
-            "contribution": 0
+            "contribution": -2
           },
           "conversion": {
             "raw": 0.79,
@@ -1161,17 +1061,17 @@
             "direction": 1,
             "contribution": 1.19
           },
+          "turnover_obligation": {
+            "raw": 0.58,
+            "weight": 1.5,
+            "direction": 1,
+            "contribution": 0.87
+          },
           "priority": {
             "raw": 1,
             "weight": 1,
             "direction": 1,
             "contribution": 1
-          },
-          "amount_preference": {
-            "raw": 0,
-            "weight": 1,
-            "direction": 1,
-            "contribution": 0
           },
           "capacity": {
             "raw": 0.89,
@@ -1179,17 +1079,17 @@
             "direction": 1,
             "contribution": 0.89
           },
-          "turnover_obligation": {
-            "raw": 0,
-            "weight": 1.5,
-            "direction": 1,
-            "contribution": 0
-          },
           "load": {
             "raw": 0.05,
             "weight": 1,
             "direction": -1,
             "contribution": -0.05
+          },
+          "amount_preference": {
+            "raw": 0,
+            "weight": 0.5,
+            "direction": 1,
+            "contribution": 0
           },
           "latency": {
             "raw": 0.24,
@@ -1226,7 +1126,8 @@
           "exclude_banks": false,
           "provider_margin_pct": 0.8,
           "merchant_margin_pct": 1.5,
-          "allow_negative_agreement": false
+          "allow_negative_agreement": false,
+          "requests_per_minute_limit": 15
         },
         "state_reserved": {
           "payment_system": "quickpay",
@@ -1248,7 +1149,8 @@
           "exclude_banks": false,
           "provider_margin_pct": 0.8,
           "merchant_margin_pct": 1.5,
-          "allow_negative_agreement": false
+          "allow_negative_agreement": false,
+          "requests_per_minute_limit": 15
         },
         "state_after": {
           "payment_system": "quickpay",
@@ -1270,7 +1172,8 @@
           "exclude_banks": false,
           "provider_margin_pct": 0.8,
           "merchant_margin_pct": 1.5,
-          "allow_negative_agreement": false
+          "allow_negative_agreement": false,
+          "requests_per_minute_limit": 15
         },
         "attempt_number": 1,
         "final": true
@@ -1279,19 +1182,19 @@
     "simulated_result": "approved",
     "latency_sec": 30,
     "policy": "balanced_v2",
-    "decision_summary": "quickpay completed the payout. Only provider remaining after hard constraints.",
+    "decision_summary": "Выплату исполнил quickpay. Единственный провайдер, оставшийся после жёстких ограничений.",
     "score_breakdown": {
       "count_target_gain": {
-        "raw": -0.17,
-        "weight": 2.5,
+        "raw": -1,
+        "weight": 3,
         "direction": 1,
-        "contribution": -0.42
+        "contribution": -3
       },
       "volume_target_gain": {
-        "raw": 0,
+        "raw": -1,
         "weight": 2,
         "direction": 1,
-        "contribution": 0
+        "contribution": -2
       },
       "conversion": {
         "raw": 0.79,
@@ -1299,17 +1202,17 @@
         "direction": 1,
         "contribution": 1.19
       },
+      "turnover_obligation": {
+        "raw": 0.58,
+        "weight": 1.5,
+        "direction": 1,
+        "contribution": 0.87
+      },
       "priority": {
         "raw": 1,
         "weight": 1,
         "direction": 1,
         "contribution": 1
-      },
-      "amount_preference": {
-        "raw": 0,
-        "weight": 1,
-        "direction": 1,
-        "contribution": 0
       },
       "capacity": {
         "raw": 0.89,
@@ -1317,17 +1220,17 @@
         "direction": 1,
         "contribution": 0.89
       },
-      "turnover_obligation": {
-        "raw": 0,
-        "weight": 1.5,
-        "direction": 1,
-        "contribution": 0
-      },
       "load": {
         "raw": 0.05,
         "weight": 1,
         "direction": -1,
         "contribution": -0.05
+      },
+      "amount_preference": {
+        "raw": 0,
+        "weight": 0.5,
+        "direction": 1,
+        "contribution": 0
       },
       "latency": {
         "raw": 0.24,
@@ -1345,54 +1248,6 @@
     "routing_sequence": [
       "quickpay"
     ],
-    "state_changes": {
-      "quickpay": {
-        "before": {
-          "payment_system": "quickpay",
-          "status": "active",
-          "traffic_percentage": 25,
-          "priority": 3,
-          "limit_amount_min": 1000,
-          "limit_amount_max": 200000,
-          "daily_amount_limit": 8000000,
-          "daily_approved_amount": 1250000,
-          "in_progress_count_limit": 15,
-          "in_progress_count": 1,
-          "in_progress_amount_limit": 2000000,
-          "in_progress_amount": 50000,
-          "available_requisites": 20,
-          "conversion_24h": 0.79,
-          "avg_latency_sec": 29,
-          "banks": [],
-          "exclude_banks": false,
-          "provider_margin_pct": 0.8,
-          "merchant_margin_pct": 1.5,
-          "allow_negative_agreement": false
-        },
-        "after": {
-          "payment_system": "quickpay",
-          "status": "active",
-          "traffic_percentage": 25,
-          "priority": 3,
-          "limit_amount_min": 1000,
-          "limit_amount_max": 200000,
-          "daily_amount_limit": 8000000,
-          "daily_approved_amount": 1253000,
-          "in_progress_count_limit": 15,
-          "in_progress_count": 1,
-          "in_progress_amount_limit": 2000000,
-          "in_progress_amount": 50000,
-          "available_requisites": 20,
-          "conversion_24h": 0.79,
-          "avg_latency_sec": 29,
-          "banks": [],
-          "exclude_banks": false,
-          "provider_margin_pct": 0.8,
-          "merchant_margin_pct": 1.5,
-          "allow_negative_agreement": false
-        }
-      }
-    },
     "unmet_goals": [
       {
         "goal": "count_share_target",
@@ -1401,7 +1256,16 @@
         "target_pct": 40,
         "current_attempt_share_pct": 25,
         "reason": "bank_not_in_list",
-        "details": "gazprombank is not in the provider's supported banks list"
+        "details": "банк gazprombank отсутствует в списке поддерживаемых банков провайдера"
+      },
+      {
+        "goal": "volume_share_target",
+        "provider": "vipay",
+        "status": "unreachable_for_operation",
+        "target_pct": 50,
+        "current_attempt_share_pct": 6.94,
+        "reason": "bank_not_in_list",
+        "details": "банк gazprombank отсутствует в списке поддерживаемых банков провайдера"
       },
       {
         "goal": "count_share_target",
@@ -1410,7 +1274,16 @@
         "target_pct": 35,
         "current_attempt_share_pct": 25,
         "reason": "bank_not_in_list",
-        "details": "gazprombank is not in the provider's supported banks list"
+        "details": "банк gazprombank отсутствует в списке поддерживаемых банков провайдера"
+      },
+      {
+        "goal": "volume_share_target",
+        "provider": "payflow",
+        "status": "unreachable_for_operation",
+        "target_pct": 25,
+        "current_attempt_share_pct": 22.22,
+        "reason": "bank_not_in_list",
+        "details": "банк gazprombank отсутствует в списке поддерживаемых банков провайдера"
       }
     ]
   },
@@ -1422,59 +1295,117 @@
         "provider": "payflow",
         "decision": "skipped",
         "reason": "bank_not_in_list",
-        "details": "tinkoff is not in the provider's supported banks list",
+        "details": "банк tinkoff отсутствует в списке поддерживаемых банков провайдера",
+        "stage": "eligibility_screen",
+        "round": 0,
         "all_reasons": [
           {
             "eligible": false,
             "reason": "bank_not_in_list",
-            "details": "tinkoff is not in the provider's supported banks list",
+            "details": "банк tinkoff отсутствует в списке поддерживаемых банков провайдера",
             "rule": "bank"
           }
         ]
       },
       {
-        "provider": "vipay",
-        "decision": "selected",
-        "reason": "highest_policy_score",
-        "details": "Selected because cascade priority (+1) and count-share balance (+0.5); score 1.940395 versus 1.497898.",
-        "rank": 1,
-        "score": 1.940395,
+        "provider": "quickpay",
+        "decision": "skipped",
+        "reason": "lower_policy_score",
+        "details": "оценка -2.106057 ниже оценки выбранного провайдера",
+        "stage": "policy_ranking",
+        "round": 1,
+        "rank": 2,
+        "score": -2.106057,
         "score_breakdown": {
           "count_target_gain": {
-            "raw": 0.1,
-            "weight": 2.5,
+            "raw": -1,
+            "weight": 3,
             "direction": 1,
-            "contribution": 0.25
+            "contribution": -3
           },
           "volume_target_gain": {
-            "raw": 0.1,
+            "raw": -0.41,
             "weight": 2,
             "direction": 1,
-            "contribution": 0.19
+            "contribution": -0.82
           },
           "conversion": {
-            "raw": 0.87,
+            "raw": 0,
             "weight": 1.5,
             "direction": 1,
-            "contribution": 1.31
+            "contribution": 0
+          },
+          "turnover_obligation": {
+            "raw": 0.58,
+            "weight": 1.5,
+            "direction": 1,
+            "contribution": 0.87
           },
           "priority": {
-            "raw": 1,
-            "weight": 1,
-            "direction": 1,
-            "contribution": 1
-          },
-          "amount_preference": {
             "raw": 0,
             "weight": 1,
             "direction": 1,
             "contribution": 0
           },
           "capacity": {
-            "raw": 0.48,
+            "raw": 0.89,
             "weight": 1,
             "direction": 1,
-            "contribution": 0.48
+            "contribution": 0.89
+          },
+          "load": {
+            "raw": 0.05,
+            "weight": 1,
+            "direction": -1,
+            "contribution": -0.05
+          },
+          "amount_preference": {
+            "raw": 0,
+            "weight": 0.5,
+            "direction": 1,
+            "contribution": 0
+          },
+          "latency": {
+            "raw": 0,
+            "weight": 0.5,
+            "direction": -1,
+            "contribution": 0
+          },
+          "cost": {
+            "raw": 0,
+            "weight": 0.5,
+            "direction": -1,
+            "contribution": 0
+          }
+        }
+      },
+      {
+        "provider": "vipay",
+        "decision": "selected",
+        "reason": "highest_policy_score",
+        "details": "Выбран, потому что баланс доли операций (+6) и баланс денежного объёма (+2.82); оценка 6.592333 против -2.106057.",
+        "stage": "selection",
+        "round": 1,
+        "rank": 1,
+        "score": 6.592333,
+        "score_breakdown": {
+          "count_target_gain": {
+            "raw": 1,
+            "weight": 3,
+            "direction": 1,
+            "contribution": 3
+          },
+          "volume_target_gain": {
+            "raw": 1,
+            "weight": 2,
+            "direction": 1,
+            "contribution": 2
+          },
+          "conversion": {
+            "raw": 1,
+            "weight": 1.5,
+            "direction": 1,
+            "contribution": 1.5
           },
           "turnover_obligation": {
             "raw": 0,
@@ -1482,11 +1413,29 @@
             "direction": 1,
             "contribution": 0
           },
+          "priority": {
+            "raw": 1,
+            "weight": 1,
+            "direction": 1,
+            "contribution": 1
+          },
+          "capacity": {
+            "raw": 0.48,
+            "weight": 1,
+            "direction": 1,
+            "contribution": 0.48
+          },
           "load": {
             "raw": 0.39,
             "weight": 1,
             "direction": -1,
             "contribution": -0.39
+          },
+          "amount_preference": {
+            "raw": 0,
+            "weight": 0.5,
+            "direction": 1,
+            "contribution": 0
           },
           "latency": {
             "raw": 1,
@@ -1495,10 +1444,10 @@
             "contribution": -0.5
           },
           "cost": {
-            "raw": 0.8,
+            "raw": 1,
             "weight": 0.5,
             "direction": -1,
-            "contribution": -0.4
+            "contribution": -0.5
           }
         },
         "outcome": "approved",
@@ -1583,118 +1532,30 @@
         },
         "attempt_number": 1,
         "final": true
-      },
-      {
-        "provider": "quickpay",
-        "decision": "skipped",
-        "reason": "lower_policy_score",
-        "details": "score 1.497898 ranked below selected provider",
-        "rank": 2,
-        "score": 1.497898,
-        "score_breakdown": {
-          "count_target_gain": {
-            "raw": -0.1,
-            "weight": 2.5,
-            "direction": 1,
-            "contribution": -0.25
-          },
-          "volume_target_gain": {
-            "raw": -0.01,
-            "weight": 2,
-            "direction": 1,
-            "contribution": -0.01
-          },
-          "conversion": {
-            "raw": 0.79,
-            "weight": 1.5,
-            "direction": 1,
-            "contribution": 1.19
-          },
-          "priority": {
-            "raw": 0,
-            "weight": 1,
-            "direction": 1,
-            "contribution": 0
-          },
-          "amount_preference": {
-            "raw": 0,
-            "weight": 1,
-            "direction": 1,
-            "contribution": 0
-          },
-          "capacity": {
-            "raw": 0.89,
-            "weight": 1,
-            "direction": 1,
-            "contribution": 0.89
-          },
-          "turnover_obligation": {
-            "raw": 0,
-            "weight": 1.5,
-            "direction": 1,
-            "contribution": 0
-          },
-          "load": {
-            "raw": 0.05,
-            "weight": 1,
-            "direction": -1,
-            "contribution": -0.05
-          },
-          "latency": {
-            "raw": 0,
-            "weight": 0.5,
-            "direction": -1,
-            "contribution": 0
-          },
-          "cost": {
-            "raw": 0.53,
-            "weight": 0.5,
-            "direction": -1,
-            "contribution": -0.27
-          }
-        }
       }
     ],
     "simulated_result": "approved",
     "latency_sec": 26,
     "policy": "balanced_v2",
-    "decision_summary": "vipay completed the payout. Selected because cascade priority (+1) and count-share balance (+0.5); score 1.940395 versus 1.497898.",
+    "decision_summary": "Выплату исполнил vipay. Выбран, потому что баланс доли операций (+6) и баланс денежного объёма (+2.82); оценка 6.592333 против -2.106057.",
     "score_breakdown": {
       "count_target_gain": {
-        "raw": 0.1,
-        "weight": 2.5,
+        "raw": 1,
+        "weight": 3,
         "direction": 1,
-        "contribution": 0.25
+        "contribution": 3
       },
       "volume_target_gain": {
-        "raw": 0.1,
+        "raw": 1,
         "weight": 2,
         "direction": 1,
-        "contribution": 0.19
+        "contribution": 2
       },
       "conversion": {
-        "raw": 0.87,
+        "raw": 1,
         "weight": 1.5,
         "direction": 1,
-        "contribution": 1.31
-      },
-      "priority": {
-        "raw": 1,
-        "weight": 1,
-        "direction": 1,
-        "contribution": 1
-      },
-      "amount_preference": {
-        "raw": 0,
-        "weight": 1,
-        "direction": 1,
-        "contribution": 0
-      },
-      "capacity": {
-        "raw": 0.48,
-        "weight": 1,
-        "direction": 1,
-        "contribution": 0.48
+        "contribution": 1.5
       },
       "turnover_obligation": {
         "raw": 0,
@@ -1702,11 +1563,29 @@
         "direction": 1,
         "contribution": 0
       },
+      "priority": {
+        "raw": 1,
+        "weight": 1,
+        "direction": 1,
+        "contribution": 1
+      },
+      "capacity": {
+        "raw": 0.48,
+        "weight": 1,
+        "direction": 1,
+        "contribution": 0.48
+      },
       "load": {
         "raw": 0.39,
         "weight": 1,
         "direction": -1,
         "contribution": -0.39
+      },
+      "amount_preference": {
+        "raw": 0,
+        "weight": 0.5,
+        "direction": 1,
+        "contribution": 0
       },
       "latency": {
         "raw": 1,
@@ -1715,71 +1594,15 @@
         "contribution": -0.5
       },
       "cost": {
-        "raw": 0.8,
+        "raw": 1,
         "weight": 0.5,
         "direction": -1,
-        "contribution": -0.4
+        "contribution": -0.5
       }
     },
     "routing_sequence": [
       "vipay"
     ],
-    "state_changes": {
-      "vipay": {
-        "before": {
-          "payment_system": "vipay",
-          "status": "active",
-          "traffic_percentage": 40,
-          "priority": 1,
-          "limit_amount_min": 1000,
-          "limit_amount_max": 100000,
-          "daily_amount_limit": 5000000,
-          "daily_approved_amount": 3215000,
-          "in_progress_count_limit": 10,
-          "in_progress_count": 4,
-          "in_progress_amount_limit": 1000000,
-          "in_progress_amount": 380000,
-          "available_requisites": 12,
-          "conversion_24h": 0.87,
-          "avg_latency_sec": 38,
-          "banks": [
-            "sberbank",
-            "tinkoff",
-            "vtb"
-          ],
-          "exclude_banks": false,
-          "provider_margin_pct": 1.2,
-          "merchant_margin_pct": 1.5,
-          "allow_negative_agreement": false
-        },
-        "after": {
-          "payment_system": "vipay",
-          "status": "active",
-          "traffic_percentage": 40,
-          "priority": 1,
-          "limit_amount_min": 1000,
-          "limit_amount_max": 100000,
-          "daily_amount_limit": 5000000,
-          "daily_approved_amount": 3240000,
-          "in_progress_count_limit": 10,
-          "in_progress_count": 4,
-          "in_progress_amount_limit": 1000000,
-          "in_progress_amount": 380000,
-          "available_requisites": 12,
-          "conversion_24h": 0.87,
-          "avg_latency_sec": 38,
-          "banks": [
-            "sberbank",
-            "tinkoff",
-            "vtb"
-          ],
-          "exclude_banks": false,
-          "provider_margin_pct": 1.2,
-          "merchant_margin_pct": 1.5,
-          "allow_negative_agreement": false
-        }
-      }
-    },
     "unmet_goals": [
       {
         "goal": "count_share_target",
@@ -1788,7 +1611,16 @@
         "target_pct": 35,
         "current_attempt_share_pct": 20,
         "reason": "bank_not_in_list",
-        "details": "tinkoff is not in the provider's supported banks list"
+        "details": "банк tinkoff отсутствует в списке поддерживаемых банков провайдера"
+      },
+      {
+        "goal": "volume_share_target",
+        "provider": "payflow",
+        "status": "unreachable_for_operation",
+        "target_pct": 25,
+        "current_attempt_share_pct": 19.92,
+        "reason": "bank_not_in_list",
+        "details": "банк tinkoff отсутствует в списке поддерживаемых банков провайдера"
       }
     ]
   },
@@ -1801,6 +1633,8 @@
         "decision": "skipped",
         "reason": "amount_exceeds_limit",
         "details": "52000 > limit_amount_max 50000",
+        "stage": "eligibility_screen",
+        "round": 0,
         "all_reasons": [
           {
             "eligible": false,
@@ -1811,38 +1645,112 @@
         ]
       },
       {
+        "provider": "quickpay",
+        "decision": "skipped",
+        "reason": "lower_policy_score",
+        "details": "оценка -2.438478 ниже оценки выбранного провайдера",
+        "stage": "policy_ranking",
+        "round": 1,
+        "rank": 2,
+        "score": -2.438478,
+        "score_breakdown": {
+          "count_target_gain": {
+            "raw": -1,
+            "weight": 3,
+            "direction": 1,
+            "contribution": -3
+          },
+          "volume_target_gain": {
+            "raw": -0.58,
+            "weight": 2,
+            "direction": 1,
+            "contribution": -1.15
+          },
+          "conversion": {
+            "raw": 0,
+            "weight": 1.5,
+            "direction": 1,
+            "contribution": 0
+          },
+          "turnover_obligation": {
+            "raw": 0.58,
+            "weight": 1.5,
+            "direction": 1,
+            "contribution": 0.87
+          },
+          "priority": {
+            "raw": 0,
+            "weight": 1,
+            "direction": 1,
+            "contribution": 0
+          },
+          "capacity": {
+            "raw": 0.88,
+            "weight": 1,
+            "direction": 1,
+            "contribution": 0.88
+          },
+          "load": {
+            "raw": 0.05,
+            "weight": 1,
+            "direction": -1,
+            "contribution": -0.05
+          },
+          "amount_preference": {
+            "raw": 0,
+            "weight": 0.5,
+            "direction": 1,
+            "contribution": 0
+          },
+          "latency": {
+            "raw": 0,
+            "weight": 0.5,
+            "direction": -1,
+            "contribution": 0
+          },
+          "cost": {
+            "raw": 0,
+            "weight": 0.5,
+            "direction": -1,
+            "contribution": 0
+          }
+        }
+      },
+      {
         "provider": "vipay",
         "decision": "selected",
         "reason": "highest_policy_score",
-        "details": "Selected because cascade priority (+1) and preferred amount band (+1); score 2.69757 versus 1.447769.",
+        "details": "Выбран, потому что баланс денежного объёма (+3.15) и баланс доли операций (+2.0); оценка 3.079868 против -2.438478.",
+        "stage": "selection",
+        "round": 1,
         "rank": 1,
-        "score": 2.69757,
+        "score": 3.079868,
         "score_breakdown": {
           "count_target_gain": {
-            "raw": -0.03,
-            "weight": 2.5,
+            "raw": -0.33,
+            "weight": 3,
             "direction": 1,
-            "contribution": -0.08
+            "contribution": -1.0
           },
           "volume_target_gain": {
-            "raw": 0.15,
+            "raw": 1,
             "weight": 2,
             "direction": 1,
-            "contribution": 0.3
+            "contribution": 2
           },
           "conversion": {
-            "raw": 0.87,
+            "raw": 1,
             "weight": 1.5,
             "direction": 1,
-            "contribution": 1.31
+            "contribution": 1.5
+          },
+          "turnover_obligation": {
+            "raw": 0,
+            "weight": 1.5,
+            "direction": 1,
+            "contribution": 0
           },
           "priority": {
-            "raw": 1,
-            "weight": 1,
-            "direction": 1,
-            "contribution": 1
-          },
-          "amount_preference": {
             "raw": 1,
             "weight": 1,
             "direction": 1,
@@ -1854,17 +1762,17 @@
             "direction": 1,
             "contribution": 0.47
           },
-          "turnover_obligation": {
-            "raw": 0,
-            "weight": 1.5,
-            "direction": 1,
-            "contribution": 0
-          },
           "load": {
             "raw": 0.39,
             "weight": 1,
             "direction": -1,
             "contribution": -0.39
+          },
+          "amount_preference": {
+            "raw": 1,
+            "weight": 0.5,
+            "direction": 1,
+            "contribution": 0.5
           },
           "latency": {
             "raw": 1,
@@ -1873,10 +1781,10 @@
             "contribution": -0.5
           },
           "cost": {
-            "raw": 0.8,
+            "raw": 1,
             "weight": 0.5,
             "direction": -1,
-            "contribution": -0.4
+            "contribution": -0.5
           }
         },
         "outcome": "approved",
@@ -1961,108 +1869,38 @@
         },
         "attempt_number": 1,
         "final": true
-      },
-      {
-        "provider": "quickpay",
-        "decision": "skipped",
-        "reason": "lower_policy_score",
-        "details": "score 1.447769 ranked below selected provider",
-        "rank": 2,
-        "score": 1.447769,
-        "score_breakdown": {
-          "count_target_gain": {
-            "raw": -0.1,
-            "weight": 2.5,
-            "direction": 1,
-            "contribution": -0.25
-          },
-          "volume_target_gain": {
-            "raw": -0.03,
-            "weight": 2,
-            "direction": 1,
-            "contribution": -0.06
-          },
-          "conversion": {
-            "raw": 0.79,
-            "weight": 1.5,
-            "direction": 1,
-            "contribution": 1.19
-          },
-          "priority": {
-            "raw": 0,
-            "weight": 1,
-            "direction": 1,
-            "contribution": 0
-          },
-          "amount_preference": {
-            "raw": 0,
-            "weight": 1,
-            "direction": 1,
-            "contribution": 0
-          },
-          "capacity": {
-            "raw": 0.88,
-            "weight": 1,
-            "direction": 1,
-            "contribution": 0.88
-          },
-          "turnover_obligation": {
-            "raw": 0,
-            "weight": 1.5,
-            "direction": 1,
-            "contribution": 0
-          },
-          "load": {
-            "raw": 0.05,
-            "weight": 1,
-            "direction": -1,
-            "contribution": -0.05
-          },
-          "latency": {
-            "raw": 0,
-            "weight": 0.5,
-            "direction": -1,
-            "contribution": 0
-          },
-          "cost": {
-            "raw": 0.53,
-            "weight": 0.5,
-            "direction": -1,
-            "contribution": -0.27
-          }
-        }
       }
     ],
     "simulated_result": "approved",
     "latency_sec": 42,
     "policy": "balanced_v2",
-    "decision_summary": "vipay completed the payout. Selected because cascade priority (+1) and preferred amount band (+1); score 2.69757 versus 1.447769.",
+    "decision_summary": "Выплату исполнил vipay. Выбран, потому что баланс денежного объёма (+3.15) и баланс доли операций (+2.0); оценка 3.079868 против -2.438478.",
     "score_breakdown": {
       "count_target_gain": {
-        "raw": -0.03,
-        "weight": 2.5,
+        "raw": -0.33,
+        "weight": 3,
         "direction": 1,
-        "contribution": -0.08
+        "contribution": -1.0
       },
       "volume_target_gain": {
-        "raw": 0.15,
+        "raw": 1,
         "weight": 2,
         "direction": 1,
-        "contribution": 0.3
+        "contribution": 2
       },
       "conversion": {
-        "raw": 0.87,
+        "raw": 1,
         "weight": 1.5,
         "direction": 1,
-        "contribution": 1.31
+        "contribution": 1.5
+      },
+      "turnover_obligation": {
+        "raw": 0,
+        "weight": 1.5,
+        "direction": 1,
+        "contribution": 0
       },
       "priority": {
-        "raw": 1,
-        "weight": 1,
-        "direction": 1,
-        "contribution": 1
-      },
-      "amount_preference": {
         "raw": 1,
         "weight": 1,
         "direction": 1,
@@ -2074,17 +1912,17 @@
         "direction": 1,
         "contribution": 0.47
       },
-      "turnover_obligation": {
-        "raw": 0,
-        "weight": 1.5,
-        "direction": 1,
-        "contribution": 0
-      },
       "load": {
         "raw": 0.39,
         "weight": 1,
         "direction": -1,
         "contribution": -0.39
+      },
+      "amount_preference": {
+        "raw": 1,
+        "weight": 0.5,
+        "direction": 1,
+        "contribution": 0.5
       },
       "latency": {
         "raw": 1,
@@ -2093,71 +1931,15 @@
         "contribution": -0.5
       },
       "cost": {
-        "raw": 0.8,
+        "raw": 1,
         "weight": 0.5,
         "direction": -1,
-        "contribution": -0.4
+        "contribution": -0.5
       }
     },
     "routing_sequence": [
       "vipay"
     ],
-    "state_changes": {
-      "vipay": {
-        "before": {
-          "payment_system": "vipay",
-          "status": "active",
-          "traffic_percentage": 40,
-          "priority": 1,
-          "limit_amount_min": 1000,
-          "limit_amount_max": 100000,
-          "daily_amount_limit": 5000000,
-          "daily_approved_amount": 3240000,
-          "in_progress_count_limit": 10,
-          "in_progress_count": 4,
-          "in_progress_amount_limit": 1000000,
-          "in_progress_amount": 380000,
-          "available_requisites": 12,
-          "conversion_24h": 0.87,
-          "avg_latency_sec": 38,
-          "banks": [
-            "sberbank",
-            "tinkoff",
-            "vtb"
-          ],
-          "exclude_banks": false,
-          "provider_margin_pct": 1.2,
-          "merchant_margin_pct": 1.5,
-          "allow_negative_agreement": false
-        },
-        "after": {
-          "payment_system": "vipay",
-          "status": "active",
-          "traffic_percentage": 40,
-          "priority": 1,
-          "limit_amount_min": 1000,
-          "limit_amount_max": 100000,
-          "daily_amount_limit": 5000000,
-          "daily_approved_amount": 3292000,
-          "in_progress_count_limit": 10,
-          "in_progress_count": 4,
-          "in_progress_amount_limit": 1000000,
-          "in_progress_amount": 380000,
-          "available_requisites": 12,
-          "conversion_24h": 0.87,
-          "avg_latency_sec": 38,
-          "banks": [
-            "sberbank",
-            "tinkoff",
-            "vtb"
-          ],
-          "exclude_banks": false,
-          "provider_margin_pct": 1.2,
-          "merchant_margin_pct": 1.5,
-          "allow_negative_agreement": false
-        }
-      }
-    },
     "unmet_goals": [
       {
         "goal": "count_share_target",
@@ -2165,6 +1947,15 @@
         "status": "unreachable_for_operation",
         "target_pct": 35,
         "current_attempt_share_pct": 16.67,
+        "reason": "amount_exceeds_limit",
+        "details": "52000 > limit_amount_max 50000"
+      },
+      {
+        "goal": "volume_share_target",
+        "provider": "payflow",
+        "status": "unreachable_for_operation",
+        "target_pct": 25,
+        "current_attempt_share_pct": 16.38,
         "reason": "amount_exceeds_limit",
         "details": "52000 > limit_amount_max 50000"
       }
@@ -2179,6 +1970,8 @@
         "decision": "skipped",
         "reason": "amount_below_minimum",
         "details": "800 < limit_amount_min 1000",
+        "stage": "eligibility_screen",
+        "round": 0,
         "all_reasons": [
           {
             "eligible": false,
@@ -2193,6 +1986,8 @@
         "decision": "skipped",
         "reason": "amount_below_minimum",
         "details": "800 < limit_amount_min 1000",
+        "stage": "eligibility_screen",
+        "round": 0,
         "all_reasons": [
           {
             "eligible": false,
@@ -2206,21 +2001,23 @@
         "provider": "payflow",
         "decision": "selected",
         "reason": "only_eligible_provider",
-        "details": "Only provider remaining after hard constraints.",
+        "details": "Единственный провайдер, оставшийся после жёстких ограничений.",
+        "stage": "selection",
+        "round": 1,
         "rank": 1,
-        "score": 3.338995,
+        "score": 7.536821,
         "score_breakdown": {
           "count_target_gain": {
-            "raw": 0.12,
-            "weight": 2.5,
+            "raw": 1,
+            "weight": 3,
             "direction": 1,
-            "contribution": 0.3
+            "contribution": 3
           },
           "volume_target_gain": {
-            "raw": 0.0,
+            "raw": 1,
             "weight": 2,
             "direction": 1,
-            "contribution": 0.0
+            "contribution": 2
           },
           "conversion": {
             "raw": 0.91,
@@ -2228,13 +2025,13 @@
             "direction": 1,
             "contribution": 1.37
           },
-          "priority": {
-            "raw": 1,
-            "weight": 1,
+          "turnover_obligation": {
+            "raw": 0,
+            "weight": 1.5,
             "direction": 1,
-            "contribution": 1
+            "contribution": 0
           },
-          "amount_preference": {
+          "priority": {
             "raw": 1,
             "weight": 1,
             "direction": 1,
@@ -2246,17 +2043,17 @@
             "direction": 1,
             "contribution": 0.47
           },
-          "turnover_obligation": {
-            "raw": 0,
-            "weight": 1.5,
-            "direction": 1,
-            "contribution": 0
-          },
           "load": {
             "raw": 0.25,
             "weight": 1,
             "direction": -1,
             "contribution": -0.25
+          },
+          "amount_preference": {
+            "raw": 1,
+            "weight": 0.5,
+            "direction": 1,
+            "contribution": 0.5
           },
           "latency": {
             "raw": 0.43,
@@ -2296,7 +2093,8 @@
           "exclude_banks": false,
           "provider_margin_pct": 1.0,
           "merchant_margin_pct": 1.5,
-          "allow_negative_agreement": false
+          "allow_negative_agreement": false,
+          "requests_per_minute_limit": 7
         },
         "state_reserved": {
           "payment_system": "payflow",
@@ -2321,7 +2119,8 @@
           "exclude_banks": false,
           "provider_margin_pct": 1.0,
           "merchant_margin_pct": 1.5,
-          "allow_negative_agreement": false
+          "allow_negative_agreement": false,
+          "requests_per_minute_limit": 7
         },
         "state_after": {
           "payment_system": "payflow",
@@ -2346,7 +2145,8 @@
           "exclude_banks": false,
           "provider_margin_pct": 1.0,
           "merchant_margin_pct": 1.5,
-          "allow_negative_agreement": false
+          "allow_negative_agreement": false,
+          "requests_per_minute_limit": 7
         },
         "attempt_number": 1,
         "final": true
@@ -2355,19 +2155,19 @@
     "simulated_result": "approved",
     "latency_sec": 65,
     "policy": "balanced_v2",
-    "decision_summary": "payflow completed the payout. Only provider remaining after hard constraints.",
+    "decision_summary": "Выплату исполнил payflow. Единственный провайдер, оставшийся после жёстких ограничений.",
     "score_breakdown": {
       "count_target_gain": {
-        "raw": 0.12,
-        "weight": 2.5,
+        "raw": 1,
+        "weight": 3,
         "direction": 1,
-        "contribution": 0.3
+        "contribution": 3
       },
       "volume_target_gain": {
-        "raw": 0.0,
+        "raw": 1,
         "weight": 2,
         "direction": 1,
-        "contribution": 0.0
+        "contribution": 2
       },
       "conversion": {
         "raw": 0.91,
@@ -2375,13 +2175,13 @@
         "direction": 1,
         "contribution": 1.37
       },
-      "priority": {
-        "raw": 1,
-        "weight": 1,
+      "turnover_obligation": {
+        "raw": 0,
+        "weight": 1.5,
         "direction": 1,
-        "contribution": 1
+        "contribution": 0
       },
-      "amount_preference": {
+      "priority": {
         "raw": 1,
         "weight": 1,
         "direction": 1,
@@ -2393,17 +2193,17 @@
         "direction": 1,
         "contribution": 0.47
       },
-      "turnover_obligation": {
-        "raw": 0,
-        "weight": 1.5,
-        "direction": 1,
-        "contribution": 0
-      },
       "load": {
         "raw": 0.25,
         "weight": 1,
         "direction": -1,
         "contribution": -0.25
+      },
+      "amount_preference": {
+        "raw": 1,
+        "weight": 0.5,
+        "direction": 1,
+        "contribution": 0.5
       },
       "latency": {
         "raw": 0.43,
@@ -2421,61 +2221,17 @@
     "routing_sequence": [
       "payflow"
     ],
-    "state_changes": {
-      "payflow": {
-        "before": {
-          "payment_system": "payflow",
-          "status": "active",
-          "traffic_percentage": 35,
-          "priority": 2,
-          "limit_amount_min": 500,
-          "limit_amount_max": 50000,
-          "daily_amount_limit": 3000000,
-          "daily_approved_amount": 2948000,
-          "in_progress_count_limit": 8,
-          "in_progress_count": 2,
-          "in_progress_amount_limit": 500000,
-          "in_progress_amount": 120000,
-          "available_requisites": 5,
-          "conversion_24h": 0.91,
-          "avg_latency_sec": 52,
-          "banks": [
-            "sberbank",
-            "alfa"
-          ],
-          "exclude_banks": false,
-          "provider_margin_pct": 1.0,
-          "merchant_margin_pct": 1.5,
-          "allow_negative_agreement": false
-        },
-        "after": {
-          "payment_system": "payflow",
-          "status": "active",
-          "traffic_percentage": 35,
-          "priority": 2,
-          "limit_amount_min": 500,
-          "limit_amount_max": 50000,
-          "daily_amount_limit": 3000000,
-          "daily_approved_amount": 2948800,
-          "in_progress_count_limit": 8,
-          "in_progress_count": 2,
-          "in_progress_amount_limit": 500000,
-          "in_progress_amount": 120000,
-          "available_requisites": 5,
-          "conversion_24h": 0.91,
-          "avg_latency_sec": 52,
-          "banks": [
-            "sberbank",
-            "alfa"
-          ],
-          "exclude_banks": false,
-          "provider_margin_pct": 1.0,
-          "merchant_margin_pct": 1.5,
-          "allow_negative_agreement": false
-        }
+    "unmet_goals": [
+      {
+        "goal": "volume_share_target",
+        "provider": "vipay",
+        "status": "unreachable_for_operation",
+        "target_pct": 50,
+        "current_attempt_share_pct": 31.31,
+        "reason": "amount_below_minimum",
+        "details": "800 < limit_amount_min 1000"
       }
-    },
-    "unmet_goals": []
+    ]
   },
   {
     "operation_id": "op_108",
@@ -2485,12 +2241,14 @@
         "provider": "vipay",
         "decision": "skipped",
         "reason": "bank_not_in_list",
-        "details": "raiffeisen is not in the provider's supported banks list",
+        "details": "банк raiffeisen отсутствует в списке поддерживаемых банков провайдера",
+        "stage": "eligibility_screen",
+        "round": 0,
         "all_reasons": [
           {
             "eligible": false,
             "reason": "bank_not_in_list",
-            "details": "raiffeisen is not in the provider's supported banks list",
+            "details": "банк raiffeisen отсутствует в списке поддерживаемых банков провайдера",
             "rule": "bank"
           }
         ]
@@ -2499,12 +2257,14 @@
         "provider": "payflow",
         "decision": "skipped",
         "reason": "bank_not_in_list",
-        "details": "raiffeisen is not in the provider's supported banks list",
+        "details": "банк raiffeisen отсутствует в списке поддерживаемых банков провайдера",
+        "stage": "eligibility_screen",
+        "round": 0,
         "all_reasons": [
           {
             "eligible": false,
             "reason": "bank_not_in_list",
-            "details": "raiffeisen is not in the provider's supported banks list",
+            "details": "банк raiffeisen отсутствует в списке поддерживаемых банков провайдера",
             "rule": "bank"
           }
         ]
@@ -2513,21 +2273,23 @@
         "provider": "quickpay",
         "decision": "selected",
         "reason": "only_eligible_provider",
-        "details": "Only provider remaining after hard constraints.",
+        "details": "Единственный провайдер, оставшийся после жёстких ограничений.",
+        "stage": "selection",
+        "round": 1,
         "rank": 1,
-        "score": 2.486145,
+        "score": -1.48857,
         "score_breakdown": {
           "count_target_gain": {
-            "raw": -0.06,
-            "weight": 2.5,
+            "raw": -1,
+            "weight": 3,
             "direction": 1,
-            "contribution": -0.15
+            "contribution": -3
           },
           "volume_target_gain": {
-            "raw": 0,
+            "raw": -1,
             "weight": 2,
             "direction": 1,
-            "contribution": 0
+            "contribution": -2
           },
           "conversion": {
             "raw": 0.79,
@@ -2535,17 +2297,17 @@
             "direction": 1,
             "contribution": 1.19
           },
+          "turnover_obligation": {
+            "raw": 0.58,
+            "weight": 1.5,
+            "direction": 1,
+            "contribution": 0.87
+          },
           "priority": {
             "raw": 1,
             "weight": 1,
             "direction": 1,
             "contribution": 1
-          },
-          "amount_preference": {
-            "raw": 0,
-            "weight": 1,
-            "direction": 1,
-            "contribution": 0
           },
           "capacity": {
             "raw": 0.89,
@@ -2553,17 +2315,17 @@
             "direction": 1,
             "contribution": 0.89
           },
-          "turnover_obligation": {
-            "raw": 0,
-            "weight": 1.5,
-            "direction": 1,
-            "contribution": 0
-          },
           "load": {
             "raw": 0.05,
             "weight": 1,
             "direction": -1,
             "contribution": -0.05
+          },
+          "amount_preference": {
+            "raw": 0,
+            "weight": 0.5,
+            "direction": 1,
+            "contribution": 0
           },
           "latency": {
             "raw": 0.24,
@@ -2600,7 +2362,8 @@
           "exclude_banks": false,
           "provider_margin_pct": 0.8,
           "merchant_margin_pct": 1.5,
-          "allow_negative_agreement": false
+          "allow_negative_agreement": false,
+          "requests_per_minute_limit": 15
         },
         "state_reserved": {
           "payment_system": "quickpay",
@@ -2622,7 +2385,8 @@
           "exclude_banks": false,
           "provider_margin_pct": 0.8,
           "merchant_margin_pct": 1.5,
-          "allow_negative_agreement": false
+          "allow_negative_agreement": false,
+          "requests_per_minute_limit": 15
         },
         "state_after": {
           "payment_system": "quickpay",
@@ -2644,7 +2408,8 @@
           "exclude_banks": false,
           "provider_margin_pct": 0.8,
           "merchant_margin_pct": 1.5,
-          "allow_negative_agreement": false
+          "allow_negative_agreement": false,
+          "requests_per_minute_limit": 15
         },
         "attempt_number": 1,
         "final": true
@@ -2653,19 +2418,19 @@
     "simulated_result": "approved",
     "latency_sec": 31,
     "policy": "balanced_v2",
-    "decision_summary": "quickpay completed the payout. Only provider remaining after hard constraints.",
+    "decision_summary": "Выплату исполнил quickpay. Единственный провайдер, оставшийся после жёстких ограничений.",
     "score_breakdown": {
       "count_target_gain": {
-        "raw": -0.06,
-        "weight": 2.5,
+        "raw": -1,
+        "weight": 3,
         "direction": 1,
-        "contribution": -0.15
+        "contribution": -3
       },
       "volume_target_gain": {
-        "raw": 0,
+        "raw": -1,
         "weight": 2,
         "direction": 1,
-        "contribution": 0
+        "contribution": -2
       },
       "conversion": {
         "raw": 0.79,
@@ -2673,17 +2438,17 @@
         "direction": 1,
         "contribution": 1.19
       },
+      "turnover_obligation": {
+        "raw": 0.58,
+        "weight": 1.5,
+        "direction": 1,
+        "contribution": 0.87
+      },
       "priority": {
         "raw": 1,
         "weight": 1,
         "direction": 1,
         "contribution": 1
-      },
-      "amount_preference": {
-        "raw": 0,
-        "weight": 1,
-        "direction": 1,
-        "contribution": 0
       },
       "capacity": {
         "raw": 0.89,
@@ -2691,17 +2456,17 @@
         "direction": 1,
         "contribution": 0.89
       },
-      "turnover_obligation": {
-        "raw": 0,
-        "weight": 1.5,
-        "direction": 1,
-        "contribution": 0
-      },
       "load": {
         "raw": 0.05,
         "weight": 1,
         "direction": -1,
         "contribution": -0.05
+      },
+      "amount_preference": {
+        "raw": 0,
+        "weight": 0.5,
+        "direction": 1,
+        "contribution": 0
       },
       "latency": {
         "raw": 0.24,
@@ -2719,54 +2484,6 @@
     "routing_sequence": [
       "quickpay"
     ],
-    "state_changes": {
-      "quickpay": {
-        "before": {
-          "payment_system": "quickpay",
-          "status": "active",
-          "traffic_percentage": 25,
-          "priority": 3,
-          "limit_amount_min": 1000,
-          "limit_amount_max": 200000,
-          "daily_amount_limit": 8000000,
-          "daily_approved_amount": 1253000,
-          "in_progress_count_limit": 15,
-          "in_progress_count": 1,
-          "in_progress_amount_limit": 2000000,
-          "in_progress_amount": 50000,
-          "available_requisites": 20,
-          "conversion_24h": 0.79,
-          "avg_latency_sec": 29,
-          "banks": [],
-          "exclude_banks": false,
-          "provider_margin_pct": 0.8,
-          "merchant_margin_pct": 1.5,
-          "allow_negative_agreement": false
-        },
-        "after": {
-          "payment_system": "quickpay",
-          "status": "active",
-          "traffic_percentage": 25,
-          "priority": 3,
-          "limit_amount_min": 1000,
-          "limit_amount_max": 200000,
-          "daily_amount_limit": 8000000,
-          "daily_approved_amount": 1295000,
-          "in_progress_count_limit": 15,
-          "in_progress_count": 1,
-          "in_progress_amount_limit": 2000000,
-          "in_progress_amount": 50000,
-          "available_requisites": 20,
-          "conversion_24h": 0.79,
-          "avg_latency_sec": 29,
-          "banks": [],
-          "exclude_banks": false,
-          "provider_margin_pct": 0.8,
-          "merchant_margin_pct": 1.5,
-          "allow_negative_agreement": false
-        }
-      }
-    },
     "unmet_goals": [
       {
         "goal": "count_share_target",
@@ -2775,7 +2492,16 @@
         "target_pct": 40,
         "current_attempt_share_pct": 37.5,
         "reason": "bank_not_in_list",
-        "details": "raiffeisen is not in the provider's supported banks list"
+        "details": "банк raiffeisen отсутствует в списке поддерживаемых банков провайдера"
+      },
+      {
+        "goal": "volume_share_target",
+        "provider": "vipay",
+        "status": "unreachable_for_operation",
+        "target_pct": 50,
+        "current_attempt_share_pct": 27.4,
+        "reason": "bank_not_in_list",
+        "details": "банк raiffeisen отсутствует в списке поддерживаемых банков провайдера"
       },
       {
         "goal": "count_share_target",
@@ -2784,61 +2510,74 @@
         "target_pct": 35,
         "current_attempt_share_pct": 25,
         "reason": "bank_not_in_list",
-        "details": "raiffeisen is not in the provider's supported banks list"
+        "details": "банк raiffeisen отсутствует в списке поддерживаемых банков провайдера"
+      },
+      {
+        "goal": "volume_share_target",
+        "provider": "payflow",
+        "status": "unreachable_for_operation",
+        "target_pct": 25,
+        "current_attempt_share_pct": 14.53,
+        "reason": "bank_not_in_list",
+        "details": "банк raiffeisen отсутствует в списке поддерживаемых банков провайдера"
       }
     ]
   },
   {
     "operation_id": "op_109",
-    "selected_provider": "quickpay",
+    "selected_provider": "vipay",
     "attempts": [
       {
         "provider": "payflow",
         "decision": "skipped",
         "reason": "bank_not_in_list",
-        "details": "vtb is not in the provider's supported banks list",
+        "details": "банк vtb отсутствует в списке поддерживаемых банков провайдера",
+        "stage": "eligibility_screen",
+        "round": 0,
         "all_reasons": [
           {
             "eligible": false,
             "reason": "bank_not_in_list",
-            "details": "vtb is not in the provider's supported banks list",
+            "details": "банк vtb отсутствует в списке поддерживаемых банков провайдера",
             "rule": "bank"
           }
         ]
       },
       {
         "provider": "quickpay",
-        "decision": "selected",
-        "reason": "highest_policy_score",
-        "details": "Selected because latency (+0.5) and remaining capacity (+0.41); score 1.574225 versus 1.533247.",
-        "rank": 1,
-        "score": 1.574225,
+        "decision": "skipped",
+        "reason": "lower_policy_score",
+        "details": "оценка -2.746254 ниже оценки выбранного провайдера",
+        "stage": "policy_ranking",
+        "round": 1,
+        "rank": 2,
+        "score": -2.746254,
         "score_breakdown": {
           "count_target_gain": {
-            "raw": -0.07,
-            "weight": 2.5,
+            "raw": -1,
+            "weight": 3,
             "direction": 1,
-            "contribution": -0.17
+            "contribution": -3
           },
           "volume_target_gain": {
-            "raw": -0.01,
+            "raw": -0.72,
             "weight": 2,
             "direction": 1,
-            "contribution": -0.02
+            "contribution": -1.44
           },
           "conversion": {
-            "raw": 0.79,
-            "weight": 1.5,
-            "direction": 1,
-            "contribution": 1.19
-          },
-          "priority": {
             "raw": 0,
-            "weight": 1,
+            "weight": 1.5,
             "direction": 1,
             "contribution": 0
           },
-          "amount_preference": {
+          "turnover_obligation": {
+            "raw": 0.57,
+            "weight": 1.5,
+            "direction": 1,
+            "contribution": 0.85
+          },
+          "priority": {
             "raw": 0,
             "weight": 1,
             "direction": 1,
@@ -2850,17 +2589,17 @@
             "direction": 1,
             "contribution": 0.89
           },
-          "turnover_obligation": {
-            "raw": 0,
-            "weight": 1.5,
-            "direction": 1,
-            "contribution": 0
-          },
           "load": {
             "raw": 0.05,
             "weight": 1,
             "direction": -1,
             "contribution": -0.05
+          },
+          "amount_preference": {
+            "raw": 0,
+            "weight": 0.5,
+            "direction": 1,
+            "contribution": 0
           },
           "latency": {
             "raw": 0,
@@ -2869,126 +2608,40 @@
             "contribution": 0
           },
           "cost": {
-            "raw": 0.53,
+            "raw": 0,
             "weight": 0.5,
             "direction": -1,
-            "contribution": -0.27
+            "contribution": 0
           }
-        },
-        "outcome": "approved",
-        "latency_sec": 20,
-        "state_before": {
-          "payment_system": "quickpay",
-          "status": "active",
-          "traffic_percentage": 25,
-          "priority": 3,
-          "limit_amount_min": 1000,
-          "limit_amount_max": 200000,
-          "daily_amount_limit": 8000000,
-          "daily_approved_amount": 1295000,
-          "in_progress_count_limit": 15,
-          "in_progress_count": 1,
-          "in_progress_amount_limit": 2000000,
-          "in_progress_amount": 50000,
-          "available_requisites": 20,
-          "conversion_24h": 0.79,
-          "avg_latency_sec": 29,
-          "banks": [],
-          "exclude_banks": false,
-          "provider_margin_pct": 0.8,
-          "merchant_margin_pct": 1.5,
-          "allow_negative_agreement": false
-        },
-        "state_reserved": {
-          "payment_system": "quickpay",
-          "status": "active",
-          "traffic_percentage": 25,
-          "priority": 3,
-          "limit_amount_min": 1000,
-          "limit_amount_max": 200000,
-          "daily_amount_limit": 8000000,
-          "daily_approved_amount": 1295000,
-          "in_progress_count_limit": 15,
-          "in_progress_count": 2,
-          "in_progress_amount_limit": 2000000,
-          "in_progress_amount": 60000,
-          "available_requisites": 19,
-          "conversion_24h": 0.79,
-          "avg_latency_sec": 29,
-          "banks": [],
-          "exclude_banks": false,
-          "provider_margin_pct": 0.8,
-          "merchant_margin_pct": 1.5,
-          "allow_negative_agreement": false
-        },
-        "state_after": {
-          "payment_system": "quickpay",
-          "status": "active",
-          "traffic_percentage": 25,
-          "priority": 3,
-          "limit_amount_min": 1000,
-          "limit_amount_max": 200000,
-          "daily_amount_limit": 8000000,
-          "daily_approved_amount": 1305000,
-          "in_progress_count_limit": 15,
-          "in_progress_count": 1,
-          "in_progress_amount_limit": 2000000,
-          "in_progress_amount": 50000,
-          "available_requisites": 20,
-          "conversion_24h": 0.79,
-          "avg_latency_sec": 29,
-          "banks": [],
-          "exclude_banks": false,
-          "provider_margin_pct": 0.8,
-          "merchant_margin_pct": 1.5,
-          "allow_negative_agreement": false
-        },
-        "attempt_number": 1,
-        "final": true
+        }
       },
       {
         "provider": "vipay",
-        "decision": "skipped",
-        "reason": "lower_policy_score",
-        "details": "score 1.533247 ranked below selected provider",
-        "rank": 2,
-        "score": 1.533247,
+        "decision": "selected",
+        "reason": "highest_policy_score",
+        "details": "Выбран, потому что баланс денежного объёма (+3.44) и баланс доли операций (+2.88); оценка 3.4732 против -2.746254.",
+        "stage": "selection",
+        "round": 1,
+        "rank": 1,
+        "score": 3.4732,
         "score_breakdown": {
           "count_target_gain": {
-            "raw": -0.0,
-            "weight": 2.5,
+            "raw": -0.04,
+            "weight": 3,
             "direction": 1,
-            "contribution": -0.01
+            "contribution": -0.12
           },
           "volume_target_gain": {
-            "raw": 0.02,
+            "raw": 1,
             "weight": 2,
             "direction": 1,
-            "contribution": 0.04
+            "contribution": 2
           },
           "conversion": {
-            "raw": 0.87,
+            "raw": 1,
             "weight": 1.5,
             "direction": 1,
-            "contribution": 1.31
-          },
-          "priority": {
-            "raw": 1,
-            "weight": 1,
-            "direction": 1,
-            "contribution": 1
-          },
-          "amount_preference": {
-            "raw": 0,
-            "weight": 1,
-            "direction": 1,
-            "contribution": 0
-          },
-          "capacity": {
-            "raw": 0.48,
-            "weight": 1,
-            "direction": 1,
-            "contribution": 0.48
+            "contribution": 1.5
           },
           "turnover_obligation": {
             "raw": 0,
@@ -2996,11 +2649,29 @@
             "direction": 1,
             "contribution": 0
           },
+          "priority": {
+            "raw": 1,
+            "weight": 1,
+            "direction": 1,
+            "contribution": 1
+          },
+          "capacity": {
+            "raw": 0.48,
+            "weight": 1,
+            "direction": 1,
+            "contribution": 0.48
+          },
           "load": {
             "raw": 0.39,
             "weight": 1,
             "direction": -1,
             "contribution": -0.39
+          },
+          "amount_preference": {
+            "raw": 0,
+            "weight": 0.5,
+            "direction": 1,
+            "contribution": 0
           },
           "latency": {
             "raw": 1,
@@ -3009,54 +2680,118 @@
             "contribution": -0.5
           },
           "cost": {
-            "raw": 0.8,
+            "raw": 1,
             "weight": 0.5,
             "direction": -1,
-            "contribution": -0.4
+            "contribution": -0.5
           }
-        }
+        },
+        "outcome": "approved",
+        "latency_sec": 49,
+        "state_before": {
+          "payment_system": "vipay",
+          "status": "active",
+          "traffic_percentage": 40,
+          "priority": 1,
+          "limit_amount_min": 1000,
+          "limit_amount_max": 100000,
+          "daily_amount_limit": 5000000,
+          "daily_approved_amount": 3292000,
+          "in_progress_count_limit": 10,
+          "in_progress_count": 4,
+          "in_progress_amount_limit": 1000000,
+          "in_progress_amount": 380000,
+          "available_requisites": 12,
+          "conversion_24h": 0.87,
+          "avg_latency_sec": 38,
+          "banks": [
+            "sberbank",
+            "tinkoff",
+            "vtb"
+          ],
+          "exclude_banks": false,
+          "provider_margin_pct": 1.2,
+          "merchant_margin_pct": 1.5,
+          "allow_negative_agreement": false
+        },
+        "state_reserved": {
+          "payment_system": "vipay",
+          "status": "active",
+          "traffic_percentage": 40,
+          "priority": 1,
+          "limit_amount_min": 1000,
+          "limit_amount_max": 100000,
+          "daily_amount_limit": 5000000,
+          "daily_approved_amount": 3292000,
+          "in_progress_count_limit": 10,
+          "in_progress_count": 5,
+          "in_progress_amount_limit": 1000000,
+          "in_progress_amount": 390000,
+          "available_requisites": 11,
+          "conversion_24h": 0.87,
+          "avg_latency_sec": 38,
+          "banks": [
+            "sberbank",
+            "tinkoff",
+            "vtb"
+          ],
+          "exclude_banks": false,
+          "provider_margin_pct": 1.2,
+          "merchant_margin_pct": 1.5,
+          "allow_negative_agreement": false
+        },
+        "state_after": {
+          "payment_system": "vipay",
+          "status": "active",
+          "traffic_percentage": 40,
+          "priority": 1,
+          "limit_amount_min": 1000,
+          "limit_amount_max": 100000,
+          "daily_amount_limit": 5000000,
+          "daily_approved_amount": 3302000,
+          "in_progress_count_limit": 10,
+          "in_progress_count": 4,
+          "in_progress_amount_limit": 1000000,
+          "in_progress_amount": 380000,
+          "available_requisites": 12,
+          "conversion_24h": 0.87,
+          "avg_latency_sec": 38,
+          "banks": [
+            "sberbank",
+            "tinkoff",
+            "vtb"
+          ],
+          "exclude_banks": false,
+          "provider_margin_pct": 1.2,
+          "merchant_margin_pct": 1.5,
+          "allow_negative_agreement": false
+        },
+        "attempt_number": 1,
+        "final": true
       }
     ],
     "simulated_result": "approved",
-    "latency_sec": 20,
+    "latency_sec": 49,
     "policy": "balanced_v2",
-    "decision_summary": "quickpay completed the payout. Selected because latency (+0.5) and remaining capacity (+0.41); score 1.574225 versus 1.533247.",
+    "decision_summary": "Выплату исполнил vipay. Выбран, потому что баланс денежного объёма (+3.44) и баланс доли операций (+2.88); оценка 3.4732 против -2.746254.",
     "score_breakdown": {
       "count_target_gain": {
-        "raw": -0.07,
-        "weight": 2.5,
+        "raw": -0.04,
+        "weight": 3,
         "direction": 1,
-        "contribution": -0.17
+        "contribution": -0.12
       },
       "volume_target_gain": {
-        "raw": -0.01,
+        "raw": 1,
         "weight": 2,
         "direction": 1,
-        "contribution": -0.02
+        "contribution": 2
       },
       "conversion": {
-        "raw": 0.79,
+        "raw": 1,
         "weight": 1.5,
         "direction": 1,
-        "contribution": 1.19
-      },
-      "priority": {
-        "raw": 0,
-        "weight": 1,
-        "direction": 1,
-        "contribution": 0
-      },
-      "amount_preference": {
-        "raw": 0,
-        "weight": 1,
-        "direction": 1,
-        "contribution": 0
-      },
-      "capacity": {
-        "raw": 0.89,
-        "weight": 1,
-        "direction": 1,
-        "contribution": 0.89
+        "contribution": 1.5
       },
       "turnover_obligation": {
         "raw": 0,
@@ -3064,76 +2799,46 @@
         "direction": 1,
         "contribution": 0
       },
+      "priority": {
+        "raw": 1,
+        "weight": 1,
+        "direction": 1,
+        "contribution": 1
+      },
+      "capacity": {
+        "raw": 0.48,
+        "weight": 1,
+        "direction": 1,
+        "contribution": 0.48
+      },
       "load": {
-        "raw": 0.05,
+        "raw": 0.39,
         "weight": 1,
         "direction": -1,
-        "contribution": -0.05
+        "contribution": -0.39
       },
-      "latency": {
+      "amount_preference": {
         "raw": 0,
         "weight": 0.5,
-        "direction": -1,
+        "direction": 1,
         "contribution": 0
       },
-      "cost": {
-        "raw": 0.53,
+      "latency": {
+        "raw": 1,
         "weight": 0.5,
         "direction": -1,
-        "contribution": -0.27
+        "contribution": -0.5
+      },
+      "cost": {
+        "raw": 1,
+        "weight": 0.5,
+        "direction": -1,
+        "contribution": -0.5
       }
     },
     "routing_sequence": [
-      "quickpay"
+      "vipay"
     ],
-    "state_changes": {
-      "quickpay": {
-        "before": {
-          "payment_system": "quickpay",
-          "status": "active",
-          "traffic_percentage": 25,
-          "priority": 3,
-          "limit_amount_min": 1000,
-          "limit_amount_max": 200000,
-          "daily_amount_limit": 8000000,
-          "daily_approved_amount": 1295000,
-          "in_progress_count_limit": 15,
-          "in_progress_count": 1,
-          "in_progress_amount_limit": 2000000,
-          "in_progress_amount": 50000,
-          "available_requisites": 20,
-          "conversion_24h": 0.79,
-          "avg_latency_sec": 29,
-          "banks": [],
-          "exclude_banks": false,
-          "provider_margin_pct": 0.8,
-          "merchant_margin_pct": 1.5,
-          "allow_negative_agreement": false
-        },
-        "after": {
-          "payment_system": "quickpay",
-          "status": "active",
-          "traffic_percentage": 25,
-          "priority": 3,
-          "limit_amount_min": 1000,
-          "limit_amount_max": 200000,
-          "daily_amount_limit": 8000000,
-          "daily_approved_amount": 1305000,
-          "in_progress_count_limit": 15,
-          "in_progress_count": 1,
-          "in_progress_amount_limit": 2000000,
-          "in_progress_amount": 50000,
-          "available_requisites": 20,
-          "conversion_24h": 0.79,
-          "avg_latency_sec": 29,
-          "banks": [],
-          "exclude_banks": false,
-          "provider_margin_pct": 0.8,
-          "merchant_margin_pct": 1.5,
-          "allow_negative_agreement": false
-        }
-      }
-    },
     "unmet_goals": [
       {
         "goal": "count_share_target",
@@ -3142,7 +2847,16 @@
         "target_pct": 35,
         "current_attempt_share_pct": 22.22,
         "reason": "bank_not_in_list",
-        "details": "vtb is not in the provider's supported banks list"
+        "details": "банк vtb отсутствует в списке поддерживаемых банков провайдера"
+      },
+      {
+        "goal": "volume_share_target",
+        "provider": "payflow",
+        "status": "unreachable_for_operation",
+        "target_pct": 25,
+        "current_attempt_share_pct": 14.11,
+        "reason": "bank_not_in_list",
+        "details": "банк vtb отсутствует в списке поддерживаемых банков провайдера"
       }
     ]
   },
@@ -3154,49 +2868,125 @@
         "provider": "vipay",
         "decision": "skipped",
         "reason": "bank_not_in_list",
-        "details": "alfa is not in the provider's supported banks list",
+        "details": "банк alfa отсутствует в списке поддерживаемых банков провайдера",
+        "stage": "eligibility_screen",
+        "round": 0,
         "all_reasons": [
           {
             "eligible": false,
             "reason": "bank_not_in_list",
-            "details": "alfa is not in the provider's supported banks list",
+            "details": "банк alfa отсутствует в списке поддерживаемых банков провайдера",
             "rule": "bank"
           }
         ]
       },
       {
+        "provider": "quickpay",
+        "decision": "skipped",
+        "reason": "lower_policy_score",
+        "details": "оценка -0.71221 ниже оценки выбранного провайдера",
+        "stage": "policy_ranking",
+        "round": 1,
+        "rank": 2,
+        "score": -0.71221,
+        "score_breakdown": {
+          "count_target_gain": {
+            "raw": -0.29,
+            "weight": 3,
+            "direction": 1,
+            "contribution": -0.86
+          },
+          "volume_target_gain": {
+            "raw": -0.77,
+            "weight": 2,
+            "direction": 1,
+            "contribution": -1.55
+          },
+          "conversion": {
+            "raw": 0,
+            "weight": 1.5,
+            "direction": 1,
+            "contribution": 0
+          },
+          "turnover_obligation": {
+            "raw": 0.57,
+            "weight": 1.5,
+            "direction": 1,
+            "contribution": 0.85
+          },
+          "priority": {
+            "raw": 0,
+            "weight": 1,
+            "direction": 1,
+            "contribution": 0
+          },
+          "capacity": {
+            "raw": 0.88,
+            "weight": 1,
+            "direction": 1,
+            "contribution": 0.88
+          },
+          "load": {
+            "raw": 0.05,
+            "weight": 1,
+            "direction": -1,
+            "contribution": -0.05
+          },
+          "amount_preference": {
+            "raw": 0,
+            "weight": 0.5,
+            "direction": 1,
+            "contribution": 0
+          },
+          "latency": {
+            "raw": 0,
+            "weight": 0.5,
+            "direction": -1,
+            "contribution": 0
+          },
+          "cost": {
+            "raw": 0,
+            "weight": 0.5,
+            "direction": -1,
+            "contribution": 0
+          }
+        }
+      },
+      {
         "provider": "payflow",
         "decision": "selected",
         "reason": "highest_policy_score",
-        "details": "Selected because cascade priority (+1) and preferred amount band (+1); score 3.012118 versus 1.58886.",
+        "details": "Выбран, потому что баланс доли операций (+3.86) и баланс денежного объёма (+3.55); оценка 7.191244 против -0.71221.",
+        "stage": "selection",
+        "round": 1,
         "rank": 1,
-        "score": 3.012118,
+        "score": 7.191244,
         "score_breakdown": {
           "count_target_gain": {
-            "raw": 0.04,
-            "weight": 2.5,
+            "raw": 1,
+            "weight": 3,
             "direction": 1,
-            "contribution": 0.11
+            "contribution": 3
           },
           "volume_target_gain": {
-            "raw": 0.09,
+            "raw": 1,
             "weight": 2,
             "direction": 1,
-            "contribution": 0.18
+            "contribution": 2
           },
           "conversion": {
-            "raw": 0.91,
+            "raw": 1,
             "weight": 1.5,
             "direction": 1,
-            "contribution": 1.37
+            "contribution": 1.5
+          },
+          "turnover_obligation": {
+            "raw": 0,
+            "weight": 1.5,
+            "direction": 1,
+            "contribution": 0
           },
           "priority": {
-            "raw": 1,
-            "weight": 1,
-            "direction": 1,
-            "contribution": 1
-          },
-          "amount_preference": {
             "raw": 1,
             "weight": 1,
             "direction": 1,
@@ -3208,17 +2998,17 @@
             "direction": 1,
             "contribution": 0.44
           },
-          "turnover_obligation": {
-            "raw": 0,
-            "weight": 1.5,
-            "direction": 1,
-            "contribution": 0
-          },
           "load": {
             "raw": 0.25,
             "weight": 1,
             "direction": -1,
             "contribution": -0.25
+          },
+          "amount_preference": {
+            "raw": 1,
+            "weight": 0.5,
+            "direction": 1,
+            "contribution": 0.5
           },
           "latency": {
             "raw": 1,
@@ -3227,10 +3017,10 @@
             "contribution": -0.5
           },
           "cost": {
-            "raw": 0.67,
+            "raw": 1,
             "weight": 0.5,
             "direction": -1,
-            "contribution": -0.33
+            "contribution": -0.5
           }
         },
         "outcome": "approved",
@@ -3258,7 +3048,8 @@
           "exclude_banks": false,
           "provider_margin_pct": 1.0,
           "merchant_margin_pct": 1.5,
-          "allow_negative_agreement": false
+          "allow_negative_agreement": false,
+          "requests_per_minute_limit": 7
         },
         "state_reserved": {
           "payment_system": "payflow",
@@ -3283,7 +3074,8 @@
           "exclude_banks": false,
           "provider_margin_pct": 1.0,
           "merchant_margin_pct": 1.5,
-          "allow_negative_agreement": false
+          "allow_negative_agreement": false,
+          "requests_per_minute_limit": 7
         },
         "state_after": {
           "payment_system": "payflow",
@@ -3308,112 +3100,43 @@
           "exclude_banks": false,
           "provider_margin_pct": 1.0,
           "merchant_margin_pct": 1.5,
-          "allow_negative_agreement": false
+          "allow_negative_agreement": false,
+          "requests_per_minute_limit": 7
         },
         "attempt_number": 1,
         "final": true
-      },
-      {
-        "provider": "quickpay",
-        "decision": "skipped",
-        "reason": "lower_policy_score",
-        "details": "score 1.58886 ranked below selected provider",
-        "rank": 2,
-        "score": 1.58886,
-        "score_breakdown": {
-          "count_target_gain": {
-            "raw": -0.06,
-            "weight": 2.5,
-            "direction": 1,
-            "contribution": -0.14
-          },
-          "volume_target_gain": {
-            "raw": -0.01,
-            "weight": 2,
-            "direction": 1,
-            "contribution": -0.03
-          },
-          "conversion": {
-            "raw": 0.79,
-            "weight": 1.5,
-            "direction": 1,
-            "contribution": 1.19
-          },
-          "priority": {
-            "raw": 0,
-            "weight": 1,
-            "direction": 1,
-            "contribution": 0
-          },
-          "amount_preference": {
-            "raw": 0,
-            "weight": 1,
-            "direction": 1,
-            "contribution": 0
-          },
-          "capacity": {
-            "raw": 0.88,
-            "weight": 1,
-            "direction": 1,
-            "contribution": 0.88
-          },
-          "turnover_obligation": {
-            "raw": 0,
-            "weight": 1.5,
-            "direction": 1,
-            "contribution": 0
-          },
-          "load": {
-            "raw": 0.05,
-            "weight": 1,
-            "direction": -1,
-            "contribution": -0.05
-          },
-          "latency": {
-            "raw": 0,
-            "weight": 0.5,
-            "direction": -1,
-            "contribution": 0
-          },
-          "cost": {
-            "raw": 0.53,
-            "weight": 0.5,
-            "direction": -1,
-            "contribution": -0.27
-          }
-        }
       }
     ],
     "simulated_result": "approved",
     "latency_sec": 62,
     "policy": "balanced_v2",
-    "decision_summary": "payflow completed the payout. Selected because cascade priority (+1) and preferred amount band (+1); score 3.012118 versus 1.58886.",
+    "decision_summary": "Выплату исполнил payflow. Выбран, потому что баланс доли операций (+3.86) и баланс денежного объёма (+3.55); оценка 7.191244 против -0.71221.",
     "score_breakdown": {
       "count_target_gain": {
-        "raw": 0.04,
-        "weight": 2.5,
+        "raw": 1,
+        "weight": 3,
         "direction": 1,
-        "contribution": 0.11
+        "contribution": 3
       },
       "volume_target_gain": {
-        "raw": 0.09,
+        "raw": 1,
         "weight": 2,
         "direction": 1,
-        "contribution": 0.18
+        "contribution": 2
       },
       "conversion": {
-        "raw": 0.91,
+        "raw": 1,
         "weight": 1.5,
         "direction": 1,
-        "contribution": 1.37
+        "contribution": 1.5
+      },
+      "turnover_obligation": {
+        "raw": 0,
+        "weight": 1.5,
+        "direction": 1,
+        "contribution": 0
       },
       "priority": {
-        "raw": 1,
-        "weight": 1,
-        "direction": 1,
-        "contribution": 1
-      },
-      "amount_preference": {
         "raw": 1,
         "weight": 1,
         "direction": 1,
@@ -3425,17 +3148,17 @@
         "direction": 1,
         "contribution": 0.44
       },
-      "turnover_obligation": {
-        "raw": 0,
-        "weight": 1.5,
-        "direction": 1,
-        "contribution": 0
-      },
       "load": {
         "raw": 0.25,
         "weight": 1,
         "direction": -1,
         "contribution": -0.25
+      },
+      "amount_preference": {
+        "raw": 1,
+        "weight": 0.5,
+        "direction": 1,
+        "contribution": 0.5
       },
       "latency": {
         "raw": 1,
@@ -3444,78 +3167,24 @@
         "contribution": -0.5
       },
       "cost": {
-        "raw": 0.67,
+        "raw": 1,
         "weight": 0.5,
         "direction": -1,
-        "contribution": -0.33
+        "contribution": -0.5
       }
     },
     "routing_sequence": [
       "payflow"
     ],
-    "state_changes": {
-      "payflow": {
-        "before": {
-          "payment_system": "payflow",
-          "status": "active",
-          "traffic_percentage": 35,
-          "priority": 2,
-          "limit_amount_min": 500,
-          "limit_amount_max": 50000,
-          "daily_amount_limit": 3000000,
-          "daily_approved_amount": 2948800,
-          "in_progress_count_limit": 8,
-          "in_progress_count": 2,
-          "in_progress_amount_limit": 500000,
-          "in_progress_amount": 120000,
-          "available_requisites": 5,
-          "conversion_24h": 0.91,
-          "avg_latency_sec": 52,
-          "banks": [
-            "sberbank",
-            "alfa"
-          ],
-          "exclude_banks": false,
-          "provider_margin_pct": 1.0,
-          "merchant_margin_pct": 1.5,
-          "allow_negative_agreement": false
-        },
-        "after": {
-          "payment_system": "payflow",
-          "status": "active",
-          "traffic_percentage": 35,
-          "priority": 2,
-          "limit_amount_min": 500,
-          "limit_amount_max": 50000,
-          "daily_amount_limit": 3000000,
-          "daily_approved_amount": 2988800,
-          "in_progress_count_limit": 8,
-          "in_progress_count": 2,
-          "in_progress_amount_limit": 500000,
-          "in_progress_amount": 120000,
-          "available_requisites": 5,
-          "conversion_24h": 0.91,
-          "avg_latency_sec": 52,
-          "banks": [
-            "sberbank",
-            "alfa"
-          ],
-          "exclude_banks": false,
-          "provider_margin_pct": 1.0,
-          "merchant_margin_pct": 1.5,
-          "allow_negative_agreement": false
-        }
-      }
-    },
     "unmet_goals": [
       {
-        "goal": "count_share_target",
+        "goal": "volume_share_target",
         "provider": "vipay",
         "status": "unreachable_for_operation",
-        "target_pct": 40,
-        "current_attempt_share_pct": 30,
+        "target_pct": 50,
+        "current_attempt_share_pct": 26.44,
         "reason": "bank_not_in_list",
-        "details": "alfa is not in the provider's supported banks list"
+        "details": "банк alfa отсутствует в списке поддерживаемых банков провайдера"
       }
     ]
   }

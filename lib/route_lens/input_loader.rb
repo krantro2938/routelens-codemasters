@@ -13,15 +13,30 @@ module RouteLens
 
   class InputLoader
     class << self
-      def load_provider_snapshot(path)
+      # overrides приходят из секции provider_overrides в policy YAML: входной
+      # снимок организаторов остаётся байт-в-байт неизменным, а параметры правил
+      # (например лимит запросов в минуту) настраиваются конфигурацией.
+      def load_provider_snapshot(path, overrides: nil)
         data = load_json(path)
         unless data.is_a?(Hash) && data["providers"].is_a?(Array)
           raise InputError, "#{path}: expected an object containing a providers array"
         end
 
+        overrides = normalize_provider_overrides(overrides)
         providers = data["providers"].each_with_index.map do |provider, index|
-          validate_provider!(provider, "#{path}: providers[#{index}]")
-          ProviderState.new(provider)
+          context = "#{path}: providers[#{index}]"
+          raise InputError, "#{context}: expected an object" unless provider.is_a?(Hash)
+
+          # Переопределение сливается ДО валидации, поэтому настроенное значение
+          # проходит ровно те же числовые и диапазонные проверки, что и родное.
+          merged = provider.merge(overrides.fetch(provider["payment_system"].to_s, {}))
+          validate_provider!(merged, context)
+          ProviderState.new(merged)
+        end
+
+        unknown = overrides.keys - providers.map(&:payment_system)
+        unless unknown.empty?
+          raise InputError, "provider_overrides: unknown payment_system: #{unknown.sort.join(', ')}"
         end
 
         duplicate_names = providers.group_by(&:payment_system).select { |_name, matches| matches.length > 1 }.keys
@@ -32,8 +47,8 @@ module RouteLens
         data.merge("providers" => providers)
       end
 
-      def load_providers(path)
-        load_provider_snapshot(path).fetch("providers")
+      def load_providers(path, overrides: nil)
+        load_provider_snapshot(path, overrides: overrides).fetch("providers")
       end
 
       def load_operations(path)
@@ -97,7 +112,6 @@ module RouteLens
           in_progress_amount_limit in_progress_amount available_requisites conversion_24h
           avg_latency_sec provider_margin_pct merchant_margin_pct requests_per_minute_limit
           requests_last_minute current_requests_per_minute volume_share_pct daily_turnover_min
-          daily_turnover_max
         ]
         numeric_fields.each do |field|
           next unless provider.key?(field) && !provider[field].nil?
@@ -127,6 +141,19 @@ module RouteLens
         end
       end
 
+      def normalize_provider_overrides(overrides)
+        return {} if overrides.nil?
+        raise InputError, "provider_overrides must be an object" unless overrides.is_a?(Hash)
+
+        overrides.to_h do |name, attributes|
+          unless attributes.is_a?(Hash)
+            raise InputError, "provider_overrides[#{name}]: expected an object of provider attributes"
+          end
+
+          [name.to_s, attributes.transform_keys(&:to_s)]
+        end
+      end
+
       def validate_range!(item, field, minimum, maximum, context)
         return unless item.key?(field) && !item[field].nil?
 
@@ -142,7 +169,10 @@ module RouteLens
         require_string!(operation, "operation_id", context)
         amount = numeric!(operation["amount"], "amount", context)
         raise InputError, "#{context}: amount must be greater than zero" unless amount.positive?
-        require_string!(operation, "bank", context)
+        # bank не входит в обязательный контракт операции: одна выплата без банка
+        # не должна обнулять весь файл. Пустой банк деградирует консервативно —
+        # BankRule пропускает провайдеров со списком banks (bank_not_in_list) и
+        # оставляет допустимыми тех, у кого список пуст.
 
         return unless operation.key?("created_at") && operation["created_at"]
 

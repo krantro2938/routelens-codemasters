@@ -10,11 +10,10 @@ module RouteLens
       def value(provider:, state:, operation:, metrics:)
         current = Support.number(provider, :avg_latency_sec)
         latencies = Support.candidates(metrics).map { |item| Support.number(item, :avg_latency_sec) }
-        latencies << current
-        minimum, maximum = latencies.minmax
-        return normalized_reference(current) if maximum == minimum
+        position = Support.relative_position(current, latencies)
+        return normalized_reference(current) if position.nil?
 
-        (current - minimum) / (maximum - minimum)
+        position
       end
 
       private

@@ -78,6 +78,41 @@ module RouteLens
         round((values[middle - 1] + values[middle]) / 2.0)
       end
 
+      # Русская форма числительного: 1 операция, 2 операции, 5 операций.
+      # Отчёт читают русскоязычные операторы, поэтому "1 times" недопустимо.
+      def plural_ru(count, one, few, many)
+        value = integer(count).abs
+        return many if (11..14).cover?(value % 100)
+        return one if value % 10 == 1
+        return few if (2..4).cover?(value % 10)
+
+        many
+      end
+
+      def counted_ru(count, one, few, many)
+        "#{integer(count)} #{plural_ru(count, one, few, many)}"
+      end
+
+      # Денежная запись с разрядами и знаком рубля: числа в рекомендациях
+      # читаются глазами, а не парсятся, поэтому формат человекочитаемый.
+      def amount_ru(value)
+        return 'не задан' if value.nil?
+
+        amount = round(value)
+        whole = amount.truncate.abs
+        text = whole.to_s.reverse.scan(/\d{1,3}/).join(' ').reverse
+        fraction = ((amount.abs - whole) * 100).round
+        text = "#{text},#{format('%02d', fraction)}" if fraction.positive?
+        text = "-#{text}" if amount.negative?
+        "#{text} \u20BD"
+      end
+
+      def percent_ru(value)
+        return 'н/д' if value.nil?
+
+        format('%.1f%%', number(value))
+      end
+
       def date_part(value)
         value.to_s[/\A\d{4}-\d{2}-\d{2}/]
       end

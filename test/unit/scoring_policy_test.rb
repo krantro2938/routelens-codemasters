@@ -19,6 +19,25 @@ class ScoringPolicyTest < Minitest::Test
     assert_equal(-result[:total], result[:sort_key].first)
   end
 
+  # Полный путь скоринга на односторонней полосе сумм: раньше отсутствующая
+  # граница подставляла Hash#min/#max, и ранжирование падало с NoMethodError
+  # уже внутри rank, а не в изолированном компоненте.
+  def test_rank_survives_half_specified_preferred_amount_bands
+    policy = RouteLens::Scoring::Policy.new(
+      policy: { name: "bands", weights: { amount_preference: 1 } },
+      preferred_amount_bands: { "a" => { "min" => 50 }, "b" => { "max" => 150 } }
+    )
+    candidates = [provider("a"), provider("b")]
+
+    ranking = policy.rank(candidates: candidates, operation: operation(100))
+
+    assert_equal 2, ranking.length
+    assert(ranking.all? { |entry| entry.dig(:result, :breakdown, "amount_preference", :raw) == 1.0 })
+    assert_equal 1.0, policy.score(provider: provider("a"), operation: operation(1_000))[:total]
+    assert_equal 0.0, policy.score(provider: provider("a"), operation: operation(10))[:total]
+    assert_equal 0.0, policy.score(provider: provider("b"), operation: operation(1_000))[:total]
+  end
+
   def test_rank_uses_score_then_priority_latency_and_name
     policy = RouteLens::Scoring::Policy.new(policy: { weights: { conversion: 1 } })
     slow_priority_one = provider("z", conversion_24h: 0.9, priority: 1, avg_latency_sec: 90)
@@ -83,5 +102,35 @@ class ScoringPolicyTest < Minitest::Test
         volume_targets: { "provider" => 101 }
       )
     end
+  end
+
+  def test_rejects_target_vectors_that_do_not_sum_to_one_hundred
+    # Каждое значение по отдельности выглядит корректным процентом, поэтому
+    # вектор проверяется целиком: 150% делает цели недостижимыми.
+    error = assert_raises(ArgumentError) do
+      RouteLens::Scoring::Policy.new(
+        policy: { weights: { volume_target_gain: 1 } },
+        volume_targets: { "vipay" => 100, "payflow" => 25, "quickpay" => 25 }
+      )
+    end
+    assert_match(/volume targets must sum to 100/, error.message)
+    assert_match(/150/, error.message)
+
+    count_error = assert_raises(ArgumentError) do
+      RouteLens::Scoring::Policy.new(
+        policy: { weights: { count_target_gain: 1 } },
+        traffic_targets: { "vipay" => 40, "payflow" => 35 }
+      )
+    end
+    assert_match(/count targets must sum to 100/, count_error.message)
+  end
+
+  def test_accepts_target_vectors_within_the_rounding_tolerance
+    policy = RouteLens::Scoring::Policy.new(
+      policy: { name: "rounded", weights: { volume_target_gain: 1 } },
+      volume_targets: { "a" => 33.3, "b" => 33.3, "c" => 33.3 }
+    )
+
+    assert_equal "rounded", policy.name
   end
 end

@@ -92,6 +92,28 @@ def validate_state_lifecycle(operation_id, attempt, operation, errors)
   end
 end
 
+# Операция без исполнителя допустима ровно в одной форме: пустой
+# selected_provider и финальная попытка со стабильным кодом
+# no_provider_available. Обычные решения по-прежнему обязаны нести
+# выбранную попытку — послабление касается только этой записи.
+def validate_unroutable_decision(operation_id, decision, errors)
+  unless decision["selected_provider"].nil?
+    fail_check("#{operation_id}: no selected provider attempt", errors)
+    return
+  end
+
+  final = decision["attempts"].last
+  unless final.is_a?(Hash) && final["decision"] == "skipped" && final["reason"] == "no_provider_available"
+    fail_check("#{operation_id}: unroutable decision must end with a no_provider_available skip", errors)
+    return
+  end
+
+  fail_check("#{operation_id}: unroutable decision must not name a provider", errors) unless final["provider"].nil?
+  unless decision["simulated_result"] == "expired"
+    fail_check("#{operation_id}: unroutable decision must report simulated_result expired", errors)
+  end
+end
+
 errors = []
 queue = load_json(options[:queue], errors)
 decisions = load_json(options[:decisions], errors)
@@ -170,7 +192,7 @@ if queue.is_a?(Array) && decisions.is_a?(Array)
 
     actual_attempts = decision["attempts"].select { |attempt| attempt.is_a?(Hash) && attempt["decision"] == "selected" }
     if actual_attempts.empty?
-      fail_check("#{id}: no selected provider attempt", errors)
+      validate_unroutable_decision(id, decision, errors)
     else
       final_attempt = actual_attempts.last
       unless final_attempt["provider"] == decision["selected_provider"]
@@ -232,10 +254,14 @@ if queue.is_a?(Array) && decisions.is_a?(Array)
       fail_check("Report total_amount does not reconcile with the queue", errors)
     end
 
+    # Невыполнимые операции не попадают ни в одну колонку распределения,
+    # поэтому суммы сверяются с числом реально назначенных решений.
+    routed_decisions = decisions.reject { |decision| decision["selected_provider"].nil? }
+
     if report["distribution"].is_a?(Hash)
-      expected_counts = decisions.group_by { |decision| decision["selected_provider"] }.transform_values(&:length)
+      expected_counts = routed_decisions.group_by { |decision| decision["selected_provider"] }.transform_values(&:length)
       reported_count_sum = report["distribution"].values.sum { |metrics| metrics.is_a?(Hash) ? metrics["count"].to_i : 0 }
-      fail_check("Report distribution counts do not sum to total_operations", errors) unless reported_count_sum == decisions.length
+      fail_check("Report distribution counts do not sum to routed decisions", errors) unless reported_count_sum == routed_decisions.length
       expected_counts.each do |provider, count|
         unless report.dig("distribution", provider, "count").to_i == count
           fail_check("Report distribution count for #{provider} does not match decisions", errors)
@@ -245,7 +271,7 @@ if queue.is_a?(Array) && decisions.is_a?(Array)
 
     if report["volume_distribution"].is_a?(Hash)
       expected_volumes = Hash.new(0.0)
-      decisions.each do |decision|
+      routed_decisions.each do |decision|
         expected_volumes[decision["selected_provider"]] += queue_amounts.fetch(decision["operation_id"], 0.0)
       end
       expected_volumes.each do |provider, amount|

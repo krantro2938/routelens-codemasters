@@ -26,8 +26,23 @@ OptionParser.new do |parser|
   parser.on("--output PATH") { |value| options[:output] = value }
 end.parse!
 
+# Переменная объявляется до begin: Ruby считает локальную переменную
+# определённой уже с момента разбора, поэтому defined?(temporary) в ensure
+# было истинным и на ранней ошибке (например «нет файла политики»), а
+# File.exist?(nil) подменял настоящую ошибку на TypeError и оставлял код 0.
+temporary = nil
+
 begin
-  snapshot = RouteLens::InputLoader.load_provider_snapshot(options[:providers])
+  # Конфигурация читается здесь, а не только внутри PolicyComparison: секция
+  # provider_overrides меняет параметры провайдеров (например
+  # requests_per_minute_limit), и без неё сценарии сравнения молча работали бы
+  # на другом снимке, чем bin/route. Тогда «разница между политиками» частично
+  # объяснялась бы разными входными данными, а не самой политикой.
+  policy_config = RouteLens::ConfigLoader.load(options[:policy])
+  snapshot = RouteLens::InputLoader.load_provider_snapshot(
+    options[:providers],
+    overrides: policy_config["provider_overrides"]
+  )
   operations = RouteLens::InputLoader.load_operations(options[:queue])
   history = RouteLens::Analytics::HistoryAnalyzer.new(RouteLens::InputLoader.load_history(options[:history])).analyze
   comparison = RouteLens::PolicyComparison.new(
@@ -43,6 +58,12 @@ begin
   File.write(temporary, JSON.pretty_generate(comparison) + "\n")
   File.rename(temporary, output)
   puts "Wrote #{options[:output]}"
+rescue RouteLens::InputError, RouteLens::ConfigError, ArgumentError, Psych::Exception,
+       Errno::EACCES, Errno::ENOENT => e
+  # Тот же контракт, что у bin/route: судья видит одну понятную строку и
+  # ненулевой код возврата, а не сырой стек Ruby.
+  warn "RouteLens error: #{e.message}"
+  exit 1
 ensure
-  File.delete(temporary) if defined?(temporary) && File.exist?(temporary)
+  File.delete(temporary) if temporary && File.exist?(temporary)
 end

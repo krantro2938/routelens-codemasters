@@ -24,6 +24,10 @@ class AnalyticsHistoryAnalyzerTest < Minitest::Test
     assert_equal 20.0, result.dig('providers', 'vipay', 'avg_latency_sec')
     assert_equal 20.0, result.dig('providers', 'vipay', 'median_latency_sec')
     assert_equal 30.0, result.dig('providers', 'vipay', 'p95_latency_sec')
+    # Исторические доли нужны, чтобы проверить достижимость целевых долей.
+    assert_equal 66.67, result.dig('providers', 'vipay', 'count_share_pct')
+    assert_equal 40.0, result.dig('providers', 'vipay', 'volume_share_pct')
+    assert_equal 60.0, result.dig('providers', 'payflow', 'volume_share_pct')
   end
 
   def test_empty_history_is_safe

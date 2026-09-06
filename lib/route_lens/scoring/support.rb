@@ -5,6 +5,13 @@ module RouteLens
     # Адаптирует Hash, ProviderState и простые test doubles к одному интерфейсу,
     # чтобы компоненты скоринга не зависели от конкретного типа входа.
     module Support
+      # Единственные методы-читатели, которые разрешено вызывать напрямую.
+      # Произвольный public_send опасен: Hash и Enumerable уже отвечают на
+      # :min, :max, :sum, :count, :first, :size, поэтому неполная секция
+      # конфигурации вернула бы внутренности коллекции вместо значения
+      # по умолчанию. Список закрыт именами, которых нет у коллекций.
+      READER_METHODS = %i[payment_system].freeze
+
       module_function
 
       def fetch(source, key, default = nil)
@@ -18,14 +25,25 @@ module RouteLens
         end
 
         if source.respond_to?(:[]) && !source.is_a?(Array)
-          value = source[key]
-          value = source[key.to_s] if value.nil?
+          value = indexed_value(source, key)
+          value = indexed_value(source, key.to_s) if value.nil?
           return value unless value.nil?
         end
 
-        return source.public_send(key) if source.respond_to?(key)
+        # ProviderState и Hash уже разобраны выше; сюда попадают только простые
+        # объекты-двойники, которые отдают имя провайдера обычным методом.
+        return source.public_send(key) if READER_METHODS.include?(key) && source.respond_to?(key)
 
         default
+      end
+
+      # Struct и другие простые двойники бросают исключение на неизвестном ключе.
+      # Для fetch отсутствие значения — это nil и переход к значению по
+      # умолчанию, а не падение всего скоринга.
+      def indexed_value(source, key)
+        source[key]
+      rescue NameError, IndexError, KeyError, TypeError, ArgumentError
+        nil
       end
 
       def number(source, key, default = 0.0)
@@ -86,8 +104,27 @@ module RouteLens
         collection.values.compact.sum(&:to_f)
       end
 
+      # Относительное положение значения среди текущих кандидатов в диапазоне
+      # 0..1. nil означает, что кандидаты неразличимы: тогда компонент обязан
+      # взять абсолютный эталон, иначе он выдумал бы разницу там, где её нет.
+      def relative_position(current, values)
+        pool = values.map(&:to_f)
+        pool << current.to_f
+        minimum, maximum = pool.minmax
+        return nil if maximum == minimum
+
+        (current.to_f - minimum) / (maximum - minimum)
+      end
+
       def candidates(metrics)
         Array(fetch(metrics, :eligible_providers, fetch(metrics, :providers, [])))
+      end
+
+      # Цели долей описывают весь портфель, а не только допустимых кандидатов
+      # текущей операции, поэтому вектор целей строится по полному списку.
+      def portfolio_providers(metrics)
+        pool = Array(fetch(metrics, :providers, []))
+        pool.empty? ? candidates(metrics) : pool
       end
 
       def config_for_provider(config, section, provider)

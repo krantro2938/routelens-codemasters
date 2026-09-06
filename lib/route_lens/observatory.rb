@@ -1,13 +1,75 @@
 # frozen_string_literal: true
 
 require "json"
+require_relative "router"
 
 module RouteLens
   # Генерирует переносимое представление сохранённых артефактов без зависимостей.
   # Динамический текст выводится через DOM textContent, а встроенный JSON
   # экранирует HTML-символы, поэтому входные данные не становятся разметкой.
+  # Разметка, стили и скрипт лежат рядом в observatory/ и встраиваются в один
+  # файл при генерации: страница остаётся автономной, но Ruby больше не хранит
+  # внутри себя фронтенд.
   class Observatory
     class InputError < StandardError; end
+
+    ASSET_DIR = File.expand_path("observatory", __dir__)
+    private_constant :ASSET_DIR
+
+    # Плейсхолдер намеренно узкий: только заглавные буквы и подчёркивания,
+    # чтобы произвольный текст из данных не выглядел как метка подстановки.
+    PLACEHOLDER = /\{\{([A-Z_]+)\}\}/
+    private_constant :PLACEHOLDER
+
+    # Подписи исходов попыток: значения приходят из OutcomeSimulator и роутера.
+    OUTCOME_LABELS = {
+      "approved" => "одобрено",
+      "rejected" => "отклонено",
+      "expired" => "истекло",
+      "selected" => "выбран",
+      "skipped" => "не выбран"
+    }.freeze
+
+    # Коды причин рождаются в Eligibility::Rules и в самом роутере. Раньше их
+    # перевод жил копией внутри JavaScript и молча отставал от Ruby; теперь
+    # словарь один, а тест сверяет его с исходниками правил и роутера.
+    REASON_LABELS = {
+      "provider_inactive" => "провайдер неактивен",
+      "self_provider_reserved_for_fallback" => "собственный провайдер зарезервирован для fallback",
+      "traffic_disabled" => "маршрут отключён нулевой долей трафика",
+      "amount_below_minimum" => "сумма ниже минимума",
+      "amount_exceeds_limit" => "сумма выше максимума",
+      "daily_amount_limit_exceeded" => "превышен дневной лимит суммы",
+      "in_progress_count_limit_exceeded" => "превышен лимит незавершённых операций",
+      "in_progress_amount_limit_exceeded" => "превышен лимит суммы незавершённых операций",
+      "bank_not_in_list" => "банк не поддерживается",
+      "bank_excluded" => "банк исключён",
+      "negative_margin_not_allowed" => "отрицательная маржа запрещена",
+      "no_available_requisites" => "нет доступных реквизитов",
+      "rate_limit_exceeded" => "превышен минутный лимит запросов",
+      "lower_policy_score" => "оценка политики ниже",
+      "state_changed_during_selection" => "состояние изменилось до резервирования",
+      "external_pool_exhausted" => "внешние маршруты исчерпаны",
+      "no_provider_available" => "нет доступного провайдера",
+      "highest_policy_score" => "наивысшая оценка политики",
+      "only_eligible_provider" => "единственный допустимый провайдер"
+    }.freeze
+
+    # Набор ключей берём у роутера: новый фактор скоринга сразу появится в
+    # разложении оценки. Без перевода он покажет английскую подпись движка,
+    # а не сырой snake_case.
+    FACTOR_LABELS = Router::FACTOR_LABELS.merge(
+      "count_target_gain" => "Баланс доли операций",
+      "volume_target_gain" => "Баланс денежного объёма",
+      "conversion" => "Конверсия",
+      "priority" => "Приоритет каскада",
+      "amount_preference" => "Предпочтительный диапазон суммы",
+      "capacity" => "Запас ёмкости",
+      "turnover_obligation" => "Обязательство по обороту",
+      "load" => "Текущая нагрузка",
+      "latency" => "Задержка",
+      "cost" => "Стоимость"
+    ).freeze
 
     attr_reader :decisions, :report
 
@@ -40,376 +102,52 @@ module RouteLens
     end
 
     def render
-      html = <<~HTML
-        <!doctype html>
-        <html lang="ru">
-        <head>
-          <meta charset="utf-8">
-          <meta name="viewport" content="width=device-width, initial-scale=1">
-          <meta name="color-scheme" content="light dark">
-          <meta http-equiv="Content-Security-Policy" content="default-src 'none'; style-src 'unsafe-inline'; script-src 'unsafe-inline'; img-src data:">
-          <title>RouteLens: центр наблюдения за маршрутизацией</title>
-          <style>
-            :root {
-              color-scheme: light dark;
-              --bg: #f4f5f0;
-              --surface: #ffffff;
-              --surface-raised: #f9faf6;
-              --ink: #17201d;
-              --muted: #63706b;
-              --line: #dce2dc;
-              --accent: #087f5b;
-              --accent-soft: #c9f3e4;
-              --target: #ff9f1c;
-              --danger: #c92a2a;
-              --shadow: 0 18px 48px rgba(23, 32, 29, .09);
-              --radius: 20px;
-              font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-            }
-            @media (prefers-color-scheme: dark) {
-              :root {
-                --bg: #101613;
-                --surface: #18201c;
-                --surface-raised: #202a25;
-                --ink: #edf5f0;
-                --muted: #a8b8b0;
-                --line: #34423b;
-                --accent: #69dbb3;
-                --accent-soft: #173f31;
-                --target: #ffc65c;
-                --danger: #ff8787;
-                --shadow: 0 18px 48px rgba(0, 0, 0, .28);
-              }
-            }
-            * { box-sizing: border-box; }
-            body { margin: 0; background: var(--bg); color: var(--ink); }
-            main { width: min(1180px, calc(100% - 32px)); margin: 0 auto; padding: 32px 0 64px; }
-            header { padding: 28px 0 24px; display: flex; justify-content: space-between; gap: 24px; align-items: end; }
-            .eyebrow { color: var(--accent); font-size: .76rem; font-weight: 800; letter-spacing: .14em; text-transform: uppercase; }
-            h1 { margin: 8px 0 5px; font-size: clamp(2rem, 6vw, 4.4rem); line-height: .95; letter-spacing: -.06em; }
-            h2 { margin: 0 0 18px; font-size: 1.25rem; letter-spacing: -.02em; }
-            h3 { margin: 0; font-size: 1rem; }
-            p { color: var(--muted); }
-            .meta { text-align: right; color: var(--muted); white-space: nowrap; }
-            .grid { display: grid; gap: 16px; }
-            .kpis { grid-template-columns: repeat(5, 1fr); margin-bottom: 16px; }
-            .two-col { grid-template-columns: minmax(0, 1.25fr) minmax(280px, .75fr); margin-bottom: 16px; }
-            .card { background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius); padding: 22px; box-shadow: var(--shadow); }
-            .kpi-label { color: var(--muted); font-size: .78rem; font-weight: 750; letter-spacing: .07em; text-transform: uppercase; }
-            .kpi-value { display: block; margin-top: 7px; font-size: 2rem; font-weight: 780; letter-spacing: -.04em; }
-            .kpi-note { color: var(--muted); font-size: .8rem; }
-            .distribution { display: grid; gap: 18px; }
-            .distribution-row { display: grid; grid-template-columns: minmax(124px, .3fr) 1fr minmax(112px, .3fr); gap: 14px; align-items: center; }
-            .provider { font-weight: 750; white-space: nowrap; }
-            .bar-pair { display: grid; gap: 5px; }
-            .track { height: 9px; background: var(--surface-raised); border-radius: 99px; overflow: hidden; border: 1px solid var(--line); }
-            .fill { display: block; width: min(var(--value), 100%); height: 100%; border-radius: inherit; background: var(--accent); }
-            .fill.target { background: var(--target); opacity: .72; }
-            .bar-values { text-align: right; font-variant-numeric: tabular-nums; font-size: .8rem; color: var(--muted); }
-            .legend { display: flex; gap: 16px; margin-top: 18px; color: var(--muted); font-size: .75rem; }
-            .dot { width: 8px; height: 8px; display: inline-block; border-radius: 50%; margin-right: 5px; background: var(--accent); }
-            .dot.target { background: var(--target); }
-            .capacity-list { display: grid; gap: 16px; }
-            .capacity-head { display: flex; justify-content: space-between; gap: 10px; margin-bottom: 7px; }
-            .capacity-head span { color: var(--muted); font-variant-numeric: tabular-nums; }
-            .capacity-note { margin-top: 5px; color: var(--muted); font-size: .76rem; }
-            .recommendations { margin: 0; padding: 0; list-style: none; display: grid; gap: 10px; }
-            .recommendations li { border-left: 3px solid var(--target); padding: 4px 0 4px 14px; line-height: 1.5; }
-            .operation-card { margin-top: 16px; }
-            .operation-toolbar { display: flex; align-items: end; justify-content: space-between; gap: 16px; margin-bottom: 20px; }
-            label { display: block; margin-bottom: 7px; color: var(--muted); font-size: .8rem; font-weight: 750; }
-            select { min-width: min(320px, 100%); padding: 11px 38px 11px 12px; border: 1px solid var(--line); border-radius: 10px; background: var(--surface-raised); color: var(--ink); font: inherit; }
-            select:focus-visible, summary:focus-visible { outline: 3px solid var(--accent); outline-offset: 3px; }
-            .operation-summary { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; margin-bottom: 18px; }
-            .decision-copy { margin: 0 0 18px; padding: 14px 16px; border-left: 3px solid var(--accent); background: var(--surface-raised); border-radius: 0 10px 10px 0; color: var(--ink); line-height: 1.5; }
-            .summary-item { background: var(--surface-raised); border-radius: 12px; padding: 13px; }
-            .summary-item small { display: block; color: var(--muted); margin-bottom: 4px; }
-            .summary-item strong { overflow-wrap: anywhere; }
-            .attempts { display: grid; gap: 12px; }
-            .attempt { border: 1px solid var(--line); border-radius: 14px; padding: 16px; }
-            .attempt-head { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; }
-            .attempt-index { color: var(--muted); font-size: .75rem; }
-            .badge { display: inline-flex; border-radius: 99px; padding: 4px 9px; font-size: .72rem; font-weight: 800; background: var(--accent-soft); color: var(--accent); }
-            .badge.skipped { background: var(--surface-raised); color: var(--muted); border: 1px solid var(--line); }
-            .badge.failed { background: color-mix(in srgb, var(--danger) 14%, transparent); color: var(--danger); }
-            .attempt p { margin: 9px 0 0; font-size: .88rem; }
-            details { margin-top: 13px; }
-            summary { cursor: pointer; color: var(--accent); font-size: .84rem; font-weight: 700; }
-            .score-wrap { overflow-x: auto; }
-            table { width: 100%; margin-top: 9px; border-collapse: collapse; font-size: .8rem; }
-            th, td { border-bottom: 1px solid var(--line); padding: 8px 6px; text-align: right; font-variant-numeric: tabular-nums; }
-            th:first-child, td:first-child { text-align: left; }
-            .empty { border: 1px dashed var(--line); border-radius: 12px; padding: 18px; color: var(--muted); }
-            footer { padding-top: 20px; text-align: center; color: var(--muted); font-size: .76rem; }
-            @media (max-width: 820px) {
-              header { align-items: start; flex-direction: column; }
-              .meta { text-align: left; }
-              .kpis { grid-template-columns: repeat(2, 1fr); }
-              .two-col { grid-template-columns: 1fr; }
-            }
-            @media (max-width: 540px) {
-              main { width: min(100% - 20px, 1180px); padding-top: 12px; }
-              .card { padding: 17px; border-radius: 15px; }
-              .kpis, .operation-summary { grid-template-columns: 1fr 1fr; }
-              .distribution-row { grid-template-columns: minmax(0, 1fr); gap: 7px; }
-              .provider, .bar-pair, .bar-values { grid-column: 1; }
-              .bar-values { text-align: left; }
-              .operation-toolbar { align-items: stretch; flex-direction: column; }
-              select { width: 100%; }
-            }
-            @media (prefers-reduced-motion: reduce) { * { scroll-behavior: auto !important; } }
-          </style>
-        </head>
-        <body>
-          <main>
-            <header>
-              <div>
-                <div class="eyebrow">Аналитика решений / автономно</div>
-                <h1>Центр<br>маршрутизации</h1>
-                <p>Проверяемое представление распределения, отказоустойчивости и каждого решения роутера.</p>
-              </div>
-              <div class="meta"><strong>Codemasters · RouteLens</strong><br>#{h(period_label)}</div>
-            </header>
-
-            <section class="grid kpis" aria-label="Обзор маршрутизации">
-              #{kpi("Операции", number(report["total_operations"] || decisions.length), "обработано в этом запуске")}
-              #{kpi("Итоговое одобрение", percentage(report.dig("outcomes", "approval_rate_pct")), outcome_note)}
-              #{kpi("Сбои провайдеров", number(attempt_failure_count), recovery_note)}
-              #{kpi("Повторные попытки", number(retry_count), "по всем операциям")}
-              #{kpi("Fallback", number(fallback_count), "на собственного провайдера")}
-            </section>
-
-            <div class="grid two-col">
-              <section class="card" aria-labelledby="distribution-title">
-                <h2 id="distribution-title">Доля операций: факт и цель</h2>
-                <div class="distribution">#{distribution_rows}</div>
-                <div class="legend" aria-hidden="true"><span><i class="dot"></i>Факт</span><span><i class="dot target"></i>Цель</span></div>
-              </section>
-              <section class="card" aria-labelledby="capacity-title">
-                <h2 id="capacity-title">Дневная ёмкость</h2>
-                <div class="capacity-list">#{capacity_rows}</div>
-              </section>
-            </div>
-
-            <section class="card" aria-labelledby="recommendations-title">
-              <h2 id="recommendations-title">Рекомендуемые действия</h2>
-              #{recommendation_rows}
-            </section>
-
-            #{policy_comparison_section}
-
-            <section class="card operation-card" aria-labelledby="operation-title">
-              <div class="operation-toolbar">
-                <div>
-                  <div class="eyebrow">Квитанция решения</div>
-                  <h2 id="operation-title">Разбор операции</h2>
-                </div>
-                <div>
-                  <label for="operation-select">Операция</label>
-                  <select id="operation-select">#{operation_options}</select>
-                </div>
-              </div>
-              <div id="operation-view" aria-live="polite"></div>
-              <noscript><p class="empty">Включите JavaScript для просмотра попыток. Сводные метрики доступны выше.</p></noscript>
-            </section>
-            <footer>Сформировано локально из routing_decisions.json и routing_report.json · сеть не требуется</footer>
-          </main>
-
-          <script id="route-lens-data" type="application/json">#{embedded_data}</script>
-          <script>
-            (() => {
-              "use strict";
-              const data = JSON.parse(document.getElementById("route-lens-data").textContent);
-              const select = document.getElementById("operation-select");
-              const view = document.getElementById("operation-view");
-
-              const element = (tag, className, value) => {
-                const node = document.createElement(tag);
-                if (className) node.className = className;
-                if (value !== undefined && value !== null) node.textContent = String(value);
-                return node;
-              };
-              const valueOrDash = value => value === undefined || value === null || value === "" ? "—" : value;
-              const outcomeLabels = {
-                approved: "одобрено",
-                rejected: "отклонено",
-                expired: "истекло",
-                selected: "выбран",
-                skipped: "не выбран"
-              };
-              const reasonLabels = {
-                provider_inactive: "провайдер неактивен",
-                self_provider_reserved_for_fallback: "собственный провайдер зарезервирован для fallback",
-                traffic_disabled: "маршрут отключён нулевой долей трафика",
-                amount_below_minimum: "сумма ниже минимума",
-                amount_exceeds_limit: "сумма выше максимума",
-                daily_amount_limit_exceeded: "превышен дневной лимит суммы",
-                in_progress_count_limit_exceeded: "превышен лимит незавершённых операций",
-                in_progress_amount_limit_exceeded: "превышен лимит суммы незавершённых операций",
-                bank_not_in_list: "банк не поддерживается",
-                bank_excluded: "банк исключён",
-                negative_margin_not_allowed: "отрицательная маржа запрещена",
-                no_available_requisites: "нет доступных реквизитов",
-                rate_limit_exceeded: "превышен минутный лимит запросов",
-                lower_policy_score: "оценка политики ниже",
-                state_changed_during_selection: "состояние изменилось до резервирования",
-                external_pool_exhausted: "внешние маршруты исчерпаны",
-                highest_policy_score: "наивысшая оценка политики",
-                only_eligible_provider: "единственный допустимый провайдер"
-              };
-              const factorLabels = {
-                count_target_gain: "Баланс доли операций",
-                volume_target_gain: "Баланс денежного объёма",
-                conversion: "Конверсия",
-                priority: "Приоритет каскада",
-                amount_preference: "Предпочтительный диапазон суммы",
-                capacity: "Запас ёмкости",
-                turnover_obligation: "Обязательство по обороту",
-                load: "Текущая нагрузка",
-                latency: "Задержка",
-                cost: "Стоимость"
-              };
-              const outcomeLabel = value => outcomeLabels[value] || valueOrDash(value);
-              const reasonLabel = value => reasonLabels[value] || valueOrDash(value);
-
-              function decisionSummary(decision) {
-                const attempts = Array.isArray(decision.attempts) ? decision.attempts.filter(item => item.outcome) : [];
-                if (!attempts.length) return `Выбран маршрут ${valueOrDash(decision.selected_provider)}.`;
-                if (attempts.length === 1) return `Выплата завершена через ${attempts[0].provider}: ${outcomeLabel(attempts[0].outcome)}.`;
-                const chain = attempts.map(item => `${item.provider}: ${outcomeLabel(item.outcome)}`).join("; ");
-                return `Маршрут восстановления: ${chain}.`;
-              }
-
-              function renderSummary(decision) {
-                const summary = element("div", "operation-summary");
-                [
-                  ["Выбранный провайдер", valueOrDash(decision.selected_provider)],
-                  ["Итог", outcomeLabel(decision.simulated_result || decision.result)],
-                  ["Задержка", decision.latency_sec == null ? "—" : decision.latency_sec + " с"],
-                  ["Проверено кандидатов", Array.isArray(decision.attempts) ? decision.attempts.length : 0]
-                ].forEach(([label, value]) => {
-                  const item = element("div", "summary-item");
-                  item.append(element("small", "", label), element("strong", "", value));
-                  summary.append(item);
-                });
-                return summary;
-              }
-
-              function renderLifecycle(attempt) {
-                if (!attempt.state_reserved) return null;
-                const details = document.createElement("details");
-                details.append(element("summary", "", "Жизненный цикл резервирования"));
-                const wrap = element("div", "score-wrap");
-                const table = document.createElement("table");
-                table.setAttribute("aria-label", "Состояние провайдера до резервирования, во время него и после завершения");
-                const head = document.createElement("thead");
-                const headRow = document.createElement("tr");
-                ["Метрика", "До", "Резерв", "После"].forEach(label => headRow.append(element("th", "", label)));
-                head.append(headRow);
-                const body = document.createElement("tbody");
-                [
-                  ["Незавершённые операции", "in_progress_count"],
-                  ["Сумма незавершённых операций", "in_progress_amount"],
-                  ["Доступные реквизиты", "available_requisites"],
-                  ["Одобрено за день", "daily_approved_amount"]
-                ].forEach(([label, key]) => {
-                  const row = document.createElement("tr");
-                  row.append(
-                    element("td", "", label),
-                    element("td", "", valueOrDash(attempt.state_before && attempt.state_before[key])),
-                    element("td", "", valueOrDash(attempt.state_reserved && attempt.state_reserved[key])),
-                    element("td", "", valueOrDash(attempt.state_after && attempt.state_after[key]))
-                  );
-                  body.append(row);
-                });
-                table.append(head, body);
-                wrap.append(table);
-                details.append(wrap);
-                return details;
-              }
-
-              function renderBreakdown(breakdown) {
-                const details = document.createElement("details");
-                const summary = element("summary", "", "Разложение итоговой оценки");
-                const wrap = element("div", "score-wrap");
-                const table = document.createElement("table");
-                table.setAttribute("aria-label", "Разложение взвешенной оценки политики");
-                const head = document.createElement("thead");
-                const headRow = document.createElement("tr");
-                ["Фактор", "Значение", "Вес", "Вклад"].forEach(label => headRow.append(element("th", "", label)));
-                head.append(headRow);
-                const body = document.createElement("tbody");
-                Object.entries(breakdown).forEach(([name, detail]) => {
-                  const row = document.createElement("tr");
-                  row.append(
-                    element("td", "", factorLabels[name] || name.replaceAll("_", " ")),
-                    element("td", "", valueOrDash(detail && detail.raw)),
-                    element("td", "", valueOrDash(detail && detail.weight)),
-                    element("td", "", valueOrDash(detail && detail.contribution))
-                  );
-                  body.append(row);
-                });
-                table.append(head, body);
-                wrap.append(table);
-                details.append(summary, wrap);
-                return details;
-              }
-
-              function renderAttempt(attempt, index, decision) {
-                const card = element("article", "attempt");
-                const head = element("div", "attempt-head");
-                const rawStatus = attempt.outcome || attempt.decision;
-                const status = outcomeLabel(rawStatus);
-                const indexLabel = attempt.attempt_number ? "Попытка " + attempt.attempt_number : "Проверка кандидата " + (index + 1);
-                const statusClass = rawStatus === "skipped" ? "skipped" : (["rejected", "expired"].includes(rawStatus) ? "failed" : "");
-                head.append(
-                  element("span", "attempt-index", indexLabel),
-                  element("h3", "", valueOrDash(attempt.provider)),
-                  element("span", "badge " + statusClass, status)
-                );
-                card.append(head);
-                const reason = attempt.reason ? `${reasonLabel(attempt.reason)} (${attempt.reason})` : "Дополнительная причина не указана.";
-                card.append(element("p", "", reason));
-                const breakdown = attempt.score_breakdown ||
-                  (attempt.provider === decision.selected_provider ? decision.score_breakdown : null);
-                if (breakdown && Object.keys(breakdown).length) card.append(renderBreakdown(breakdown));
-                const lifecycle = renderLifecycle(attempt);
-                if (lifecycle) card.append(lifecycle);
-                return card;
-              }
-
-              function renderOperation() {
-                const decision = data.decisions.find(item => String(item.operation_id) === select.value);
-                view.replaceChildren();
-                if (!decision) {
-                  view.append(element("p", "empty", "Данные об операции отсутствуют."));
-                  return;
-                }
-                view.append(renderSummary(decision));
-                view.append(element("p", "decision-copy", decisionSummary(decision)));
-                const unmet = Array.isArray(decision.unmet_goals) ? decision.unmet_goals : [];
-                if (unmet.length) {
-                  const copy = unmet.map(goal => `${goal.provider}: цель ${goal.goal}, причина ${reasonLabel(goal.reason)} (${goal.reason})`).join(" · ");
-                  view.append(element("p", "decision-copy", "Недостижимые мягкие цели · " + copy));
-                }
-                const attempts = element("div", "attempts");
-                const list = Array.isArray(decision.attempts) ? decision.attempts : [];
-                if (list.length) list.forEach((attempt, index) => attempts.append(renderAttempt(attempt, index, decision)));
-                else attempts.append(element("p", "empty", "Попытки обращения к провайдерам не зафиксированы."));
-                view.append(attempts);
-              }
-
-              select.addEventListener("change", renderOperation);
-              renderOperation();
-            })();
-          </script>
-        </body>
-        </html>
-      HTML
+      html = fill(
+        asset("page.html"),
+        "STYLES" => inline_asset("page.css", 4),
+        "SCRIPT" => inline_asset("page.js", 4),
+        "PERIOD_LABEL" => h(period_label),
+        "KPI_OPERATIONS" => kpi("Операции", number(report["total_operations"] || decisions.length), "обработано в этом запуске"),
+        "KPI_APPROVAL" => kpi("Итоговое одобрение", percentage(report.dig("outcomes", "approval_rate_pct")), outcome_note),
+        "KPI_FAILURES" => kpi("Сбои провайдеров", number(attempt_failure_count), recovery_note),
+        "KPI_RETRIES" => kpi("Повторные попытки", number(retry_count), "по всем операциям"),
+        "KPI_FALLBACK" => kpi("Fallback", number(fallback_count), "на собственного провайдера"),
+        "DISTRIBUTION_ROWS" => distribution_rows,
+        "CAPACITY_ROWS" => capacity_rows,
+        "RECOMMENDATION_ROWS" => recommendation_rows,
+        "POLICY_COMPARISON" => policy_comparison_section,
+        "OPERATION_OPTIONS" => operation_options,
+        "EMBEDDED_DATA" => embedded_data
+      )
       html.gsub(/[ \t]+$/, "")
     end
 
     private
+
+    # Один проход gsub: подставленный текст больше не сканируется, поэтому
+    # данные не могут породить новый плейсхолдер. Блочная форма обязательна —
+    # строковая замена трактовала бы \\ и \& внутри JSON как обратные ссылки.
+    # fetch падает на незнакомой метке, так что опечатка в шаблоне видна сразу.
+    def fill(template, values)
+      template.gsub(PLACEHOLDER) { values.fetch(Regexp.last_match(1)).to_s }
+    end
+
+    def asset(name)
+      File.read(File.join(ASSET_DIR, name))
+    end
+
+    # Строки таблиц склеиваются встык, поэтому завершающий перевод строки из
+    # файла убираем — иначе разметка разъедется относительно прежней вёрстки.
+    def fragment(name)
+      asset(name).chomp
+    end
+
+    # Стили и скрипт хранятся без отступа. Выравниваем их по месту вставки,
+    # чтобы итоговая разметка осталась такой же, как до выноса в файлы.
+    def inline_asset(name, width)
+      padding = " " * width
+      asset(name).chomp.lines.map { |line| line.strip.empty? ? line : padding + line }.join
+    end
 
     def h(value)
       value.to_s
@@ -459,9 +197,9 @@ module RouteLens
     end
 
     def kpi(label, value, note)
-      <<~HTML.chomp
-        <article class="card"><span class="kpi-label">#{h(label)}</span><strong class="kpi-value">#{h(value)}</strong><span class="kpi-note">#{h(note)}</span></article>
-      HTML
+      "<article class=\"card\"><span class=\"kpi-label\">#{h(label)}</span>" \
+        "<strong class=\"kpi-value\">#{h(value)}</strong>" \
+        "<span class=\"kpi-note\">#{h(note)}</span></article>"
     end
 
     def distribution_rows
@@ -473,16 +211,13 @@ module RouteLens
         actual = bounded_percentage(metrics["share_pct"])
         target = bounded_percentage(metrics["target_pct"])
         delta = metrics["delta_pct"] || 0
-        <<~HTML.chomp
-          <div class="distribution-row">
-            <span class="provider">#{h(provider)}</span>
-            <div class="bar-pair" aria-label="#{h(provider)}: фактическая доля #{actual}%, целевая #{target}%">
-              <span class="track"><span class="fill" style="--value:#{actual}%"></span></span>
-              <span class="track"><span class="fill target" style="--value:#{target}%"></span></span>
-            </div>
-            <span class="bar-values">#{actual}% / #{target}% · Δ #{signed(delta)} п.п.</span>
-          </div>
-        HTML
+        fill(
+          fragment("row_distribution.html"),
+          "PROVIDER" => h(provider),
+          "ACTUAL" => actual,
+          "TARGET" => target,
+          "DELTA" => signed(delta)
+        )
       end.join
     end
 
@@ -502,13 +237,16 @@ module RouteLens
                            else
                              "role=\"meter\" aria-label=\"#{h(provider)}: использование дневной ёмкости\" aria-valuemin=\"0\" aria-valuemax=\"100\" aria-valuenow=\"#{value}\""
                            end
-        <<~HTML.chomp
-          <div>
-            <div class="capacity-head"><strong>#{h(provider)}</strong><span>#{h(label)}</span></div>
-            <div class="track" #{meter_attributes}><span class="fill" style="--value:#{value}%"></span></div>
-            <div class="capacity-note">#{h(note)}</div>
-          </div>
-        HTML
+        fill(
+          fragment("row_capacity.html"),
+          "PROVIDER" => h(provider),
+          "LABEL" => h(label),
+          # Атрибуты доступности собраны выше и уже экранированы: это готовая
+          # разметка, поэтому в шаблон она уходит без повторного экранирования.
+          "METER_ATTRIBUTES" => meter_attributes,
+          "VALUE" => value,
+          "NOTE" => h(note)
+        )
       end.join
     end
 
@@ -531,15 +269,14 @@ module RouteLens
       scenarios = Array(comparison["scenarios"])
       rows = scenarios.map do |scenario|
         changed = Array(scenario["changed_operations_vs_balanced"]).length
-        <<~HTML.chomp
-          <tr>
-            <td>#{h(localized_scenario_name(scenario["name"]))}</td>
-            <td>#{h(scenario["policy"])}</td>
-            <td>#{h(scenario["count_target_error_pp"])}</td>
-            <td>#{h(scenario["volume_target_error_pp"])}</td>
-            <td>#{h(changed)}</td>
-          </tr>
-        HTML
+        fill(
+          fragment("row_policy_scenario.html"),
+          "NAME" => h(localized_scenario_name(scenario["name"])),
+          "POLICY" => h(scenario["policy"]),
+          "COUNT_ERROR" => h(scenario["count_target_error_pp"]),
+          "VOLUME_ERROR" => h(scenario["volume_target_error_pp"]),
+          "CHANGED" => h(changed)
+        )
       end.join
       replay = comparison["recommendation_replay"]
       replay_copy = if replay.is_a?(Hash)
@@ -558,20 +295,11 @@ module RouteLens
                       "Безопасный повтор с рекомендацией для этого запуска недоступен."
                     end
 
-      <<~HTML.chomp
-        <section class="card operation-card" aria-labelledby="policy-lab-title">
-          <div class="eyebrow">Контролируемый повтор</div>
-          <h2 id="policy-lab-title">Лаборатория политик</h2>
-          <p>Во всех сценариях используется одна очередь, а ответы провайдеров зафиксированы как approved. Так измеряется только влияние весов политики.</p>
-          <div class="score-wrap">
-            <table aria-label="Сравнение наборов весов политики">
-              <thead><tr><th>Сценарий</th><th>Политика</th><th>Ошибка числа, п.п.</th><th>Ошибка объёма, п.п.</th><th>Изменено маршрутов</th></tr></thead>
-              <tbody>#{rows}</tbody>
-            </table>
-          </div>
-          <p class="decision-copy">#{h(replay_copy)}</p>
-        </section>
-      HTML
+      fill(
+        fragment("section_policy_lab.html"),
+        "ROWS" => rows,
+        "REPLAY_COPY" => h(replay_copy)
+      )
     end
 
     def operation_options
@@ -584,8 +312,18 @@ module RouteLens
       end.join
     end
 
+    # Словари едут вместе с данными в том же экранированном JSON: скрипт
+    # страницы только читает их, поэтому переводы не дублируются в JS.
+    def label_catalog
+      {
+        "outcomes" => OUTCOME_LABELS,
+        "reasons" => REASON_LABELS,
+        "factors" => FACTOR_LABELS
+      }
+    end
+
     def embedded_data
-      JSON.generate("decisions" => decisions, "report" => report)
+      JSON.generate("decisions" => decisions, "report" => report, "labels" => label_catalog)
           .gsub("&", "\\u0026")
           .gsub("<", "\\u003c")
           .gsub(">", "\\u003e")

@@ -120,6 +120,89 @@ class EligibilityInputLoaderTest < Minitest::Test
     end
   end
 
+  # bank не входит в обязательный контракт операции: одна выплата без банка не
+  # должна обнулить весь файл очереди.
+  def test_bank_is_optional_and_missing_bank_does_not_reject_the_file
+    Dir.mktmpdir do |dir|
+      path = File.join(dir, "queue.json")
+      File.write(path, JSON.generate([
+        { operation_id: "with_bank", amount: 1_000, bank: "vtb" },
+        { operation_id: "null_bank", amount: 1_000, bank: nil },
+        { operation_id: "no_bank_key", amount: 1_000 }
+      ]))
+
+      operations = RouteLens::InputLoader.load_operations(path)
+
+      assert_equal 3, operations.length
+      assert_nil operations[1]["bank"]
+      refute operations[2].key?("bank")
+    end
+  end
+
+  # Пустой банк деградирует консервативно: провайдер со списком banks
+  # отсеивается, провайдер с пустым списком остаётся допустимым.
+  def test_missing_bank_skips_allowlisted_providers_and_keeps_open_providers
+    rule = RouteLens::Eligibility::BankRule.new
+    allowlisted = { "payment_system" => "payflow", "banks" => %w[sberbank alfa] }
+    open_provider = { "payment_system" => "quickpay", "banks" => [] }
+    operation = { "operation_id" => "op", "amount" => 1_000 }
+
+    refute rule.evaluate(allowlisted, operation).eligible?
+    assert_equal "bank_not_in_list", rule.evaluate(allowlisted, operation).reason
+    assert rule.evaluate(open_provider, operation).eligible?
+  end
+
+  def test_operation_id_and_amount_stay_mandatory
+    Dir.mktmpdir do |dir|
+      path = File.join(dir, "queue.json")
+      File.write(path, JSON.generate([{ amount: 1_000, bank: "vtb" }]))
+      assert_match(/operation_id/, assert_raises(RouteLens::InputError) do
+        RouteLens::InputLoader.load_operations(path)
+      end.message)
+
+      File.write(path, JSON.generate([{ operation_id: "op", bank: "vtb" }]))
+      assert_match(/amount/, assert_raises(RouteLens::InputError) do
+        RouteLens::InputLoader.load_operations(path)
+      end.message)
+    end
+  end
+
+  # Параметры правил настраиваются конфигурацией, а вход организаторов остаётся
+  # неизменным: переопределение проходит ту же валидацию, что и родное поле.
+  def test_provider_overrides_are_applied_and_validated
+    Dir.mktmpdir do |dir|
+      path = write_snapshot(dir, valid_provider)
+      providers = RouteLens::InputLoader.load_providers(
+        path, overrides: { "provider" => { "requests_per_minute_limit" => 7 } }
+      )
+
+      assert_equal 7, providers.first["requests_per_minute_limit"]
+
+      error = assert_raises(RouteLens::InputError) do
+        RouteLens::InputLoader.load_providers(path, overrides: { "provider" => { "requests_per_minute_limit" => -1 } })
+      end
+      assert_match(/requests_per_minute_limit cannot be negative/, error.message)
+    end
+  end
+
+  def test_provider_overrides_reject_unknown_and_malformed_entries
+    Dir.mktmpdir do |dir|
+      path = write_snapshot(dir, valid_provider)
+
+      error = assert_raises(RouteLens::InputError) do
+        RouteLens::InputLoader.load_providers(path, overrides: { "ghostpay" => { "priority" => 1 } })
+      end
+      assert_match(/unknown payment_system: ghostpay/, error.message)
+
+      assert_raises(RouteLens::InputError) do
+        RouteLens::InputLoader.load_providers(path, overrides: { "provider" => "not-an-object" })
+      end
+      assert_raises(RouteLens::InputError) do
+        RouteLens::InputLoader.load_providers(path, overrides: "not-an-object")
+      end
+    end
+  end
+
   private
 
   def assert_invalid_provider(overrides)

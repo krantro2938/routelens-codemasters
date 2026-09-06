@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require_relative "../test_helper"
+require "route_lens/cli"
 require "route_lens/outcome_simulator"
 
 class OutcomeSimulatorTest < Minitest::Test
@@ -19,10 +20,20 @@ class OutcomeSimulatorTest < Minitest::Test
   end
 
   def test_approve_all_mode_is_release_safe
-    result = RouteLens::OutcomeSimulator.new.call(OPERATION, PROVIDER)
+    result = RouteLens::OutcomeSimulator.new(mode: "approve_all").call(OPERATION, PROVIDER)
 
     assert_equal "approved", result["result"]
     assert_operator result["latency_sec"], :>, 0
+  end
+
+  # Одна ручка не может иметь двух значений по умолчанию: прямой вызов
+  # библиотеки обязан вести себя так же, как запуск через bin/route.
+  def test_default_mode_matches_the_cli_default
+    assert_equal "deterministic", RouteLens::CLI::DEFAULTS.fetch(:simulation)
+    assert_equal(
+      RouteLens::OutcomeSimulator.new(seed: 7, mode: "deterministic").call(OPERATION, PROVIDER),
+      RouteLens::OutcomeSimulator.new(seed: 7).call(OPERATION, PROVIDER)
+    )
   end
 
   def test_override_wins

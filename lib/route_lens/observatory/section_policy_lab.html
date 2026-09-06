@@ -1,0 +1,12 @@
+<section class="card operation-card" aria-labelledby="policy-lab-title">
+  <div class="eyebrow">Контролируемый повтор</div>
+  <h2 id="policy-lab-title">Лаборатория политик</h2>
+  <p>Во всех сценариях используется одна очередь, а ответы провайдеров зафиксированы как approved. Так измеряется только влияние весов политики.</p>
+  <div class="score-wrap">
+    <table aria-label="Сравнение наборов весов политики">
+      <thead><tr><th>Сценарий</th><th>Политика</th><th>Ошибка числа, п.п.</th><th>Ошибка объёма, п.п.</th><th>Изменено маршрутов</th></tr></thead>
+      <tbody>{{ROWS}}</tbody>
+    </table>
+  </div>
+  <p class="decision-copy">{{REPLAY_COPY}}</p>
+</section>

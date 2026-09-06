@@ -34,6 +34,10 @@ module RouteLens
         "cost" => -1.0
       }.freeze
 
+      # Допуск на округление процентов в конфигурации: 33.3+33.3+33.3 должно
+      # оставаться валидным вектором, а 150% суммарно — нет.
+      TARGET_SUM_TOLERANCE = 0.5
+
       attr_reader :name, :weights, :preset
 
       def self.load(path, preset: nil)
@@ -154,19 +158,36 @@ module RouteLens
       end
 
       def validate_targets!
-        targets = Support.fetch(@config, :volume_targets, {}) || {}
+        validate_target_vector!("volume", Support.fetch(@config, :volume_targets, {}))
+        validate_target_vector!("count", Support.fetch(@config, :traffic_targets, {}))
+      end
+
+      # Вектор долей проверяется целиком: каждое значение по отдельности может
+      # быть корректным процентом, но сумма 150% делает цели недостижимыми и
+      # молча искажает вклад целевых компонентов на всей очереди.
+      def validate_target_vector!(label, targets)
+        targets = targets || {}
         return unless targets.respond_to?(:to_h)
 
-        targets.to_h.each do |provider, target|
+        values = targets.to_h.map do |provider, target|
           begin
             value = Float(target)
           rescue ArgumentError, TypeError
-            raise ArgumentError, "volume target for #{provider} must be numeric"
+            raise ArgumentError, "#{label} target for #{provider} must be numeric"
           end
           unless value.finite? && value.between?(0.0, 100.0)
-            raise ArgumentError, "volume target for #{provider} must be a finite number between 0 and 100"
+            raise ArgumentError, "#{label} target for #{provider} must be a finite number between 0 and 100"
           end
+
+          value
         end
+        return if values.empty?
+
+        sum = values.sum
+        return if (sum - 100.0).abs <= TARGET_SUM_TOLERANCE
+
+        raise ArgumentError,
+              "#{label} targets must sum to 100 (+/-#{TARGET_SUM_TOLERANCE}), got #{sum.round(4)}"
       end
 
       def tie_break_for(provider)

@@ -11,7 +11,7 @@ module RouteLens
         status = provider_value(provider, "status")
         return pass if status == "active"
 
-        fail("provider_inactive", "status #{status.inspect} is not active")
+        fail("provider_inactive", "статус #{status.inspect} не равен active")
       end
     end
 
@@ -26,7 +26,7 @@ module RouteLens
         return pass unless self_provider
         return pass if context[:fallback] || context[:include_self_provider]
 
-        fail("self_provider_reserved_for_fallback", "#{provider_name(provider)} is available only as fallback")
+        fail("self_provider_reserved_for_fallback", "#{provider_name(provider)} доступен только как fallback")
       end
     end
 
@@ -38,7 +38,7 @@ module RouteLens
         return pass if target.nil? || number(target).positive?
         return pass if provider_name(provider) == ProviderState::SELF_PROVIDER
 
-        fail("traffic_disabled", "traffic_percentage is 0")
+        fail("traffic_disabled", "traffic_percentage равен 0")
       end
     end
 
@@ -124,9 +124,9 @@ module RouteLens
         bank = normalize(operation_value(operation, "bank"))
         excluded = provider_value(provider, "exclude_banks") == true
         if excluded && banks.include?(bank)
-          fail("bank_excluded", "#{bank} is in the provider's excluded banks list")
+          fail("bank_excluded", "банк #{bank} входит в список исключённых банков провайдера")
         elsif !excluded && !banks.include?(bank)
-          fail("bank_not_in_list", "#{bank} is not in the provider's supported banks list")
+          fail("bank_not_in_list", "банк #{bank} отсутствует в списке поддерживаемых банков провайдера")
         else
           pass
         end
@@ -159,7 +159,7 @@ module RouteLens
         available = number(provider_value(provider, "available_requisites")).to_i
         return pass if available.positive?
 
-        fail("no_available_requisites", "available_requisites is #{available}")
+        fail("no_available_requisites", "available_requisites равен #{available}")
       end
     end
 
@@ -173,7 +173,7 @@ module RouteLens
 
         fail(
           "rate_limit_exceeded",
-          "requests in current minute #{current} + 1 > requests_per_minute_limit #{display_number(limit)}"
+          "запросов за текущую минуту #{current} + 1 > requests_per_minute_limit #{display_number(limit)}"
         )
       end
 

@@ -9,7 +9,10 @@ module RouteLens
   class OutcomeSimulator
     VALID_RESULTS = %w[approved rejected expired].freeze
 
-    def initialize(seed: 2026, mode: "approve_all", overrides: {})
+    # Значение по умолчанию совпадает с CLI::DEFAULTS[:simulation]: одна ручка
+    # не может иметь двух разных значений по умолчанию, иначе прямой вызов
+    # библиотеки и запуск через bin/route дают разные результаты.
+    def initialize(seed: 2026, mode: "deterministic", overrides: {})
       @seed = seed.to_s
       @mode = mode.to_s
       @overrides = overrides || {}

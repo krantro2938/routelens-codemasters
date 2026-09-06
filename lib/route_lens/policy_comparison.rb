@@ -35,7 +35,7 @@ module RouteLens
 
       {
         "simulation" => "approve_all",
-        "purpose" => "Isolate policy effects from simulated provider outcomes",
+        "purpose" => "Отделить влияние политики выбора от смоделированных исходов провайдеров",
         "scenarios" => scenarios.map { |scenario| scenario.reject { |key, _value| key == "report" } },
         "recommendation_replay" => replay
       }
@@ -72,7 +72,9 @@ module RouteLens
         "volume_target_error_pp" => target_error(report.fetch("volume_distribution")),
         "approval_rate_pct" => report.dig("outcomes", "approval_rate_pct"),
         "fallback_count" => report.fetch("fallback_count"),
-        "capacity_utilization" => report.fetch("capacity_utilization").to_h do |provider, metrics|
+        # Отчёт хранит поле под именем из задания; здесь оно остаётся
+        # capacity_utilization, потому что на это имя смотрит Observatory.
+        "capacity_utilization" => report.fetch("projected_daily_utilization").to_h do |provider, metrics|
           [provider, { "utilization_pct" => metrics["utilization_pct"], "headroom" => metrics["headroom"] }]
         end,
         "selections" => result.decisions.to_h { |decision| [decision.fetch("operation_id"), decision.fetch("selected_provider")] },

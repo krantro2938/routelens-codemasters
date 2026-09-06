@@ -7,9 +7,11 @@ $LOAD_PATH.unshift File.expand_path("../lib", __dir__)
 require "route_lens/cli"
 
 root = File.expand_path("..", __dir__)
+# --compact тоже защищён: релизный артефакт обязан нести доказательства
+# резерва, которые проверяет scripts/release_check.rb.
 protected_options = %w[
   --providers --history --queue --policy --preset --decisions --report
-  --seed --simulation --outcome-overrides
+  --seed --simulation --outcome-overrides --compact
 ]
 if (override = ARGV.find { |argument| protected_options.include?(argument.split("=", 2).first) })
   warn "#{override} cannot be overridden in the release command; use bin/route for custom runs"

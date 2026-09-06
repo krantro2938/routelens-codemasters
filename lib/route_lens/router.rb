@@ -15,17 +15,30 @@ module RouteLens
   # результатом и повтором. Изменяемые лимиты принадлежат ProviderState,
   # а распределение текущего пакета — Router.
   class Router
+    # Ключи — машинные имена факторов скоринга и частью контракта остаются
+    # английскими: их читает score_breakdown и Observatory::FACTOR_LABELS.
+    # Значения — человекочитаемые подписи, они подставляются в русскую фразу
+    # selection_details, поэтому даны строчными буквами и в именительном падеже.
     FACTOR_LABELS = {
-      "count_target_gain" => "count-share balance",
-      "volume_target_gain" => "volume-share balance",
-      "conversion" => "conversion",
-      "priority" => "cascade priority",
-      "amount_preference" => "preferred amount band",
-      "capacity" => "remaining capacity",
-      "turnover_obligation" => "minimum-turnover obligation",
-      "load" => "current load",
-      "latency" => "latency",
-      "cost" => "provider cost"
+      "count_target_gain" => "баланс доли операций",
+      "volume_target_gain" => "баланс денежного объёма",
+      "conversion" => "конверсия",
+      "priority" => "приоритет каскада",
+      "amount_preference" => "предпочтительный диапазон суммы",
+      "capacity" => "запас ёмкости",
+      "turnover_obligation" => "обязательство по обороту",
+      "load" => "текущая нагрузка",
+      "latency" => "задержка",
+      "cost" => "стоимость провайдера"
+    }.freeze
+
+    # Коды результата остаются английскими в полях simulated_result и outcome —
+    # на них смотрит валидатор. Здесь они переводятся только для связного
+    # русского текста decision_summary.
+    OUTCOME_LABELS = {
+      "approved" => "одобрено",
+      "rejected" => "отказ",
+      "expired" => "истекло"
     }.freeze
 
     attr_reader :providers, :policy
@@ -36,14 +49,25 @@ module RouteLens
       @simulator = simulator
       @evaluator = evaluator
       @provider_by_name = providers.to_h { |provider| [provider.payment_system, provider] }
-      @initial_states = providers.to_h { |provider| [provider.payment_system, provider.snapshot] }
       # Эти метрики описывают только финальное назначение каждой выплаты и
       # поэтому используются для приближения к целевым долям.
+      #
+      # Внешний под-реестр обязателен: цели (count_targets, volume_targets)
+      # заданы только для внешних провайдеров и в сумме дают 100%. Если считать
+      # долю от всех назначений, то каждый уход во внутренний spacepayments
+      # навсегда занижает доли внешних, и скоринг гонится за недостижимой целью.
       @metrics = {
         count_by_provider: Hash.new(0),
         volume_by_provider: Hash.new(0.0),
         total_count: 0,
         total_volume: 0.0,
+        external_count_by_provider: Hash.new(0),
+        external_volume_by_provider: Hash.new(0.0),
+        external_count: 0,
+        external_volume: 0.0,
+        fallback_count: 0,
+        fallback_volume: 0.0,
+        unroutable_count: 0,
         count_targets: external_providers.to_h do |provider|
           [provider.payment_system, provider["traffic_percentage"].to_f]
         end
@@ -78,6 +102,7 @@ module RouteLens
       final_provider = nil
       final_outcome = nil
       final_score = nil
+      round = 0
 
       append_initial_hard_exclusions(attempts, operation)
 
@@ -87,6 +112,7 @@ module RouteLens
         candidates = current_external_candidates(operation, attempted_names)
         break if candidates.empty?
 
+        round += 1
         ranking = policy.rank(
           candidates: candidates,
           states: @provider_by_name,
@@ -113,7 +139,12 @@ module RouteLens
             "provider" => provider.payment_system,
             "decision" => "skipped",
             "reason" => "state_changed_during_selection",
-            "details" => e.message
+            # Сообщение ProviderState остаётся полуструктурированной уликой
+            # («quickpay in-progress count limit exceeded: 11 > 10»),
+            # поэтому переводится только объясняющая его рамка.
+            "details" => "Состояние изменилось между скорингом и резервированием: #{e.message}",
+            "stage" => "selection",
+            "round" => round
           }
           next
         end
@@ -130,6 +161,8 @@ module RouteLens
           "decision" => "selected",
           "reason" => candidates.one? ? "only_eligible_provider" : "highest_policy_score",
           "details" => selection_details(score, ranking),
+          "stage" => "selection",
+          "round" => round,
           "rank" => 1,
           "score" => score.fetch(:total),
           "score_breakdown" => stringify(score.fetch(:breakdown)),
@@ -139,26 +172,40 @@ module RouteLens
           "state_reserved" => state_reserved,
           "state_after" => provider.snapshot
         }
+        approved = outcome.fetch("result") == "approved"
+        if approved
+          # Проигравшие кандидаты оценены тем же ранжированием, что и победитель,
+          # то есть ДО того, как стал известен его результат. Пишем их перед
+          # выбранной попыткой, иначе журнал читается так, будто их рассматривали
+          # уже после успешной выплаты.
+          append_lower_ranked_candidates(attempts, ranking.drop(1), attempted_names, round)
+        end
         attempts << attempt
         selected_attempts << attempt
 
-        if outcome.fetch("result") == "approved"
+        if approved
           final_provider = provider
           final_outcome = outcome
           final_score = score
-          append_lower_ranked_candidates(attempts, ranking.drop(1), attempted_names)
           break
         end
       end
 
       unless final_provider
-        # Внутренний провайдер рассматривается только после исчерпания внешних,
-        # поэтому он не может случайно выиграть обычный мягкий скоринг.
-        provider, outcome, fallback_attempt = execute_fallback(operation, selected_attempts.length + 1)
-        attempts << fallback_attempt
-        selected_attempts << fallback_attempt
-        final_provider = provider
-        final_outcome = outcome
+        round += 1
+        begin
+          # Внутренний провайдер рассматривается только после исчерпания внешних,
+          # поэтому он не может случайно выиграть обычный мягкий скоринг.
+          provider, outcome, fallback_attempt = execute_fallback(operation, selected_attempts.length + 1, round)
+          attempts << fallback_attempt
+          selected_attempts << fallback_attempt
+          final_provider = provider
+          final_outcome = outcome
+        rescue RoutingError => e
+          # Одна невыполнимая выплата не должна уничтожать весь пакет: пишем
+          # корректную запись решения с сохранённым следом отказов и продолжаем.
+          return unroutable_decision(operation_id, attempts, round, e)
+        end
       end
 
       record_routing_assignment(final_provider.payment_system, amount)
@@ -178,7 +225,35 @@ module RouteLens
         "decision_summary" => decision_summary(selected_attempts, final_provider),
         "score_breakdown" => final_score ? stringify(final_score.fetch(:breakdown)) : {},
         "routing_sequence" => selected_attempts.map { |attempt| attempt.fetch("provider") },
-        "state_changes" => state_changes_for(attempts),
+        "unmet_goals" => unmet_goals_for(attempts)
+      }
+    end
+
+    # Запись для операции, которую не принял ни один провайдер, включая
+    # внутренний. Формат остаётся валидным для валидатора организаторов:
+    # спецификация допускает только approved/rejected/expired, поэтому
+    # неисполненная выплата честнее всего описывается как expired.
+    def unroutable_decision(operation_id, attempts, round, error)
+      @metrics[:unroutable_count] += 1
+      attempts << {
+        "provider" => nil,
+        "decision" => "skipped",
+        "reason" => "no_provider_available",
+        "details" => error.message,
+        "stage" => "fallback",
+        "round" => round
+      }
+
+      {
+        "operation_id" => operation_id,
+        "selected_provider" => nil,
+        "attempts" => attempts,
+        "simulated_result" => "expired",
+        "latency_sec" => 0,
+        "policy" => policy.name,
+        "decision_summary" => "Ни один провайдер не смог принять выплату: #{error.message}",
+        "score_breakdown" => {},
+        "routing_sequence" => [],
         "unmet_goals" => unmet_goals_for(attempts)
       }
     end
@@ -203,11 +278,14 @@ module RouteLens
         "decision" => "skipped",
         "reason" => evaluation.reason,
         "details" => evaluation.details,
+        # Жёсткий отсев выполняется до первого ранжирования, поэтому раунд 0.
+        "stage" => "eligibility_screen",
+        "round" => 0,
         "all_reasons" => evaluation.failures.map(&:to_h)
       }
     end
 
-    def append_lower_ranked_candidates(attempts, ranking, attempted_names)
+    def append_lower_ranked_candidates(attempts, ranking, attempted_names, round)
       ranking.each_with_index do |entry, index|
         provider = entry.fetch(:provider)
         next if attempted_names.include?(provider.payment_system)
@@ -217,7 +295,9 @@ module RouteLens
           "provider" => provider.payment_system,
           "decision" => "skipped",
           "reason" => "lower_policy_score",
-          "details" => "score #{result.fetch(:total)} ranked below selected provider",
+          "details" => "оценка #{result.fetch(:total)} ниже оценки выбранного провайдера",
+          "stage" => "policy_ranking",
+          "round" => round,
           "rank" => index + 2,
           "score" => result.fetch(:total),
           "score_breakdown" => stringify(result.fetch(:breakdown))
@@ -225,13 +305,14 @@ module RouteLens
       end
     end
 
-    def execute_fallback(operation, sequence)
+    def execute_fallback(operation, sequence, round)
       provider = self_provider
-      raise RoutingError, "No self-provider is configured for fallback" unless provider
+      raise RoutingError, "Внутренний провайдер для резервного маршрута не настроен" unless provider
 
       evaluation = @evaluator.evaluate(provider, operation, context: { fallback: true })
       unless evaluation.eligible?
-        raise RoutingError, "Fallback provider #{provider.payment_system} is unavailable: #{evaluation.reason}"
+        # reason — машинный код причины и остаётся английским.
+        raise RoutingError, "Резервный провайдер #{provider.payment_system} недоступен: #{evaluation.reason}"
       end
 
       reservation_id = "#{operation.fetch('operation_id')}:#{sequence}:#{provider.payment_system}"
@@ -250,7 +331,9 @@ module RouteLens
         "provider" => provider.payment_system,
         "decision" => "selected",
         "reason" => "external_pool_exhausted",
-        "details" => "all eligible external providers were unavailable or failed",
+        "details" => "все допустимые внешние провайдеры недоступны или завершились неудачей",
+        "stage" => "fallback",
+        "round" => round,
         "outcome" => outcome.fetch("result"),
         "latency_sec" => outcome.fetch("latency_sec"),
         "state_before" => state_before,
@@ -260,7 +343,7 @@ module RouteLens
 
       [provider, outcome, attempt]
     rescue StateError => e
-      raise RoutingError, "Could not reserve fallback provider: #{e.message}"
+      raise RoutingError, "Не удалось зарезервировать резервного провайдера: #{e.message}"
     end
 
     def settle(provider, result, reservation_id)
@@ -268,7 +351,7 @@ module RouteLens
       when "approved" then provider.approve!(reservation_id: reservation_id)
       when "rejected" then provider.reject!(reservation_id: reservation_id)
       when "expired" then provider.expire!(reservation_id: reservation_id)
-      else raise RoutingError, "Unknown outcome: #{result}"
+      else raise RoutingError, "Неизвестный результат: #{result}"
       end
     end
 
@@ -286,16 +369,29 @@ module RouteLens
       @metrics[:volume_by_provider][provider_name] += amount
       @metrics[:total_count] += 1
       @metrics[:total_volume] += amount
+
+      provider = @provider_by_name[provider_name]
+      if provider&.self_provider?
+        @metrics[:fallback_count] += 1
+        @metrics[:fallback_volume] += amount
+      else
+        @metrics[:external_count_by_provider][provider_name] += 1
+        @metrics[:external_volume_by_provider][provider_name] += amount
+        @metrics[:external_count] += 1
+        @metrics[:external_volume] += amount
+      end
     end
 
     def scoring_metrics
       # Компоненты долей получают единый снимок уже завершённых назначений;
       # текущая операция добавляется каждым компонентом только виртуально.
+      # Знаменатель — только внешние назначения: fallback не участвует в целевом
+      # распределении и попадает в отчёт отдельной строкой fallback_share_pct.
       {
-        count_by_provider: @metrics[:count_by_provider],
-        volume_by_provider: @metrics[:volume_by_provider],
-        total_count: @metrics[:total_count],
-        total_volume: @metrics[:total_volume],
+        count_by_provider: @metrics[:external_count_by_provider],
+        volume_by_provider: @metrics[:external_volume_by_provider],
+        total_count: @metrics[:external_count],
+        total_volume: @metrics[:external_volume],
         count_targets: @metrics[:count_targets],
         providers: external_providers
       }
@@ -303,7 +399,7 @@ module RouteLens
 
     def selection_details(score, ranking)
       runner = ranking[1]&.fetch(:result)
-      return "Only provider remaining after hard constraints." unless runner
+      return "Единственный провайдер, оставшийся после жёстких ограничений." unless runner
 
       chosen_breakdown = score.fetch(:breakdown)
       runner_breakdown = runner.fetch(:breakdown)
@@ -312,57 +408,82 @@ module RouteLens
         [name, delta] if delta > 0.01
       end.sort_by { |_name, delta| -delta }.first(2)
       drivers = advantages.map { |name, delta| "#{FACTOR_LABELS.fetch(name, name)} (+#{numeric(delta)})" }
-      because = drivers.empty? ? "the combined policy score was higher" : drivers.join(" and ")
-      "Selected because #{because}; score #{score.fetch(:total)} versus #{runner.fetch(:total)}."
+      because = drivers.empty? ? "суммарная оценка политики оказалась выше" : drivers.join(" и ")
+      "Выбран, потому что #{because}; оценка #{score.fetch(:total)} против #{runner.fetch(:total)}."
     end
 
     def decision_summary(selected_attempts, final_provider)
       failures = selected_attempts.count { |attempt| %w[rejected expired].include?(attempt["outcome"]) }
       if failures.positive?
-        sequence = selected_attempts.map { |attempt| "#{attempt['provider']} #{attempt['outcome']}" }.join("; ")
-        "Recovered after #{failures} failed provider attempt#{failures == 1 ? '' : 's'}: #{sequence}."
+        sequence = selected_attempts.map do |attempt|
+          "#{attempt['provider']} — #{OUTCOME_LABELS.fetch(attempt['outcome'], attempt['outcome'])}"
+        end.join("; ")
+        "Маршрут восстановлен после #{failures} #{failed_attempt_word(failures)}: #{sequence}."
       else
         details = selected_attempts.last&.fetch("details", nil)
-        "#{final_provider.payment_system} completed the payout. #{details}".strip
+        "Выплату исполнил #{final_provider.payment_system}. #{details}".strip
       end
+    end
+
+    # Русское числительное требует согласования: «после 1 неудачной попытки»,
+    # но «после 2 неудачных попыток». Формы 11..14 — исключение из правила
+    # для единицы, поэтому проверяются два остатка, а не один.
+    def failed_attempt_word(count)
+      count % 10 == 1 && count % 100 != 11 ? "неудачной попытки" : "неудачных попыток"
     end
 
     def unmet_goals_for(attempts)
-      return [] unless @metrics[:total_count].positive?
+      return [] unless @metrics[:external_count].positive?
 
       # Фиксируем только недобор цели из-за жёсткого ограничения. Превышение
       # цели не является невыполненной целью и не должно попадать в объяснение.
-      attempts.filter_map do |attempt|
-        next unless attempt["decision"] == "skipped"
-        next if %w[lower_policy_score state_changed_during_selection].include?(attempt["reason"])
+      # Доли считаются от внешних назначений — так же, как их считает скоринг.
+      attempts.flat_map do |attempt|
+        next [] unless attempt["decision"] == "skipped"
+        next [] if %w[lower_policy_score state_changed_during_selection].include?(attempt["reason"])
 
         provider = @provider_by_name[attempt["provider"]]
-        next unless provider && !provider.self_provider?
+        next [] unless provider && !provider.self_provider?
 
-        target = provider["traffic_percentage"].to_f
-        actual = @metrics[:count_by_provider][provider.payment_system] * 100.0 / @metrics[:total_count]
-        next unless actual + 0.01 < target
+        name = provider.payment_system
+        goals = []
+        count_target = provider["traffic_percentage"].to_f
+        count_share = @metrics[:external_count_by_provider][name] * 100.0 / @metrics[:external_count]
+        if count_share + 0.01 < count_target
+          goals << unmet_goal("count_share_target", name, count_target, count_share, attempt)
+        end
 
-        {
-          "goal" => "count_share_target",
-          "provider" => provider.payment_system,
-          "status" => "unreachable_for_operation",
-          "target_pct" => numeric(target),
-          "current_attempt_share_pct" => numeric(actual),
-          "reason" => attempt["reason"],
-          "details" => attempt["details"]
-        }
-      end.uniq { |goal| [goal["provider"], goal["reason"]] }
+        # Объём — вторая измеряемая цель задания и обычно проседает сильнее,
+        # поэтому недобор по деньгам объясняется отдельной записью.
+        if @metrics[:external_volume].positive?
+          volume_target = volume_target_for(provider)
+          volume_share = @metrics[:external_volume_by_provider][name] * 100.0 / @metrics[:external_volume]
+          if volume_share + 0.01 < volume_target
+            goals << unmet_goal("volume_share_target", name, volume_target, volume_share, attempt)
+          end
+        end
+
+        goals
+      end.uniq { |goal| [goal["goal"], goal["provider"], goal["reason"]] }
     end
 
-    def state_changes_for(attempts)
-      attempts.select { |attempt| attempt["decision"] == "selected" }.to_h do |attempt|
-        name = attempt.fetch("provider")
-        [name, {
-          "before" => attempt["state_before"] || @initial_states[name],
-          "after" => attempt["state_after"] || @provider_by_name.fetch(name).snapshot
-        }]
-      end
+    def unmet_goal(goal, provider_name, target, share, attempt)
+      {
+        "goal" => goal,
+        "provider" => provider_name,
+        "status" => "unreachable_for_operation",
+        "target_pct" => numeric(target),
+        "current_attempt_share_pct" => numeric(share),
+        "reason" => attempt["reason"],
+        "details" => attempt["details"]
+      }
+    end
+
+    def volume_target_for(provider)
+      return policy.volume_target_for(provider).to_f if policy.respond_to?(:volume_target_for)
+
+      explicit = provider["volume_share_pct"]
+      explicit.nil? ? provider["traffic_percentage"].to_f : explicit.to_f
     end
 
     def serializable_metrics
@@ -374,7 +495,16 @@ module RouteLens
         "final_count_by_provider" => @metrics[:count_by_provider].to_h,
         "final_volume_by_provider" => @metrics[:volume_by_provider].transform_values { |value| numeric(value) },
         "total_final_assignments" => @metrics[:total_count],
-        "total_final_volume" => numeric(@metrics[:total_volume])
+        "total_final_volume" => numeric(@metrics[:total_volume]),
+        # Знаменатель целевых долей: fallback и невыполнимые операции показаны
+        # рядом, но вынесены из целевой арифметики.
+        "external_count_by_provider" => @metrics[:external_count_by_provider].to_h,
+        "external_volume_by_provider" => @metrics[:external_volume_by_provider].transform_values { |value| numeric(value) },
+        "total_external_assignments" => @metrics[:external_count],
+        "total_external_volume" => numeric(@metrics[:external_volume]),
+        "fallback_assignments" => @metrics[:fallback_count],
+        "fallback_volume" => numeric(@metrics[:fallback_volume]),
+        "unroutable_operations" => @metrics[:unroutable_count]
       }
     end
 

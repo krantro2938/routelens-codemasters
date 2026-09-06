@@ -11,6 +11,7 @@ module RouteLens
     class ReportBuilder
       OUTCOMES = %w[approved rejected expired].freeze
       SELF_PROVIDER = 'spacepayments'
+      BANK_REASONS = %w[bank_not_in_list bank_excluded].freeze
       POLICY_NONSELECTION_REASONS = %w[
         lower_policy_score
         lower_score
@@ -48,6 +49,10 @@ module RouteLens
         attempts = attempt_outcome_metrics
         provider_details = provider_metrics(distribution, volumes, utilization, skips_by_provider, attempts)
         unmet = unmet_goals(distribution, volumes, skips_by_provider)
+        resilience = {
+          'operations_retried' => retried_operation_count,
+          'fallback_share_pct' => Support.percent(fallback_count, @decisions.length)
+        }
 
         recommender = RecommendationEngine.new(
           providers: @providers,
@@ -56,7 +61,11 @@ module RouteLens
           provider_metrics: provider_details,
           history: @history,
           skip_reasons_by_provider: skips_by_provider,
-          policy: @policy
+          policy: @policy,
+          # Доля fallback и счётчик берутся из уже посчитанной устойчивости:
+          # по ним распознаётся исчерпание внешнего пула.
+          resilience: resilience.merge('fallback_count' => fallback_count),
+          total_operations: @decisions.length
         )
         recommendations = recommender.generate
 
@@ -68,7 +77,6 @@ module RouteLens
           'distribution' => distribution,
           'volume_distribution' => volumes,
           'outcomes' => outcome_metrics,
-          'final_operation_outcomes' => outcome_metrics,
           'attempt_outcomes' => attempts,
           'latency' => latency_metrics,
           'skip_reasons' => skips,
@@ -76,15 +84,11 @@ module RouteLens
           'policy_nonselections' => policy_nonselections,
           'retry_count' => retry_count,
           'fallback_count' => fallback_count,
-          'routing_resilience' => {
-            'retry_count' => retry_count,
-            'operations_retried' => retried_operation_count,
-            'fallback_count' => fallback_count,
-            'fallback_share_pct' => Support.percent(fallback_count, @decisions.length)
-          },
+          # Здесь только производные устойчивости: сами счётчики лежат выше и
+          # не дублируются, чтобы отчёт не выглядел раздутым синонимами.
+          'routing_resilience' => resilience,
           # Имя поля сохранено точно по формату задания.
           'projected_daily_utilization' => utilization,
-          'capacity_utilization' => utilization,
           'provider_metrics' => provider_details,
           'unmet_goals' => unmet,
           'history' => @history,
@@ -115,8 +119,9 @@ module RouteLens
       end
 
       def provider_names
-        (@providers_by_name.keys + @decisions.map { |decision| selected_provider(decision) })
-          .reject(&:empty?).uniq
+        # Список используется почти каждой метрикой, поэтому считается один раз.
+        @provider_names ||= (@providers_by_name.keys + @decisions.map { |decision| selected_provider(decision) })
+                            .reject(&:empty?).uniq
       end
 
       def selected_provider(decision)
@@ -132,7 +137,7 @@ module RouteLens
       end
 
       def total_routed_amount
-        @decisions.sum { |decision| decision_amount(decision) }
+        @total_routed_amount ||= @decisions.sum { |decision| decision_amount(decision) }
       end
 
       def count_distribution
@@ -195,6 +200,8 @@ module RouteLens
       end
 
       def outcome_metrics
+        return @outcome_metrics if defined?(@outcome_metrics)
+
         total = @decisions.length
         result = OUTCOMES.to_h do |status|
           decisions = @decisions.select { |decision| outcome(decision) == status }
@@ -214,7 +221,7 @@ module RouteLens
           result.dig('rejected', 'count').to_i + result.dig('expired', 'count').to_i,
           total
         )
-        result
+        @outcome_metrics = result
       end
 
       def outcome(decision)
@@ -378,7 +385,7 @@ module RouteLens
       end
 
       def retried_operation_count
-        @decisions.count { |decision| retries_for(decision).positive? }
+        @retried_operation_count ||= @decisions.count { |decision| retries_for(decision).positive? }
       end
 
       def fallback_count
@@ -427,8 +434,59 @@ module RouteLens
         initial + approved
       end
 
+      # Доказательная база для рекомендаций: по каждому жёсткому правилу
+      # собираются суммы и банки заявок, которые оно отклонило. Из p90 этих
+      # сумм выводится конкретное новое значение лимита, а не совет «пересмотреть».
+      def blocked_operations_by_provider
+        @blocked_operations_by_provider ||= begin
+          grouped = {}
+          @decisions.each do |decision|
+            operation = decision_operation(decision)
+            operation_id = Support.fetch(decision, 'operation_id').to_s
+            Array(Support.fetch(decision, 'attempts', [])).each do |raw_attempt|
+              attempt = Support.hash(raw_attempt)
+              next unless Support.fetch(attempt, 'decision').to_s == 'skipped'
+
+              reason = Support.fetch(attempt, 'reason', 'unspecified').to_s
+              provider = Support.fetch(attempt, 'provider').to_s
+              next if provider.empty? || reason.empty? || policy_nonselection_reason?(reason)
+
+              bucket = ((grouped[provider] ||= {})[reason] ||= {})
+              # Ключ по операции: повторная попытка не должна удваивать улику.
+              bucket[operation_id] = {
+                'amount' => decision_amount(decision),
+                'bank' => Support.fetch(operation, 'bank').to_s
+              }
+            end
+          end
+          grouped.sort.to_h { |provider, reasons| [provider, summarize_blocked_operations(reasons)] }
+        end
+      end
+
+      def summarize_blocked_operations(reasons)
+        {
+          'operations' => reasons.values.flat_map(&:keys).uniq.length,
+          'reasons' => reasons.sort_by { |reason, operations| [-operations.length, reason] }.to_h do |reason, operations|
+            amounts = operations.values.map { |entry| entry['amount'] }
+            summary = {
+              'operations' => operations.length,
+              'amount_sum' => Support.round(amounts.sum),
+              'amount_p10' => Support.percentile(amounts, 0.1),
+              'amount_p90' => Support.percentile(amounts, 0.9)
+            }
+            if BANK_REASONS.include?(reason)
+              summary['banks'] = operations.values.map { |entry| entry['bank'] }
+                                           .reject(&:empty?).tally
+                                           .sort_by { |bank, count| [-count, bank] }.to_h
+            end
+            [reason, summary]
+          end
+        }
+      end
+
       def provider_metrics(distribution, volumes, utilization, skips_by_provider, attempts)
         historical = Support.hash(Support.fetch(@history, 'providers', {}))
+        blocked = blocked_operations_by_provider
         provider_names.to_h do |name|
           decisions = @decisions.select { |decision| selected_provider(decision) == name }
           status_counts = OUTCOMES.to_h do |status|
@@ -453,11 +511,29 @@ module RouteLens
             'live_conversion_24h_pct' => Support.round(live_conversion),
             'historical_approval_rate_pct' => historical_rate,
             'conversion_drift_pp' => historical_rate.nil? ? nil : Support.round(live_conversion - Support.number(historical_rate)),
+            # История подключена к живым метрикам: видно, повторяет ли текущий
+            # прогон исторические доли и задержки или отклоняется от них.
+            'historical_operations' => Support.fetch(historical[name], 'operations'),
+            'historical_count_share_pct' => Support.fetch(historical[name], 'count_share_pct'),
+            'historical_volume_share_pct' => Support.fetch(historical[name], 'volume_share_pct'),
+            'historical_avg_latency_sec' => Support.fetch(historical[name], 'avg_latency_sec'),
+            'latency_drift_sec' => latency_drift(decisions, historical[name]),
             'latency' => latency_summary(decision_latencies(decisions)),
             'skip_reasons' => skips_by_provider[name] || {},
+            'blocked_operations' => blocked[name] || { 'operations' => 0, 'reasons' => {} },
             'capacity' => utilization[name]
           }]
         end
+      end
+
+      def latency_drift(decisions, historical_provider)
+        historical_latency = Support.fetch(historical_provider, 'avg_latency_sec')
+        return nil if historical_latency.nil?
+
+        values = decision_latencies(decisions)
+        return nil if values.empty?
+
+        Support.round(Support.average(values) - Support.number(historical_latency))
       end
 
       def unmet_goals(distribution, volumes, skips_by_provider)

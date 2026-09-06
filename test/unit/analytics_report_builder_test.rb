@@ -122,14 +122,58 @@ class AnalyticsReportBuilderTest < Minitest::Test
     assert_equal 50.0, report.dig('provider_metrics', 'quickpay', 'approval_rate_pct')
     refute_empty report['unmet_goals']
     refute report['unmet_goals'].any? { |goal| goal['provider'] == 'quickpay' }
-    assert report['recommendations'].any? { |recommendation| recommendation.include?('payflow daily limit') }
+    assert report['recommendations'].any? { |recommendation| recommendation.include?('дневной лимит использован') }
     assert report['recommendations'].any? { |recommendation| recommendation.include?('conversion_24h') }
-    payflow_share_recommendation = report['recommendations'].find do |recommendation|
-      recommendation.start_with?('payflow count share')
-    end
-    refute_nil payflow_share_recommendation
-    refute_includes payflow_share_recommendation, 'hard-excluded'
-    assert_equal report['projected_daily_utilization'], report['capacity_utilization']
+    # Выборка из четырёх решений слишком мала для выводов о долях.
+    assert report['recommendation_details'].any? { |detail| detail['type'] == 'insufficient_sample' }
+    refute report['recommendation_details'].any? { |detail| detail['type'].start_with?('count_share') }
+  end
+
+  # Отчёт не должен содержать чистых синонимов одного и того же содержимого.
+  def test_report_keys_are_unique_in_content
+    report = RouteLens::Analytics::ReportBuilder.new(
+      providers: providers, operations: operations, decisions: decisions,
+      final_state: final_state, history: history
+    ).build
+
+    refute_includes report.keys, 'capacity_utilization'
+    refute_includes report.keys, 'final_operation_outcomes'
+    refute_includes report['routing_resilience'].keys, 'retry_count'
+    refute_includes report['routing_resilience'].keys, 'fallback_count'
+    assert_equal 25.0, report.dig('routing_resilience', 'fallback_share_pct')
+    # Счётчики остаются на верхнем уровне: их читает проверка релиза.
+    assert_equal 1, report['retry_count']
+    assert_equal 1, report['fallback_count']
+    assert_equal 21, report.keys.length
+  end
+
+  # Жёсткие исключения собираются с суммами: из них выводится новое значение лимита.
+  def test_blocked_operations_carry_amount_evidence_for_recommendations
+    report = RouteLens::Analytics::ReportBuilder.new(
+      providers: providers, operations: operations, decisions: decisions, history: history
+    ).build
+    blocked = report.dig('provider_metrics', 'vipay', 'blocked_operations')
+
+    assert_equal 1, blocked['operations']
+    assert_equal 1, blocked.dig('reasons', 'bank_not_in_list', 'operations')
+    assert_equal 100.0, blocked.dig('reasons', 'bank_not_in_list', 'amount_p90')
+    refute report.dig('provider_metrics', 'payflow', 'blocked_operations', 'reasons')
+                 .key?('lower_policy_score')
+  end
+
+  # История подключена к живым метрикам, а не лежит отдельным блоком.
+  def test_provider_metrics_expose_historical_shares_and_latency_drift
+    report = RouteLens::Analytics::ReportBuilder.new(
+      providers: providers, operations: operations, decisions: decisions,
+      history: { 'providers' => { 'quickpay' => { 'operations' => 20, 'count_share_pct' => 10.0,
+                                                  'volume_share_pct' => 12.5, 'avg_latency_sec' => 40.0 } } }
+    ).build
+    metrics = report.dig('provider_metrics', 'quickpay')
+
+    assert_equal 10.0, metrics['historical_count_share_pct']
+    assert_equal 12.5, metrics['historical_volume_share_pct']
+    assert_equal 20, metrics['historical_operations']
+    assert_equal(-5.0, metrics['latency_drift_sec'])
   end
 
   def test_uses_active_policy_volume_targets
@@ -157,6 +201,27 @@ class AnalyticsReportBuilderTest < Minitest::Test
     assert_equal 500.0, report.dig('projected_daily_utilization', 'vipay', 'used')
     assert_equal 200.0, report.dig('projected_daily_utilization', 'quickpay', 'used')
     assert_nil report.dig('projected_daily_utilization', 'spacepayments', 'utilization_pct')
+  end
+
+  # Нерутируемая заявка приходит без выбранного провайдера: отчёт обязан
+  # посчитаться, а не упасть на null.
+  def test_unroutable_decision_without_selected_provider_is_safe
+    unroutable = {
+      'operation_id' => 'op_5', 'selected_provider' => nil, 'simulated_result' => 'expired',
+      'attempts' => [
+        attempt('vipay', 'skipped', nil, 'amount_exceeds_limit'),
+        { 'provider' => nil, 'decision' => 'skipped', 'reason' => 'no_provider_available' }
+      ]
+    }
+    report = RouteLens::Analytics::ReportBuilder.new(
+      providers: providers, operations: operations, decisions: decisions + [unroutable], history: history
+    ).build
+
+    assert_equal 5, report['total_operations']
+    refute_includes report['distribution'].keys, ''
+    assert_equal 1, report.dig('skip_reasons', 'no_provider_available')
+    assert_equal 2, report.dig('outcomes', 'expired', 'count')
+    refute_empty report['recommendations']
   end
 
   def test_empty_batch_does_not_divide_by_zero

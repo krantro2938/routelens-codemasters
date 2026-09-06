@@ -1,19 +1,112 @@
 {
   "simulation": "approve_all",
-  "purpose": "Isolate policy effects from simulated provider outcomes",
+  "purpose": "Отделить влияние политики выбора от смоделированных исходов провайдеров",
   "scenarios": [
     {
       "name": "balanced",
       "policy": "balanced_v2",
       "weights": {
-        "count_target_gain": 2.5,
+        "count_target_gain": 3.0,
         "volume_target_gain": 2.0,
         "conversion": 1.5,
-        "priority": 1.0,
-        "amount_preference": 1.0,
-        "capacity": 1.0,
         "turnover_obligation": 1.5,
+        "priority": 1.0,
+        "capacity": 1.0,
         "load": 1.0,
+        "amount_preference": 0.5,
+        "latency": 0.5,
+        "cost": 0.5
+      },
+      "traffic_targets": {
+        "vipay": 40.0,
+        "payflow": 35.0,
+        "quickpay": 25.0
+      },
+      "distribution": {
+        "vipay": {
+          "share_pct": 40.0,
+          "target_pct": 40.0,
+          "delta_pct": 0.0
+        },
+        "payflow": {
+          "share_pct": 30.0,
+          "target_pct": 35.0,
+          "delta_pct": -5.0
+        },
+        "quickpay": {
+          "share_pct": 30.0,
+          "target_pct": 25.0,
+          "delta_pct": 5.0
+        },
+        "spacepayments": {
+          "share_pct": 0.0,
+          "target_pct": 0.0,
+          "delta_pct": 0.0
+        }
+      },
+      "volume_distribution": {
+        "vipay": {
+          "share_pct": 26.44,
+          "target_pct": 50.0,
+          "delta_pct": -23.56
+        },
+        "payflow": {
+          "share_pct": 23.02,
+          "target_pct": 25.0,
+          "delta_pct": -1.98
+        },
+        "quickpay": {
+          "share_pct": 50.54,
+          "target_pct": 25.0,
+          "delta_pct": 25.54
+        },
+        "spacepayments": {
+          "share_pct": 0.0,
+          "target_pct": 0.0,
+          "delta_pct": 0.0
+        }
+      },
+      "count_target_error_pp": 10.0,
+      "volume_target_error_pp": 51.08,
+      "approval_rate_pct": 100.0,
+      "fallback_count": 0,
+      "capacity_utilization": {
+        "vipay": {
+          "utilization_pct": 66.04,
+          "headroom": 1698000.0
+        },
+        "payflow": {
+          "utilization_pct": 99.63,
+          "headroom": 11200.0
+        },
+        "quickpay": {
+          "utilization_pct": 16.19,
+          "headroom": 6705000.0
+        },
+        "spacepayments": {
+          "utilization_pct": null,
+          "headroom": null
+        }
+      },
+      "selections": {
+        "op_101": "vipay",
+        "op_102": "payflow",
+        "op_103": "quickpay",
+        "op_104": "quickpay",
+        "op_105": "vipay",
+        "op_106": "vipay",
+        "op_107": "payflow",
+        "op_108": "quickpay",
+        "op_109": "vipay",
+        "op_110": "payflow"
+      },
+      "changed_operations_vs_balanced": []
+    },
+    {
+      "name": "conversion_first",
+      "policy": "conversion_first",
+      "weights": {
+        "conversion": 4.0,
         "latency": 0.5,
         "cost": 0.5
       },
@@ -46,19 +139,19 @@
       },
       "volume_distribution": {
         "vipay": {
-          "share_pct": 23.85,
+          "share_pct": 22.55,
           "target_pct": 50.0,
-          "delta_pct": -26.15
+          "delta_pct": -27.45
         },
         "payflow": {
-          "share_pct": 23.02,
+          "share_pct": 16.54,
           "target_pct": 25.0,
-          "delta_pct": -1.98
+          "delta_pct": -8.46
         },
         "quickpay": {
-          "share_pct": 53.14,
+          "share_pct": 60.91,
           "target_pct": 25.0,
-          "delta_pct": 28.14
+          "delta_pct": 35.91
         },
         "spacepayments": {
           "share_pct": 0.0,
@@ -67,21 +160,21 @@
         }
       },
       "count_target_error_pp": 30.0,
-      "volume_target_error_pp": 56.27,
+      "volume_target_error_pp": 71.82,
       "approval_rate_pct": 100.0,
       "fallback_count": 0,
       "capacity_utilization": {
         "vipay": {
-          "utilization_pct": 65.84,
-          "headroom": 1708000.0
+          "utilization_pct": 65.74,
+          "headroom": 1713000.0
         },
         "payflow": {
-          "utilization_pct": 99.63,
-          "headroom": 11200.0
+          "utilization_pct": 98.79,
+          "headroom": 36200.0
         },
         "quickpay": {
-          "utilization_pct": 16.31,
-          "headroom": 6695000.0
+          "utilization_pct": 16.69,
+          "headroom": 6665000.0
         },
         "spacepayments": {
           "utilization_pct": null,
@@ -89,7 +182,7 @@
         }
       },
       "selections": {
-        "op_101": "vipay",
+        "op_101": "payflow",
         "op_102": "payflow",
         "op_103": "quickpay",
         "op_104": "quickpay",
@@ -97,122 +190,14 @@
         "op_106": "vipay",
         "op_107": "payflow",
         "op_108": "quickpay",
-        "op_109": "quickpay",
-        "op_110": "payflow"
-      },
-      "changed_operations_vs_balanced": []
-    },
-    {
-      "name": "conversion_first",
-      "policy": "conversion_first",
-      "weights": {
-        "conversion": 4.0,
-        "latency": 0.5,
-        "cost": 0.5
-      },
-      "traffic_targets": {
-        "vipay": 40.0,
-        "payflow": 35.0,
-        "quickpay": 25.0
-      },
-      "distribution": {
-        "vipay": {
-          "share_pct": 0.0,
-          "target_pct": 40.0,
-          "delta_pct": -40.0
-        },
-        "payflow": {
-          "share_pct": 10.0,
-          "target_pct": 35.0,
-          "delta_pct": -25.0
-        },
-        "quickpay": {
-          "share_pct": 90.0,
-          "target_pct": 25.0,
-          "delta_pct": 65.0
-        },
-        "spacepayments": {
-          "share_pct": 0.0,
-          "target_pct": 0.0,
-          "delta_pct": 0.0
-        }
-      },
-      "volume_distribution": {
-        "vipay": {
-          "share_pct": 0.0,
-          "target_pct": 50.0,
-          "delta_pct": -50.0
-        },
-        "payflow": {
-          "share_pct": 0.21,
-          "target_pct": 25.0,
-          "delta_pct": -24.79
-        },
-        "quickpay": {
-          "share_pct": 99.79,
-          "target_pct": 25.0,
-          "delta_pct": 74.79
-        },
-        "spacepayments": {
-          "share_pct": 0.0,
-          "target_pct": 0.0,
-          "delta_pct": 0.0
-        }
-      },
-      "count_target_error_pp": 130.0,
-      "volume_target_error_pp": 149.58,
-      "approval_rate_pct": 100.0,
-      "fallback_count": 0,
-      "capacity_utilization": {
-        "vipay": {
-          "utilization_pct": 64.0,
-          "headroom": 1800000.0
-        },
-        "payflow": {
-          "utilization_pct": 96.69,
-          "headroom": 99200.0
-        },
-        "quickpay": {
-          "utilization_pct": 18.56,
-          "headroom": 6515000.0
-        },
-        "spacepayments": {
-          "utilization_pct": null,
-          "headroom": null
-        }
-      },
-      "selections": {
-        "op_101": "quickpay",
-        "op_102": "quickpay",
-        "op_103": "quickpay",
-        "op_104": "quickpay",
-        "op_105": "quickpay",
-        "op_106": "quickpay",
-        "op_107": "payflow",
-        "op_108": "quickpay",
-        "op_109": "quickpay",
+        "op_109": "vipay",
         "op_110": "quickpay"
       },
       "changed_operations_vs_balanced": [
         {
           "operation_id": "op_101",
           "from": "vipay",
-          "to": "quickpay"
-        },
-        {
-          "operation_id": "op_102",
-          "from": "payflow",
-          "to": "quickpay"
-        },
-        {
-          "operation_id": "op_105",
-          "from": "vipay",
-          "to": "quickpay"
-        },
-        {
-          "operation_id": "op_106",
-          "from": "vipay",
-          "to": "quickpay"
+          "to": "payflow"
         },
         {
           "operation_id": "op_110",
@@ -311,13 +296,7 @@
         "op_109": "vipay",
         "op_110": "payflow"
       },
-      "changed_operations_vs_balanced": [
-        {
-          "operation_id": "op_109",
-          "from": "quickpay",
-          "to": "vipay"
-        }
-      ]
+      "changed_operations_vs_balanced": []
     },
     {
       "name": "capacity_first",
@@ -432,6 +411,11 @@
           "to": "quickpay"
         },
         {
+          "operation_id": "op_109",
+          "from": "vipay",
+          "to": "quickpay"
+        },
+        {
           "operation_id": "op_110",
           "from": "payflow",
           "to": "quickpay"
@@ -466,8 +450,8 @@
         },
         "duration": "until_daily_limit_reset"
       },
-      "expected_impact": "Reduce the chance of hard-limit exclusions while preserving limited capacity for eligible payouts.",
-      "message": "payflow daily limit is 99.6% utilized (2988800/3000000 RUB; 11200 RUB headroom). Temporarily change traffic_percentage from 35.0% to 10.0% until the daily reset."
+      "expected_impact": "Снизить риск жёстких исключений по дневному лимиту и сохранить остаток ёмкости для подходящих выплат.",
+      "message": "payflow: дневной лимит использован на 99.6% (2 988 800 ₽ из 3 000 000 ₽, запас 11 200 ₽). Временно изменить traffic_percentage с 35.0% до 10.0% и перераспределить долю на quickpay до сброса дневного лимита."
     },
     "before": {
       "name": "balanced",
@@ -479,9 +463,9 @@
       },
       "distribution": {
         "vipay": {
-          "share_pct": 30.0,
+          "share_pct": 40.0,
           "target_pct": 40.0,
-          "delta_pct": -10.0
+          "delta_pct": 0.0
         },
         "payflow": {
           "share_pct": 30.0,
@@ -489,9 +473,9 @@
           "delta_pct": -5.0
         },
         "quickpay": {
-          "share_pct": 40.0,
+          "share_pct": 30.0,
           "target_pct": 25.0,
-          "delta_pct": 15.0
+          "delta_pct": 5.0
         },
         "spacepayments": {
           "share_pct": 0.0,
@@ -501,9 +485,9 @@
       },
       "volume_distribution": {
         "vipay": {
-          "share_pct": 23.85,
+          "share_pct": 26.44,
           "target_pct": 50.0,
-          "delta_pct": -26.15
+          "delta_pct": -23.56
         },
         "payflow": {
           "share_pct": 23.02,
@@ -511,9 +495,9 @@
           "delta_pct": -1.98
         },
         "quickpay": {
-          "share_pct": 53.14,
+          "share_pct": 50.54,
           "target_pct": 25.0,
-          "delta_pct": 28.14
+          "delta_pct": 25.54
         },
         "spacepayments": {
           "share_pct": 0.0,
@@ -521,22 +505,22 @@
           "delta_pct": 0.0
         }
       },
-      "count_target_error_pp": 30.0,
-      "volume_target_error_pp": 56.27,
+      "count_target_error_pp": 10.0,
+      "volume_target_error_pp": 51.08,
       "approval_rate_pct": 100.0,
       "fallback_count": 0,
       "capacity_utilization": {
         "vipay": {
-          "utilization_pct": 65.84,
-          "headroom": 1708000.0
+          "utilization_pct": 66.04,
+          "headroom": 1698000.0
         },
         "payflow": {
           "utilization_pct": 99.63,
           "headroom": 11200.0
         },
         "quickpay": {
-          "utilization_pct": 16.31,
-          "headroom": 6695000.0
+          "utilization_pct": 16.19,
+          "headroom": 6705000.0
         },
         "spacepayments": {
           "utilization_pct": null,
@@ -555,14 +539,14 @@
       },
       "distribution": {
         "vipay": {
-          "share_pct": 30.0,
+          "share_pct": 40.0,
           "target_pct": 40.0,
-          "delta_pct": -10.0
+          "delta_pct": 0.0
         },
         "payflow": {
-          "share_pct": 20.0,
+          "share_pct": 10.0,
           "target_pct": 10.0,
-          "delta_pct": 10.0
+          "delta_pct": 0.0
         },
         "quickpay": {
           "share_pct": 50.0,
@@ -577,19 +561,19 @@
       },
       "volume_distribution": {
         "vipay": {
-          "share_pct": 23.85,
+          "share_pct": 26.44,
           "target_pct": 50.0,
-          "delta_pct": -26.15
+          "delta_pct": -23.56
         },
         "payflow": {
-          "share_pct": 10.58,
+          "share_pct": 0.21,
           "target_pct": 25.0,
-          "delta_pct": -14.42
+          "delta_pct": -24.79
         },
         "quickpay": {
-          "share_pct": 65.58,
+          "share_pct": 73.35,
           "target_pct": 25.0,
-          "delta_pct": 40.58
+          "delta_pct": 48.35
         },
         "spacepayments": {
           "share_pct": 0.0,
@@ -597,22 +581,22 @@
           "delta_pct": 0.0
         }
       },
-      "count_target_error_pp": 20.0,
-      "volume_target_error_pp": 81.15,
+      "count_target_error_pp": 0.0,
+      "volume_target_error_pp": 96.7,
       "approval_rate_pct": 100.0,
       "fallback_count": 0,
       "capacity_utilization": {
         "vipay": {
-          "utilization_pct": 65.84,
-          "headroom": 1708000.0
+          "utilization_pct": 66.04,
+          "headroom": 1698000.0
         },
         "payflow": {
-          "utilization_pct": 98.03,
-          "headroom": 59200.0
+          "utilization_pct": 96.69,
+          "headroom": 99200.0
         },
         "quickpay": {
-          "utilization_pct": 16.91,
-          "headroom": 6647000.0
+          "utilization_pct": 17.29,
+          "headroom": 6617000.0
         },
         "spacepayments": {
           "utilization_pct": null,
@@ -624,14 +608,19 @@
           "operation_id": "op_102",
           "from": "payflow",
           "to": "quickpay"
+        },
+        {
+          "operation_id": "op_110",
+          "from": "payflow",
+          "to": "quickpay"
         }
       ]
     },
     "tradeoffs": {
       "count_target_error_change_pp": -10.0,
-      "volume_target_error_change_pp": 24.88,
+      "volume_target_error_change_pp": 45.62,
       "constrained_provider": "payflow",
-      "capacity_utilization_change_pp": -1.6
+      "capacity_utilization_change_pp": -2.94
     }
   }
 }

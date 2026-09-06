@@ -20,8 +20,17 @@ module RouteLens
       seed: 2026,
       simulation: "deterministic",
       outcome_overrides: nil,
+      compact: false,
       quiet: false
     }.freeze
+
+    # Минимальная форма решения из задания: только то, что обязан прочитать
+    # валидатор. Остальные поля — наши доказательства, они остаются по умолчанию.
+    COMPACT_ATTEMPT_KEYS = %w[provider decision reason details].freeze
+
+    # 0 — файлы записаны, 1 — вход или конфигурация непригодны (файлы не тронуты),
+    # 3 — файлы записаны, но ни одну операцию не удалось выполнить.
+    NOTHING_ROUTED_STATUS = 3
 
     def self.run(argv = ARGV, defaults: {})
       new(argv, defaults: defaults).run
@@ -36,12 +45,18 @@ module RouteLens
       parse_options!
       validate_output_paths!
 
-      provider_snapshot = InputLoader.load_provider_snapshot(@options[:providers])
+      # Конфигурация читается один раз: политика и переопределения провайдеров
+      # приходят из одного файла, поэтому запуск нельзя собрать наполовину.
+      policy_config = ConfigLoader.load(@options[:policy])
+      policy = Scoring::Policy.new(policy_config, preset: @options[:preset])
+      provider_snapshot = InputLoader.load_provider_snapshot(
+        @options[:providers],
+        overrides: policy_config["provider_overrides"]
+      )
       providers = provider_snapshot.fetch("providers")
       initial_snapshot = provider_snapshot.merge("providers" => providers.map(&:snapshot))
       operations = InputLoader.load_operations(@options[:queue])
       history_rows = InputLoader.load_history(@options[:history])
-      policy = Scoring::Policy.load(@options[:policy], preset: @options[:preset])
       simulator = OutcomeSimulator.new(
         seed: @options[:seed],
         mode: @options[:simulation],
@@ -60,13 +75,19 @@ module RouteLens
       ).build
       report["routing_attempts"] = run_result.routing_metrics
 
-      atomic_json_write(@options[:decisions], run_result.decisions)
+      decisions = @options[:compact] ? compact_decisions(run_result.decisions) : run_result.decisions
+      atomic_json_write(@options[:decisions], decisions)
       atomic_json_write(@options[:report], report)
       print_summary(run_result.decisions, report) unless @options[:quiet]
-      0
+      exit_status(run_result.decisions)
     rescue InputError, ConfigError, RoutingError, ArgumentError, Psych::Exception,
            Errno::EACCES, Errno::ENOENT => e
       warn "RouteLens error: #{e.message}"
+      1
+    rescue StandardError => e
+      # Последний рубеж: судья не должен увидеть сырой стек Ruby. Класс ошибки
+      # печатается явно, иначе настоящий баг станет неотличим от ошибки входа.
+      warn "RouteLens internal error (#{e.class}): #{e.message}"
       1
     end
 
@@ -89,10 +110,15 @@ module RouteLens
         options.on("--outcome-overrides PATH", "Fixture-only outcome overrides JSON") do |value|
           @options[:outcome_overrides] = value
         end
+        options.on("--compact", "Write the spec-minimal decision shape without evidence fields") do
+          @options[:compact] = true
+        end
         options.on("--quiet", "Suppress summary output") { @options[:quiet] = true }
         options.on("-h", "--help", "Show this help") do
           puts options
-          throw :route_lens_help
+          # Значение обязательно: catch без него вернёт nil, и после справки
+          # запуск продолжался бы обычным прогоном, перезаписывая артефакты.
+          throw :route_lens_help, true
         end
       end
 
@@ -123,9 +149,39 @@ module RouteLens
       raise ArgumentError, "Invalid outcome overrides JSON in #{path}: #{e.message}"
     end
 
+    # Компактная форма отдаёт ровно поля спецификации. По умолчанию файл
+    # остаётся доказательным: состояния резерва проверяются release_check.
+    def compact_decisions(decisions)
+      decisions.map do |decision|
+        {
+          "operation_id" => decision["operation_id"],
+          "selected_provider" => decision["selected_provider"],
+          "attempts" => Array(decision["attempts"]).map { |attempt| attempt.slice(*COMPACT_ATTEMPT_KEYS) },
+          "simulated_result" => decision["simulated_result"],
+          "latency_sec" => decision["latency_sec"]
+        }
+      end
+    end
+
+    def unroutable_count(decisions)
+      decisions.count { |decision| decision["selected_provider"].nil? }
+    end
+
+    # Пакет с единичным сбоем считается успешным: 999 корректных решений важнее
+    # одной невыполнимой выплаты. Ненулевой статус — только если не выполнено ничего.
+    def exit_status(decisions)
+      return 0 if decisions.empty?
+
+      unroutable_count(decisions) == decisions.length ? NOTHING_ROUTED_STATUS : 0
+    end
+
     def atomic_json_write(path, value)
       # Сначала записываем полный соседний файл и только затем переименовываем:
       # при ошибке пользователь не получит обрезанный итоговый JSON.
+      # temporary обнуляется заранее: defined? истинно уже на этапе разбора, и
+      # при падении до присваивания ensure получил бы File.exist?(nil) и подменил
+      # исходную ошибку на TypeError.
+      temporary = nil
       absolute = File.expand_path(path)
       directory = File.dirname(absolute)
       FileUtils.mkdir_p(directory)
@@ -133,15 +189,19 @@ module RouteLens
       File.write(temporary, JSON.pretty_generate(value) + "\n")
       File.rename(temporary, absolute)
     ensure
-      File.delete(temporary) if defined?(temporary) && File.exist?(temporary)
+      File.delete(temporary) if temporary && File.exist?(temporary)
     end
 
     def print_summary(decisions, report)
-      puts "RouteLens routed #{decisions.length} operation(s)."
-      puts "Decisions: #{@options[:decisions]}"
+      unroutable = unroutable_count(decisions)
+      puts "RouteLens routed #{decisions.length - unroutable} of #{decisions.length} operation(s)."
+      puts "Decisions: #{@options[:decisions]}#{@options[:compact] ? ' (compact)' : ''}"
       puts "Report:    #{@options[:report]}"
       puts "Approval rate: #{report.dig('outcomes', 'approval_rate_pct')}%"
       puts "Retries: #{report['retry_count']}; fallbacks: #{report['fallback_count']}"
+      return if unroutable.zero?
+
+      puts "Unroutable: #{unroutable} operation(s) had no eligible provider (reason no_provider_available)"
     end
   end
 end

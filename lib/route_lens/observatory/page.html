@@ -1,0 +1,73 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="color-scheme" content="light dark">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'none'; style-src 'unsafe-inline'; script-src 'unsafe-inline'; img-src data:">
+  <title>RouteLens: центр наблюдения за маршрутизацией</title>
+  <style>
+{{STYLES}}
+  </style>
+</head>
+<body>
+  <main>
+    <header>
+      <div>
+        <div class="eyebrow">Аналитика решений / автономно</div>
+        <h1>Центр<br>маршрутизации</h1>
+        <p>Проверяемое представление распределения, отказоустойчивости и каждого решения роутера.</p>
+      </div>
+      <div class="meta"><strong>Codemasters · RouteLens</strong><br>{{PERIOD_LABEL}}</div>
+    </header>
+
+    <section class="grid kpis" aria-label="Обзор маршрутизации">
+      {{KPI_OPERATIONS}}
+      {{KPI_APPROVAL}}
+      {{KPI_FAILURES}}
+      {{KPI_RETRIES}}
+      {{KPI_FALLBACK}}
+    </section>
+
+    <div class="grid two-col">
+      <section class="card" aria-labelledby="distribution-title">
+        <h2 id="distribution-title">Доля операций: факт и цель</h2>
+        <div class="distribution">{{DISTRIBUTION_ROWS}}</div>
+        <div class="legend" aria-hidden="true"><span><i class="dot"></i>Факт</span><span><i class="dot target"></i>Цель</span></div>
+      </section>
+      <section class="card" aria-labelledby="capacity-title">
+        <h2 id="capacity-title">Дневная ёмкость</h2>
+        <div class="capacity-list">{{CAPACITY_ROWS}}</div>
+      </section>
+    </div>
+
+    <section class="card" aria-labelledby="recommendations-title">
+      <h2 id="recommendations-title">Рекомендуемые действия</h2>
+      {{RECOMMENDATION_ROWS}}
+    </section>
+
+    {{POLICY_COMPARISON}}
+
+    <section class="card operation-card" aria-labelledby="operation-title">
+      <div class="operation-toolbar">
+        <div>
+          <div class="eyebrow">Квитанция решения</div>
+          <h2 id="operation-title">Разбор операции</h2>
+        </div>
+        <div>
+          <label for="operation-select">Операция</label>
+          <select id="operation-select">{{OPERATION_OPTIONS}}</select>
+        </div>
+      </div>
+      <div id="operation-view" aria-live="polite"></div>
+      <noscript><p class="empty">Включите JavaScript для просмотра попыток. Сводные метрики доступны выше.</p></noscript>
+    </section>
+    <footer>Сформировано локально из routing_decisions.json и routing_report.json · сеть не требуется</footer>
+  </main>
+
+  <script id="route-lens-data" type="application/json">{{EMBEDDED_DATA}}</script>
+  <script>
+{{SCRIPT}}
+  </script>
+</body>
+</html>

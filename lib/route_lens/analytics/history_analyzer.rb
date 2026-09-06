@@ -52,6 +52,10 @@ module RouteLens
       end
 
       def provider_metrics
+        # Доли count/volume считаются здесь же: они показывают, достигались ли
+        # целевые traffic_percentage хоть когда-нибудь, а не только сегодня.
+        total_operations = @rows.length
+        total_amount = @rows.sum { |row| Support.number(Support.fetch(row, 'amount')) }
         @rows.group_by { |row| Support.fetch(row, 'payment_system').to_s }
              .reject { |name, _rows| name.empty? }
              .sort.to_h do |name, rows|
@@ -60,9 +64,12 @@ module RouteLens
             Support.number(value) unless value.nil? || value == ''
           end
           outcomes = outcome_metrics(rows)
+          amount = rows.sum { |row| Support.number(Support.fetch(row, 'amount')) }
           [name, {
             'operations' => rows.length,
-            'amount' => Support.round(rows.sum { |row| Support.number(Support.fetch(row, 'amount')) }),
+            'amount' => Support.round(amount),
+            'count_share_pct' => Support.percent(rows.length, total_operations),
+            'volume_share_pct' => Support.percent(amount, total_amount),
             'approved_count' => outcomes.dig('approved', 'count'),
             'rejected_count' => outcomes.dig('rejected', 'count'),
             'expired_count' => outcomes.dig('expired', 'count'),

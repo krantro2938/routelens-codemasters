@@ -6,9 +6,17 @@ require "rbconfig"
 root = File.expand_path("..", __dir__)
 ruby = RbConfig.ruby
 
+# Отказы провайдеров здесь НЕ подставлены вручную: seed 210 — обычный
+# детерминированный прогон, в котором конверсия из providers.json сама даёт
+# пять повторов, два fallback и 100% восстановления. Это важнее подставленного
+# fixture: путь отказа виден на тех же данных, что и публичный запуск, и
+# demo/resilience_decisions.json проходит validate_10.rb без ошибок.
+# Публичный routing_decisions.json остаётся на seed 2026: там повторов нет,
+# зато достигается оптимум долей 10.0 п.п. Один seed не может показать оба
+# свойства сразу — повтор всегда уводит выплату с целевого провайдера.
 commands = [
   [ruby, File.join(root, "bin/route"),
-   "--outcome-overrides", File.join(root, "test/fixtures/resilience_outcomes.json"),
+   "--seed", "210",
    "--decisions", File.join(root, "demo/resilience_decisions.json"),
    "--report", File.join(root, "demo/resilience_report.json"), "--quiet"],
   [ruby, File.join(root, "bin/compare_policies"),
