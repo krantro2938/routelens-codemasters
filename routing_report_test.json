@@ -1,0 +1,3732 @@
+{
+  "period": "2026-07-30",
+  "total_operations": 90,
+  "total_amount": 3495500.0,
+  "policy": {
+    "name": "balanced_v2",
+    "preset": null,
+    "weights": {
+      "count_target_gain": 3.0,
+      "volume_target_gain": 2.0,
+      "conversion": 1.5,
+      "turnover_obligation": 1.5,
+      "priority": 1.0,
+      "capacity": 1.0,
+      "load": 1.0,
+      "amount_preference": 0.5,
+      "latency": 0.5,
+      "cost": 0.5
+    },
+    "count_targets": {
+      "vipay": 40.0,
+      "payflow": 35.0,
+      "quickpay": 25.0
+    },
+    "volume_targets": {
+      "vipay": 50.0,
+      "payflow": 25.0,
+      "quickpay": 25.0
+    }
+  },
+  "distribution": {
+    "vipay": {
+      "count": 24,
+      "share_pct": 26.67,
+      "target_pct": 40.0,
+      "delta_pct": -13.33
+    },
+    "payflow": {
+      "count": 10,
+      "share_pct": 11.11,
+      "target_pct": 35.0,
+      "delta_pct": -23.89
+    },
+    "quickpay": {
+      "count": 43,
+      "share_pct": 47.78,
+      "target_pct": 25.0,
+      "delta_pct": 22.78
+    },
+    "spacepayments": {
+      "count": 13,
+      "share_pct": 14.44,
+      "target_pct": 0.0,
+      "delta_pct": 14.44
+    }
+  },
+  "volume_distribution": {
+    "vipay": {
+      "amount": 510000.0,
+      "share_pct": 14.59,
+      "target_pct": 50.0,
+      "delta_pct": -35.41,
+      "target_source": "policy.volume_targets"
+    },
+    "payflow": {
+      "amount": 99400.0,
+      "share_pct": 2.84,
+      "target_pct": 25.0,
+      "delta_pct": -22.16,
+      "target_source": "policy.volume_targets"
+    },
+    "quickpay": {
+      "amount": 2539000.0,
+      "share_pct": 72.64,
+      "target_pct": 25.0,
+      "delta_pct": 47.64,
+      "target_source": "policy.volume_targets"
+    },
+    "spacepayments": {
+      "amount": 347100.0,
+      "share_pct": 9.93,
+      "target_pct": 0.0,
+      "delta_pct": 9.93,
+      "target_source": "traffic_percentage_fallback"
+    }
+  },
+  "external_target_distribution": {
+    "vipay": {
+      "count": 24,
+      "share_pct": 31.17,
+      "target_pct": 40.0,
+      "delta_pct": -8.83,
+      "denominator_operations": 77
+    },
+    "payflow": {
+      "count": 10,
+      "share_pct": 12.99,
+      "target_pct": 35.0,
+      "delta_pct": -22.01,
+      "denominator_operations": 77
+    },
+    "quickpay": {
+      "count": 43,
+      "share_pct": 55.84,
+      "target_pct": 25.0,
+      "delta_pct": 30.84,
+      "denominator_operations": 77
+    }
+  },
+  "external_volume_target_distribution": {
+    "vipay": {
+      "amount": 510000.0,
+      "share_pct": 16.2,
+      "target_pct": 50.0,
+      "delta_pct": -33.8,
+      "target_source": "policy.volume_targets",
+      "denominator_amount": 3148400.0
+    },
+    "payflow": {
+      "amount": 99400.0,
+      "share_pct": 3.16,
+      "target_pct": 25.0,
+      "delta_pct": -21.84,
+      "target_source": "policy.volume_targets",
+      "denominator_amount": 3148400.0
+    },
+    "quickpay": {
+      "amount": 2539000.0,
+      "share_pct": 80.64,
+      "target_pct": 25.0,
+      "delta_pct": 55.64,
+      "target_source": "policy.volume_targets",
+      "denominator_amount": 3148400.0
+    }
+  },
+  "outcomes": {
+    "approved": {
+      "count": 90,
+      "share_pct": 100.0,
+      "amount": 3495500.0
+    },
+    "rejected": {
+      "count": 0,
+      "share_pct": 0.0,
+      "amount": 0.0
+    },
+    "expired": {
+      "count": 0,
+      "share_pct": 0.0,
+      "amount": 0.0
+    },
+    "unknown": {
+      "count": 0,
+      "share_pct": 0.0
+    },
+    "approval_rate_pct": 100.0,
+    "failure_rate_pct": 0.0
+  },
+  "attempt_outcomes": {
+    "total_attempts": 108,
+    "approved": 90,
+    "rejected": 14,
+    "expired": 4,
+    "unknown": 0,
+    "approval_rate_pct": 83.33,
+    "failure_rate_pct": 16.67,
+    "latency": {
+      "sample_count": 108,
+      "avg_sec": 30.55,
+      "p95_sec": 48.0,
+      "max_sec": 72.0
+    },
+    "by_provider": {
+      "vipay": {
+        "total_attempts": 31,
+        "approved": 24,
+        "rejected": 6,
+        "expired": 1,
+        "unknown": 0,
+        "approval_rate_pct": 77.42,
+        "failure_rate_pct": 22.58,
+        "latency": {
+          "sample_count": 31,
+          "avg_sec": 35.19,
+          "p95_sec": 47.0,
+          "max_sec": 48.0
+        }
+      },
+      "payflow": {
+        "total_attempts": 11,
+        "approved": 10,
+        "rejected": 1,
+        "expired": 0,
+        "unknown": 0,
+        "approval_rate_pct": 90.91,
+        "failure_rate_pct": 9.09,
+        "latency": {
+          "sample_count": 11,
+          "avg_sec": 51.0,
+          "p95_sec": 72.0,
+          "max_sec": 72.0
+        }
+      },
+      "quickpay": {
+        "total_attempts": 53,
+        "approved": 43,
+        "rejected": 7,
+        "expired": 3,
+        "unknown": 0,
+        "approval_rate_pct": 81.13,
+        "failure_rate_pct": 18.87,
+        "latency": {
+          "sample_count": 53,
+          "avg_sec": 27.58,
+          "p95_sec": 39.0,
+          "max_sec": 40.0
+        }
+      },
+      "spacepayments": {
+        "total_attempts": 13,
+        "approved": 13,
+        "rejected": 0,
+        "expired": 0,
+        "unknown": 0,
+        "approval_rate_pct": 100.0,
+        "failure_rate_pct": 0.0,
+        "latency": {
+          "sample_count": 13,
+          "avg_sec": 14.23,
+          "p95_sec": 20.0,
+          "max_sec": 20.0
+        }
+      }
+    },
+    "operations_with_failed_attempts": 14,
+    "recovered_operations": 14,
+    "recovery_rate_pct": 100.0
+  },
+  "latency": {
+    "sample_count": 90,
+    "avg_sec": 36.66,
+    "p95_sec": 69.0,
+    "max_sec": 141.0,
+    "by_provider": {
+      "vipay": {
+        "sample_count": 24,
+        "avg_sec": 36.79,
+        "p95_sec": 48.0,
+        "max_sec": 60.0
+      },
+      "payflow": {
+        "sample_count": 10,
+        "avg_sec": 50.2,
+        "p95_sec": 72.0,
+        "max_sec": 72.0
+      },
+      "quickpay": {
+        "sample_count": 43,
+        "avg_sec": 32.23,
+        "p95_sec": 52.0,
+        "max_sec": 141.0
+      },
+      "spacepayments": {
+        "sample_count": 13,
+        "avg_sec": 40.62,
+        "p95_sec": 96.0,
+        "max_sec": 96.0
+      }
+    }
+  },
+  "skip_reasons": {
+    "bank_not_in_list": 57,
+    "daily_amount_limit_exceeded": 40,
+    "amount_exceeds_limit": 33,
+    "amount_below_minimum": 16
+  },
+  "skip_reasons_by_provider": {
+    "payflow": {
+      "daily_amount_limit_exceeded": 40,
+      "amount_exceeds_limit": 23,
+      "bank_not_in_list": 16
+    },
+    "quickpay": {
+      "amount_below_minimum": 8
+    },
+    "vipay": {
+      "bank_not_in_list": 41,
+      "amount_exceeds_limit": 10,
+      "amount_below_minimum": 8
+    }
+  },
+  "policy_nonselections": {
+    "total": 29,
+    "reasons": {
+      "lower_policy_score": 29
+    },
+    "by_provider": {
+      "quickpay": {
+        "lower_policy_score": 29
+      }
+    }
+  },
+  "retry_count": 18,
+  "fallback_count": 13,
+  "routing_resilience": {
+    "operations_retried": 14,
+    "fallback_share_pct": 14.44
+  },
+  "projected_daily_utilization": {
+    "vipay": {
+      "used": 3710000.0,
+      "limit": 5000000.0,
+      "utilization_pct": 74.2,
+      "headroom": 1290000.0,
+      "in_progress_count": 4,
+      "in_progress_amount": 380000.0
+    },
+    "payflow": {
+      "used": 2999400.0,
+      "limit": 3000000.0,
+      "utilization_pct": 99.98,
+      "headroom": 600.0,
+      "in_progress_count": 2,
+      "in_progress_amount": 120000.0
+    },
+    "quickpay": {
+      "used": 3639000.0,
+      "limit": 8000000.0,
+      "utilization_pct": 45.49,
+      "headroom": 4361000.0,
+      "in_progress_count": 1,
+      "in_progress_amount": 50000.0
+    },
+    "spacepayments": {
+      "used": 347100.0,
+      "limit": null,
+      "utilization_pct": null,
+      "headroom": null,
+      "in_progress_count": 0,
+      "in_progress_amount": 0.0
+    }
+  },
+  "provider_metrics": {
+    "vipay": {
+      "operations": 24,
+      "amount": 510000.0,
+      "count_share_pct": 26.67,
+      "count_target_pct": 40.0,
+      "count_delta_pct": -13.33,
+      "external_count_share_pct": 31.17,
+      "external_count_delta_pct": -8.83,
+      "volume_share_pct": 14.59,
+      "volume_target_pct": 50.0,
+      "volume_delta_pct": -35.41,
+      "external_volume_share_pct": 16.2,
+      "external_volume_delta_pct": -33.8,
+      "outcomes": {
+        "approved": 24,
+        "rejected": 0,
+        "expired": 0
+      },
+      "approval_rate_pct": 100.0,
+      "attempts": 31,
+      "attempt_outcomes": {
+        "total_attempts": 31,
+        "approved": 24,
+        "rejected": 6,
+        "expired": 1,
+        "unknown": 0,
+        "approval_rate_pct": 77.42,
+        "failure_rate_pct": 22.58,
+        "latency": {
+          "sample_count": 31,
+          "avg_sec": 35.19,
+          "p95_sec": 47.0,
+          "max_sec": 48.0
+        }
+      },
+      "attempt_approval_rate_pct": 77.42,
+      "live_conversion_24h_pct": 87.0,
+      "historical_approval_rate_pct": 78.05,
+      "conversion_drift_pp": 8.95,
+      "historical_operations": 41,
+      "historical_count_share_pct": 41.0,
+      "historical_volume_share_pct": 35.94,
+      "historical_avg_latency_sec": 87.29,
+      "latency_drift_sec": -50.5,
+      "latency": {
+        "sample_count": 24,
+        "avg_sec": 36.79,
+        "p95_sec": 48.0,
+        "max_sec": 60.0
+      },
+      "skip_reasons": {
+        "bank_not_in_list": 41,
+        "amount_exceeds_limit": 10,
+        "amount_below_minimum": 8
+      },
+      "blocked_operations": {
+        "operations": 59,
+        "reasons": {
+          "bank_not_in_list": {
+            "operations": 41,
+            "amount_sum": 1308000.0,
+            "amount_p10": 2000.0,
+            "amount_p90": 80000.0,
+            "banks": {
+              "gazprombank": 15,
+              "alfa": 13,
+              "raiffeisen": 13
+            }
+          },
+          "amount_exceeds_limit": {
+            "operations": 10,
+            "amount_sum": 1500000.0,
+            "amount_p10": 120000.0,
+            "amount_p90": 180000.0
+          },
+          "amount_below_minimum": {
+            "operations": 8,
+            "amount_sum": 7000.0,
+            "amount_p10": 800.0,
+            "amount_p90": 900.0
+          }
+        }
+      },
+      "capacity": {
+        "used": 3710000.0,
+        "limit": 5000000.0,
+        "utilization_pct": 74.2,
+        "headroom": 1290000.0,
+        "in_progress_count": 4,
+        "in_progress_amount": 380000.0
+      }
+    },
+    "payflow": {
+      "operations": 10,
+      "amount": 99400.0,
+      "count_share_pct": 11.11,
+      "count_target_pct": 35.0,
+      "count_delta_pct": -23.89,
+      "external_count_share_pct": 12.99,
+      "external_count_delta_pct": -22.01,
+      "volume_share_pct": 2.84,
+      "volume_target_pct": 25.0,
+      "volume_delta_pct": -22.16,
+      "external_volume_share_pct": 3.16,
+      "external_volume_delta_pct": -21.84,
+      "outcomes": {
+        "approved": 10,
+        "rejected": 0,
+        "expired": 0
+      },
+      "approval_rate_pct": 100.0,
+      "attempts": 11,
+      "attempt_outcomes": {
+        "total_attempts": 11,
+        "approved": 10,
+        "rejected": 1,
+        "expired": 0,
+        "unknown": 0,
+        "approval_rate_pct": 90.91,
+        "failure_rate_pct": 9.09,
+        "latency": {
+          "sample_count": 11,
+          "avg_sec": 51.0,
+          "p95_sec": 72.0,
+          "max_sec": 72.0
+        }
+      },
+      "attempt_approval_rate_pct": 90.91,
+      "live_conversion_24h_pct": 91.0,
+      "historical_approval_rate_pct": 47.37,
+      "conversion_drift_pp": 43.63,
+      "historical_operations": 19,
+      "historical_count_share_pct": 19.0,
+      "historical_volume_share_pct": 8.48,
+      "historical_avg_latency_sec": 278.05,
+      "latency_drift_sec": -227.85,
+      "latency": {
+        "sample_count": 10,
+        "avg_sec": 50.2,
+        "p95_sec": 72.0,
+        "max_sec": 72.0
+      },
+      "skip_reasons": {
+        "daily_amount_limit_exceeded": 40,
+        "amount_exceeds_limit": 23,
+        "bank_not_in_list": 16
+      },
+      "blocked_operations": {
+        "operations": 79,
+        "reasons": {
+          "daily_amount_limit_exceeded": {
+            "operations": 40,
+            "amount_sum": 633200.0,
+            "amount_p10": 1500.0,
+            "amount_p90": 42000.0
+          },
+          "amount_exceeds_limit": {
+            "operations": 23,
+            "amount_sum": 2438000.0,
+            "amount_p10": 52000.0,
+            "amount_p90": 180000.0
+          },
+          "bank_not_in_list": {
+            "operations": 16,
+            "amount_sum": 299900.0,
+            "amount_p10": 2000.0,
+            "amount_p90": 42000.0,
+            "banks": {
+              "vtb": 5,
+              "raiffeisen": 4,
+              "tinkoff": 4,
+              "gazprombank": 3
+            }
+          }
+        }
+      },
+      "capacity": {
+        "used": 2999400.0,
+        "limit": 3000000.0,
+        "utilization_pct": 99.98,
+        "headroom": 600.0,
+        "in_progress_count": 2,
+        "in_progress_amount": 120000.0
+      }
+    },
+    "quickpay": {
+      "operations": 43,
+      "amount": 2539000.0,
+      "count_share_pct": 47.78,
+      "count_target_pct": 25.0,
+      "count_delta_pct": 22.78,
+      "external_count_share_pct": 55.84,
+      "external_count_delta_pct": 30.84,
+      "volume_share_pct": 72.64,
+      "volume_target_pct": 25.0,
+      "volume_delta_pct": 47.64,
+      "external_volume_share_pct": 80.64,
+      "external_volume_delta_pct": 55.64,
+      "outcomes": {
+        "approved": 43,
+        "rejected": 0,
+        "expired": 0
+      },
+      "approval_rate_pct": 100.0,
+      "attempts": 53,
+      "attempt_outcomes": {
+        "total_attempts": 53,
+        "approved": 43,
+        "rejected": 7,
+        "expired": 3,
+        "unknown": 0,
+        "approval_rate_pct": 81.13,
+        "failure_rate_pct": 18.87,
+        "latency": {
+          "sample_count": 53,
+          "avg_sec": 27.58,
+          "p95_sec": 39.0,
+          "max_sec": 40.0
+        }
+      },
+      "attempt_approval_rate_pct": 81.13,
+      "live_conversion_24h_pct": 79.0,
+      "historical_approval_rate_pct": 67.5,
+      "conversion_drift_pp": 11.5,
+      "historical_operations": 40,
+      "historical_count_share_pct": 40.0,
+      "historical_volume_share_pct": 55.58,
+      "historical_avg_latency_sec": 129.98,
+      "latency_drift_sec": -97.75,
+      "latency": {
+        "sample_count": 43,
+        "avg_sec": 32.23,
+        "p95_sec": 52.0,
+        "max_sec": 141.0
+      },
+      "skip_reasons": {
+        "amount_below_minimum": 8
+      },
+      "blocked_operations": {
+        "operations": 8,
+        "reasons": {
+          "amount_below_minimum": {
+            "operations": 8,
+            "amount_sum": 7000.0,
+            "amount_p10": 800.0,
+            "amount_p90": 900.0
+          }
+        }
+      },
+      "capacity": {
+        "used": 3639000.0,
+        "limit": 8000000.0,
+        "utilization_pct": 45.49,
+        "headroom": 4361000.0,
+        "in_progress_count": 1,
+        "in_progress_amount": 50000.0
+      }
+    },
+    "spacepayments": {
+      "operations": 13,
+      "amount": 347100.0,
+      "count_share_pct": 14.44,
+      "count_target_pct": 0.0,
+      "count_delta_pct": 14.44,
+      "external_count_share_pct": null,
+      "external_count_delta_pct": null,
+      "volume_share_pct": 9.93,
+      "volume_target_pct": 0.0,
+      "volume_delta_pct": 9.93,
+      "external_volume_share_pct": null,
+      "external_volume_delta_pct": null,
+      "outcomes": {
+        "approved": 13,
+        "rejected": 0,
+        "expired": 0
+      },
+      "approval_rate_pct": 100.0,
+      "attempts": 13,
+      "attempt_outcomes": {
+        "total_attempts": 13,
+        "approved": 13,
+        "rejected": 0,
+        "expired": 0,
+        "unknown": 0,
+        "approval_rate_pct": 100.0,
+        "failure_rate_pct": 0.0,
+        "latency": {
+          "sample_count": 13,
+          "avg_sec": 14.23,
+          "p95_sec": 20.0,
+          "max_sec": 20.0
+        }
+      },
+      "attempt_approval_rate_pct": 100.0,
+      "live_conversion_24h_pct": 95.0,
+      "historical_approval_rate_pct": null,
+      "conversion_drift_pp": null,
+      "historical_operations": null,
+      "historical_count_share_pct": null,
+      "historical_volume_share_pct": null,
+      "historical_avg_latency_sec": null,
+      "latency_drift_sec": null,
+      "latency": {
+        "sample_count": 13,
+        "avg_sec": 40.62,
+        "p95_sec": 96.0,
+        "max_sec": 96.0
+      },
+      "skip_reasons": {},
+      "blocked_operations": {
+        "operations": 0,
+        "reasons": {}
+      },
+      "capacity": {
+        "used": 347100.0,
+        "limit": null,
+        "utilization_pct": null,
+        "headroom": null,
+        "in_progress_count": 0,
+        "in_progress_amount": 0.0
+      }
+    }
+  },
+  "unmet_goals": [
+    {
+      "goal": "count_share_target",
+      "provider": "vipay",
+      "status": "unreachable_for_operation",
+      "target_pct": 40,
+      "current_attempt_share_pct": 0,
+      "reason": "bank_not_in_list",
+      "details": "банк alfa отсутствует в списке поддерживаемых банков провайдера",
+      "operation_id": "op_111"
+    },
+    {
+      "goal": "volume_share_target",
+      "provider": "vipay",
+      "status": "unreachable_for_operation",
+      "target_pct": 50,
+      "current_attempt_share_pct": 0,
+      "reason": "bank_not_in_list",
+      "details": "банк alfa отсутствует в списке поддерживаемых банков провайдера",
+      "operation_id": "op_111"
+    },
+    {
+      "goal": "volume_share_target",
+      "provider": "payflow",
+      "status": "unreachable_for_operation",
+      "target_pct": 25,
+      "current_attempt_share_pct": 16.67,
+      "reason": "bank_not_in_list",
+      "details": "банк vtb отсутствует в списке поддерживаемых банков провайдера",
+      "operation_id": "op_112"
+    },
+    {
+      "goal": "count_share_target",
+      "provider": "vipay",
+      "status": "unreachable_for_operation",
+      "target_pct": 40,
+      "current_attempt_share_pct": 33.33,
+      "reason": "bank_not_in_list",
+      "details": "банк gazprombank отсутствует в списке поддерживаемых банков провайдера",
+      "operation_id": "op_113"
+    },
+    {
+      "goal": "count_share_target",
+      "provider": "payflow",
+      "status": "unreachable_for_operation",
+      "target_pct": 35,
+      "current_attempt_share_pct": 33.33,
+      "reason": "bank_not_in_list",
+      "details": "банк gazprombank отсутствует в списке поддерживаемых банков провайдера",
+      "operation_id": "op_113"
+    },
+    {
+      "goal": "volume_share_target",
+      "provider": "payflow",
+      "status": "unreachable_for_operation",
+      "target_pct": 25,
+      "current_attempt_share_pct": 13.79,
+      "reason": "bank_not_in_list",
+      "details": "банк gazprombank отсутствует в списке поддерживаемых банков провайдера",
+      "operation_id": "op_113"
+    },
+    {
+      "goal": "count_share_target",
+      "provider": "payflow",
+      "status": "unreachable_for_operation",
+      "target_pct": 35,
+      "current_attempt_share_pct": 25,
+      "reason": "amount_exceeds_limit",
+      "details": "75000 > limit_amount_max 50000",
+      "operation_id": "op_114"
+    },
+    {
+      "goal": "volume_share_target",
+      "provider": "payflow",
+      "status": "unreachable_for_operation",
+      "target_pct": 25,
+      "current_attempt_share_pct": 6.02,
+      "reason": "amount_exceeds_limit",
+      "details": "75000 > limit_amount_max 50000",
+      "operation_id": "op_114"
+    },
+    {
+      "goal": "count_share_target",
+      "provider": "payflow",
+      "status": "unreachable_for_operation",
+      "target_pct": 35,
+      "current_attempt_share_pct": 25,
+      "reason": "amount_exceeds_limit",
+      "details": "52000 > limit_amount_max 50000",
+      "operation_id": "op_115"
+    },
+    {
+      "goal": "volume_share_target",
+      "provider": "payflow",
+      "status": "unreachable_for_operation",
+      "target_pct": 25,
+      "current_attempt_share_pct": 6.02,
+      "reason": "amount_exceeds_limit",
+      "details": "52000 > limit_amount_max 50000",
+      "operation_id": "op_115"
+    },
+    {
+      "goal": "count_share_target",
+      "provider": "payflow",
+      "status": "unreachable_for_operation",
+      "target_pct": 35,
+      "current_attempt_share_pct": 20,
+      "reason": "bank_not_in_list",
+      "details": "банк gazprombank отсутствует в списке поддерживаемых банков провайдера",
+      "operation_id": "op_116"
+    },
+    {
+      "goal": "volume_share_target",
+      "provider": "payflow",
+      "status": "unreachable_for_operation",
+      "target_pct": 25,
+      "current_attempt_share_pct": 5.23,
+      "reason": "bank_not_in_list",
+      "details": "банк gazprombank отсутствует в списке поддерживаемых банков провайдера",
+      "operation_id": "op_116"
+    },
+    {
+      "goal": "count_share_target",
+      "provider": "payflow",
+      "status": "unreachable_for_operation",
+      "target_pct": 35,
+      "current_attempt_share_pct": 16.67,
+      "reason": "bank_not_in_list",
+      "details": "банк vtb отсутствует в списке поддерживаемых банков провайдера",
+      "operation_id": "op_117"
+    },
+    {
+      "goal": "volume_share_target",
+      "provider": "payflow",
+      "status": "unreachable_for_operation",
+      "target_pct": 25,
+      "current_attempt_share_pct": 5.16,
+      "reason": "bank_not_in_list",
+      "details": "банк vtb отсутствует в списке поддерживаемых банков провайдера",
+      "operation_id": "op_117"
+    },
+    {
+      "goal": "volume_share_target",
+      "provider": "vipay",
+      "status": "unreachable_for_operation",
+      "target_pct": 50,
+      "current_attempt_share_pct": 49.79,
+      "reason": "bank_not_in_list",
+      "details": "банк gazprombank отсутствует в списке поддерживаемых банков провайдера",
+      "operation_id": "op_118"
+    },
+    {
+      "goal": "count_share_target",
+      "provider": "payflow",
+      "status": "unreachable_for_operation",
+      "target_pct": 35,
+      "current_attempt_share_pct": 14.29,
+      "reason": "amount_exceeds_limit",
+      "details": "80000 > limit_amount_max 50000",
+      "operation_id": "op_118"
+    },
+    {
+      "goal": "volume_share_target",
+      "provider": "payflow",
+      "status": "unreachable_for_operation",
+      "target_pct": 25,
+      "current_attempt_share_pct": 3.4,
+      "reason": "amount_exceeds_limit",
+      "details": "80000 > limit_amount_max 50000",
+      "operation_id": "op_118"
+    },
+    {
+      "goal": "count_share_target",
+      "provider": "vipay",
+      "status": "unreachable_for_operation",
+      "target_pct": 40,
+      "current_attempt_share_pct": 37.5,
+      "reason": "amount_below_minimum",
+      "details": "900 < limit_amount_min 1000",
+      "operation_id": "op_119"
+    },
+    {
+      "goal": "volume_share_target",
+      "provider": "vipay",
+      "status": "unreachable_for_operation",
+      "target_pct": 50,
+      "current_attempt_share_pct": 49.6,
+      "reason": "amount_below_minimum",
+      "details": "900 < limit_amount_min 1000",
+      "operation_id": "op_119"
+    },
+    {
+      "goal": "count_share_target",
+      "provider": "vipay",
+      "status": "unreachable_for_operation",
+      "target_pct": 40,
+      "current_attempt_share_pct": 33.33,
+      "reason": "amount_exceeds_limit",
+      "details": "150000 > limit_amount_max 100000",
+      "operation_id": "op_120"
+    },
+    {
+      "goal": "volume_share_target",
+      "provider": "vipay",
+      "status": "unreachable_for_operation",
+      "target_pct": 50,
+      "current_attempt_share_pct": 30.32,
+      "reason": "amount_exceeds_limit",
+      "details": "150000 > limit_amount_max 100000",
+      "operation_id": "op_120"
+    },
+    {
+      "goal": "count_share_target",
+      "provider": "payflow",
+      "status": "unreachable_for_operation",
+      "target_pct": 35,
+      "current_attempt_share_pct": 22.22,
+      "reason": "amount_exceeds_limit",
+      "details": "150000 > limit_amount_max 50000",
+      "operation_id": "op_120"
+    },
+    {
+      "goal": "volume_share_target",
+      "provider": "payflow",
+      "status": "unreachable_for_operation",
+      "target_pct": 25,
+      "current_attempt_share_pct": 2.31,
+      "reason": "amount_exceeds_limit",
+      "details": "150000 > limit_amount_max 50000",
+      "operation_id": "op_120"
+    },
+    {
+      "goal": "count_share_target",
+      "provider": "payflow",
+      "status": "unreachable_for_operation",
+      "target_pct": 35,
+      "current_attempt_share_pct": 20,
+      "reason": "amount_exceeds_limit",
+      "details": "75000 > limit_amount_max 50000",
+      "operation_id": "op_121"
+    },
+    {
+      "goal": "volume_share_target",
+      "provider": "payflow",
+      "status": "unreachable_for_operation",
+      "target_pct": 25,
+      "current_attempt_share_pct": 1.93,
+      "reason": "amount_exceeds_limit",
+      "details": "75000 > limit_amount_max 50000",
+      "operation_id": "op_121"
+    },
+    {
+      "goal": "count_share_target",
+      "provider": "payflow",
+      "status": "unreachable_for_operation",
+      "target_pct": 35,
+      "current_attempt_share_pct": 18.18,
+      "reason": "bank_not_in_list",
+      "details": "банк tinkoff отсутствует в списке поддерживаемых банков провайдера",
+      "operation_id": "op_122"
+    },
+    {
+      "goal": "volume_share_target",
+      "provider": "payflow",
+      "status": "unreachable_for_operation",
+      "target_pct": 25,
+      "current_attempt_share_pct": 1.83,
+      "reason": "bank_not_in_list",
+      "details": "банк tinkoff отсутствует в списке поддерживаемых банков провайдера",
+      "operation_id": "op_122"
+    },
+    {
+      "goal": "volume_share_target",
+      "provider": "vipay",
+      "status": "unreachable_for_operation",
+      "target_pct": 50,
+      "current_attempt_share_pct": 38.35,
+      "reason": "bank_not_in_list",
+      "details": "банк gazprombank отсутствует в списке поддерживаемых банков провайдера",
+      "operation_id": "op_123"
+    },
+    {
+      "goal": "count_share_target",
+      "provider": "payflow",
+      "status": "unreachable_for_operation",
+      "target_pct": 35,
+      "current_attempt_share_pct": 16.67,
+      "reason": "amount_exceeds_limit",
+      "details": "80000 > limit_amount_max 50000",
+      "operation_id": "op_123"
+    },
+    {
+      "goal": "volume_share_target",
+      "provider": "payflow",
+      "status": "unreachable_for_operation",
+      "target_pct": 25,
+      "current_attempt_share_pct": 1.57,
+      "reason": "amount_exceeds_limit",
+      "details": "80000 > limit_amount_max 50000",
+      "operation_id": "op_123"
+    },
+    {
+      "goal": "count_share_target",
+      "provider": "payflow",
+      "status": "unreachable_for_operation",
+      "target_pct": 35,
+      "current_attempt_share_pct": 14.29,
+      "reason": "bank_not_in_list",
+      "details": "банк vtb отсутствует в списке поддерживаемых банков провайдера",
+      "operation_id": "op_125"
+    },
+    {
+      "goal": "volume_share_target",
+      "provider": "payflow",
+      "status": "unreachable_for_operation",
+      "target_pct": 25,
+      "current_attempt_share_pct": 1.4,
+      "reason": "bank_not_in_list",
+      "details": "банк vtb отсутствует в списке поддерживаемых банков провайдера",
+      "operation_id": "op_125"
+    },
+    {
+      "goal": "count_share_target",
+      "provider": "vipay",
+      "status": "unreachable_for_operation",
+      "target_pct": 40,
+      "current_attempt_share_pct": 33.33,
+      "reason": "bank_not_in_list",
+      "details": "банк alfa отсутствует в списке поддерживаемых банков провайдера",
+      "operation_id": "op_126"
+    },
+    {
+      "goal": "volume_share_target",
+      "provider": "vipay",
+      "status": "unreachable_for_operation",
+      "target_pct": 50,
+      "current_attempt_share_pct": 33.34,
+      "reason": "bank_not_in_list",
+      "details": "банк alfa отсутствует в списке поддерживаемых банков провайдера",
+      "operation_id": "op_126"
+    },
+    {
+      "goal": "count_share_target",
+      "provider": "vipay",
+      "status": "unreachable_for_operation",
+      "target_pct": 40,
+      "current_attempt_share_pct": 31.25,
+      "reason": "bank_not_in_list",
+      "details": "банк raiffeisen отсутствует в списке поддерживаемых банков провайдера",
+      "operation_id": "op_127"
+    },
+    {
+      "goal": "volume_share_target",
+      "provider": "vipay",
+      "status": "unreachable_for_operation",
+      "target_pct": 50,
+      "current_attempt_share_pct": 31.32,
+      "reason": "bank_not_in_list",
+      "details": "банк raiffeisen отсутствует в списке поддерживаемых банков провайдера",
+      "operation_id": "op_127"
+    },
+    {
+      "goal": "count_share_target",
+      "provider": "payflow",
+      "status": "unreachable_for_operation",
+      "target_pct": 35,
+      "current_attempt_share_pct": 18.75,
+      "reason": "bank_not_in_list",
+      "details": "банк raiffeisen отсутствует в списке поддерживаемых банков провайдера",
+      "operation_id": "op_127"
+    },
+    {
+      "goal": "volume_share_target",
+      "provider": "payflow",
+      "status": "unreachable_for_operation",
+      "target_pct": 25,
+      "current_attempt_share_pct": 3.45,
+      "reason": "bank_not_in_list",
+      "details": "банк raiffeisen отсутствует в списке поддерживаемых банков провайдера",
+      "operation_id": "op_127"
+    },
+    {
+      "goal": "count_share_target",
+      "provider": "vipay",
+      "status": "unreachable_for_operation",
+      "target_pct": 40,
+      "current_attempt_share_pct": 29.41,
+      "reason": "bank_not_in_list",
+      "details": "банк raiffeisen отсутствует в списке поддерживаемых банков провайдера",
+      "operation_id": "op_128"
+    },
+    {
+      "goal": "volume_share_target",
+      "provider": "vipay",
+      "status": "unreachable_for_operation",
+      "target_pct": 50,
+      "current_attempt_share_pct": 29.61,
+      "reason": "bank_not_in_list",
+      "details": "банк raiffeisen отсутствует в списке поддерживаемых банков провайдера",
+      "operation_id": "op_128"
+    },
+    {
+      "goal": "count_share_target",
+      "provider": "payflow",
+      "status": "unreachable_for_operation",
+      "target_pct": 35,
+      "current_attempt_share_pct": 17.65,
+      "reason": "bank_not_in_list",
+      "details": "банк raiffeisen отсутствует в списке поддерживаемых банков провайдера",
+      "operation_id": "op_128"
+    },
+    {
+      "goal": "volume_share_target",
+      "provider": "payflow",
+      "status": "unreachable_for_operation",
+      "target_pct": 25,
+      "current_attempt_share_pct": 3.26,
+      "reason": "bank_not_in_list",
+      "details": "банк raiffeisen отсутствует в списке поддерживаемых банков провайдера",
+      "operation_id": "op_128"
+    },
+    {
+      "goal": "count_share_target",
+      "provider": "vipay",
+      "status": "unreachable_for_operation",
+      "target_pct": 40,
+      "current_attempt_share_pct": 27.78,
+      "reason": "bank_not_in_list",
+      "details": "банк alfa отсутствует в списке поддерживаемых банков провайдера",
+      "operation_id": "op_129"
+    },
+    {
+      "goal": "volume_share_target",
+      "provider": "vipay",
+      "status": "unreachable_for_operation",
+      "target_pct": 50,
+      "current_attempt_share_pct": 27.65,
+      "reason": "bank_not_in_list",
+      "details": "банк alfa отсутствует в списке поддерживаемых банков провайдера",
+      "operation_id": "op_129"
+    },
+    {
+      "goal": "count_share_target",
+      "provider": "payflow",
+      "status": "unreachable_for_operation",
+      "target_pct": 35,
+      "current_attempt_share_pct": 16.67,
+      "reason": "amount_exceeds_limit",
+      "details": "52000 > limit_amount_max 50000",
+      "operation_id": "op_129"
+    },
+    {
+      "goal": "volume_share_target",
+      "provider": "payflow",
+      "status": "unreachable_for_operation",
+      "target_pct": 25,
+      "current_attempt_share_pct": 3.04,
+      "reason": "amount_exceeds_limit",
+      "details": "52000 > limit_amount_max 50000",
+      "operation_id": "op_129"
+    },
+    {
+      "goal": "count_share_target",
+      "provider": "vipay",
+      "status": "unreachable_for_operation",
+      "target_pct": 40,
+      "current_attempt_share_pct": 26.32,
+      "reason": "bank_not_in_list",
+      "details": "банк alfa отсутствует в списке поддерживаемых банков провайдера",
+      "operation_id": "op_130"
+    },
+    {
+      "goal": "volume_share_target",
+      "provider": "vipay",
+      "status": "unreachable_for_operation",
+      "target_pct": 50,
+      "current_attempt_share_pct": 24.66,
+      "reason": "bank_not_in_list",
+      "details": "банк alfa отсутствует в списке поддерживаемых банков провайдера",
+      "operation_id": "op_130"
+    },
+    {
+      "goal": "count_share_target",
+      "provider": "payflow",
+      "status": "unreachable_for_operation",
+      "target_pct": 35,
+      "current_attempt_share_pct": 15.79,
+      "reason": "amount_exceeds_limit",
+      "details": "95000 > limit_amount_max 50000",
+      "operation_id": "op_130"
+    },
+    {
+      "goal": "volume_share_target",
+      "provider": "payflow",
+      "status": "unreachable_for_operation",
+      "target_pct": 25,
+      "current_attempt_share_pct": 2.72,
+      "reason": "amount_exceeds_limit",
+      "details": "95000 > limit_amount_max 50000",
+      "operation_id": "op_130"
+    },
+    {
+      "goal": "count_share_target",
+      "provider": "vipay",
+      "status": "unreachable_for_operation",
+      "target_pct": 40,
+      "current_attempt_share_pct": 25,
+      "reason": "amount_exceeds_limit",
+      "details": "150000 > limit_amount_max 100000",
+      "operation_id": "op_131"
+    },
+    {
+      "goal": "volume_share_target",
+      "provider": "vipay",
+      "status": "unreachable_for_operation",
+      "target_pct": 50,
+      "current_attempt_share_pct": 21.07,
+      "reason": "amount_exceeds_limit",
+      "details": "150000 > limit_amount_max 100000",
+      "operation_id": "op_131"
+    },
+    {
+      "goal": "count_share_target",
+      "provider": "payflow",
+      "status": "unreachable_for_operation",
+      "target_pct": 35,
+      "current_attempt_share_pct": 15,
+      "reason": "amount_exceeds_limit",
+      "details": "150000 > limit_amount_max 50000",
+      "operation_id": "op_131"
+    },
+    {
+      "goal": "volume_share_target",
+      "provider": "payflow",
+      "status": "unreachable_for_operation",
+      "target_pct": 25,
+      "current_attempt_share_pct": 2.32,
+      "reason": "amount_exceeds_limit",
+      "details": "150000 > limit_amount_max 50000",
+      "operation_id": "op_131"
+    },
+    {
+      "goal": "count_share_target",
+      "provider": "payflow",
+      "status": "unreachable_for_operation",
+      "target_pct": 35,
+      "current_attempt_share_pct": 14.29,
+      "reason": "bank_not_in_list",
+      "details": "банк vtb отсутствует в списке поддерживаемых банков провайдера",
+      "operation_id": "op_132"
+    },
+    {
+      "goal": "volume_share_target",
+      "provider": "payflow",
+      "status": "unreachable_for_operation",
+      "target_pct": 25,
+      "current_attempt_share_pct": 2.31,
+      "reason": "bank_not_in_list",
+      "details": "банк vtb отсутствует в списке поддерживаемых банков провайдера",
+      "operation_id": "op_132"
+    },
+    {
+      "goal": "count_share_target",
+      "provider": "vipay",
+      "status": "unreachable_for_operation",
+      "target_pct": 40,
+      "current_attempt_share_pct": 28.57,
+      "reason": "bank_not_in_list",
+      "details": "банк gazprombank отсутствует в списке поддерживаемых банков провайдера",
+      "operation_id": "op_133"
+    },
+    {
+      "goal": "volume_share_target",
+      "provider": "vipay",
+      "status": "unreachable_for_operation",
+      "target_pct": 50,
+      "current_attempt_share_pct": 21.3,
+      "reason": "bank_not_in_list",
+      "details": "банк gazprombank отсутствует в списке поддерживаемых банков провайдера",
+      "operation_id": "op_133"
+    },
+    {
+      "goal": "count_share_target",
+      "provider": "payflow",
+      "status": "unreachable_for_operation",
+      "target_pct": 35,
+      "current_attempt_share_pct": 14.29,
+      "reason": "bank_not_in_list",
+      "details": "банк gazprombank отсутствует в списке поддерживаемых банков провайдера",
+      "operation_id": "op_133"
+    },
+    {
+      "goal": "volume_share_target",
+      "provider": "payflow",
+      "status": "unreachable_for_operation",
+      "target_pct": 25,
+      "current_attempt_share_pct": 2.31,
+      "reason": "bank_not_in_list",
+      "details": "банк gazprombank отсутствует в списке поддерживаемых банков провайдера",
+      "operation_id": "op_133"
+    },
+    {
+      "goal": "count_share_target",
+      "provider": "payflow",
+      "status": "unreachable_for_operation",
+      "target_pct": 35,
+      "current_attempt_share_pct": 14.29,
+      "reason": "bank_not_in_list",
+      "details": "банк tinkoff отсутствует в списке поддерживаемых банков провайдера",
+      "operation_id": "op_134"
+    },
+    {
+      "goal": "volume_share_target",
+      "provider": "payflow",
+      "status": "unreachable_for_operation",
+      "target_pct": 25,
+      "current_attempt_share_pct": 2.31,
+      "reason": "bank_not_in_list",
+      "details": "банк tinkoff отсутствует в списке поддерживаемых банков провайдера",
+      "operation_id": "op_134"
+    },
+    {
+      "goal": "count_share_target",
+      "provider": "vipay",
+      "status": "unreachable_for_operation",
+      "target_pct": 40,
+      "current_attempt_share_pct": 27.27,
+      "reason": "amount_below_minimum",
+      "details": "800 < limit_amount_min 1000",
+      "operation_id": "op_135"
+    },
+    {
+      "goal": "volume_share_target",
+      "provider": "vipay",
+      "status": "unreachable_for_operation",
+      "target_pct": 50,
+      "current_attempt_share_pct": 21.28,
+      "reason": "amount_below_minimum",
+      "details": "800 < limit_amount_min 1000",
+      "operation_id": "op_135"
+    },
+    {
+      "goal": "count_share_target",
+      "provider": "payflow",
+      "status": "unreachable_for_operation",
+      "target_pct": 35,
+      "current_attempt_share_pct": 17.39,
+      "reason": "bank_not_in_list",
+      "details": "банк tinkoff отсутствует в списке поддерживаемых банков провайдера",
+      "operation_id": "op_136"
+    },
+    {
+      "goal": "volume_share_target",
+      "provider": "payflow",
+      "status": "unreachable_for_operation",
+      "target_pct": 25,
+      "current_attempt_share_pct": 2.31,
+      "reason": "bank_not_in_list",
+      "details": "банк tinkoff отсутствует в списке поддерживаемых банков провайдера",
+      "operation_id": "op_136"
+    },
+    {
+      "goal": "count_share_target",
+      "provider": "vipay",
+      "status": "unreachable_for_operation",
+      "target_pct": 40,
+      "current_attempt_share_pct": 29.17,
+      "reason": "amount_exceeds_limit",
+      "details": "180000 > limit_amount_max 100000",
+      "operation_id": "op_137"
+    },
+    {
+      "goal": "volume_share_target",
+      "provider": "vipay",
+      "status": "unreachable_for_operation",
+      "target_pct": 50,
+      "current_attempt_share_pct": 20.42,
+      "reason": "amount_exceeds_limit",
+      "details": "180000 > limit_amount_max 100000",
+      "operation_id": "op_137"
+    },
+    {
+      "goal": "count_share_target",
+      "provider": "payflow",
+      "status": "unreachable_for_operation",
+      "target_pct": 35,
+      "current_attempt_share_pct": 16.67,
+      "reason": "amount_exceeds_limit",
+      "details": "180000 > limit_amount_max 50000",
+      "operation_id": "op_137"
+    },
+    {
+      "goal": "volume_share_target",
+      "provider": "payflow",
+      "status": "unreachable_for_operation",
+      "target_pct": 25,
+      "current_attempt_share_pct": 1.98,
+      "reason": "amount_exceeds_limit",
+      "details": "180000 > limit_amount_max 50000",
+      "operation_id": "op_137"
+    },
+    {
+      "goal": "count_share_target",
+      "provider": "vipay",
+      "status": "unreachable_for_operation",
+      "target_pct": 40,
+      "current_attempt_share_pct": 28,
+      "reason": "amount_exceeds_limit",
+      "details": "180000 > limit_amount_max 100000",
+      "operation_id": "op_138"
+    },
+    {
+      "goal": "volume_share_target",
+      "provider": "vipay",
+      "status": "unreachable_for_operation",
+      "target_pct": 50,
+      "current_attempt_share_pct": 17.85,
+      "reason": "amount_exceeds_limit",
+      "details": "180000 > limit_amount_max 100000",
+      "operation_id": "op_138"
+    },
+    {
+      "goal": "count_share_target",
+      "provider": "payflow",
+      "status": "unreachable_for_operation",
+      "target_pct": 35,
+      "current_attempt_share_pct": 16,
+      "reason": "amount_exceeds_limit",
+      "details": "180000 > limit_amount_max 50000",
+      "operation_id": "op_138"
+    },
+    {
+      "goal": "volume_share_target",
+      "provider": "payflow",
+      "status": "unreachable_for_operation",
+      "target_pct": 25,
+      "current_attempt_share_pct": 1.73,
+      "reason": "amount_exceeds_limit",
+      "details": "180000 > limit_amount_max 50000",
+      "operation_id": "op_138"
+    },
+    {
+      "goal": "count_share_target",
+      "provider": "vipay",
+      "status": "unreachable_for_operation",
+      "target_pct": 40,
+      "current_attempt_share_pct": 26.92,
+      "reason": "amount_below_minimum",
+      "details": "900 < limit_amount_min 1000",
+      "operation_id": "op_139"
+    },
+    {
+      "goal": "volume_share_target",
+      "provider": "vipay",
+      "status": "unreachable_for_operation",
+      "target_pct": 50,
+      "current_attempt_share_pct": 17.84,
+      "reason": "amount_below_minimum",
+      "details": "900 < limit_amount_min 1000",
+      "operation_id": "op_139"
+    },
+    {
+      "goal": "count_share_target",
+      "provider": "vipay",
+      "status": "unreachable_for_operation",
+      "target_pct": 40,
+      "current_attempt_share_pct": 25.93,
+      "reason": "bank_not_in_list",
+      "details": "банк alfa отсутствует в списке поддерживаемых банков провайдера",
+      "operation_id": "op_140"
+    },
+    {
+      "goal": "volume_share_target",
+      "provider": "vipay",
+      "status": "unreachable_for_operation",
+      "target_pct": 50,
+      "current_attempt_share_pct": 17.35,
+      "reason": "bank_not_in_list",
+      "details": "банк alfa отсутствует в списке поддерживаемых банков провайдера",
+      "operation_id": "op_140"
+    },
+    {
+      "goal": "count_share_target",
+      "provider": "vipay",
+      "status": "unreachable_for_operation",
+      "target_pct": 40,
+      "current_attempt_share_pct": 25,
+      "reason": "bank_not_in_list",
+      "details": "банк alfa отсутствует в списке поддерживаемых банков провайдера",
+      "operation_id": "op_141"
+    },
+    {
+      "goal": "volume_share_target",
+      "provider": "vipay",
+      "status": "unreachable_for_operation",
+      "target_pct": 50,
+      "current_attempt_share_pct": 17.26,
+      "reason": "bank_not_in_list",
+      "details": "банк alfa отсутствует в списке поддерживаемых банков провайдера",
+      "operation_id": "op_141"
+    },
+    {
+      "goal": "count_share_target",
+      "provider": "payflow",
+      "status": "unreachable_for_operation",
+      "target_pct": 35,
+      "current_attempt_share_pct": 24.14,
+      "reason": "bank_not_in_list",
+      "details": "банк vtb отсутствует в списке поддерживаемых банков провайдера",
+      "operation_id": "op_142"
+    },
+    {
+      "goal": "volume_share_target",
+      "provider": "payflow",
+      "status": "unreachable_for_operation",
+      "target_pct": 25,
+      "current_attempt_share_pct": 4.95,
+      "reason": "bank_not_in_list",
+      "details": "банк vtb отсутствует в списке поддерживаемых банков провайдера",
+      "operation_id": "op_142"
+    },
+    {
+      "goal": "count_share_target",
+      "provider": "payflow",
+      "status": "unreachable_for_operation",
+      "target_pct": 35,
+      "current_attempt_share_pct": 23.33,
+      "reason": "daily_amount_limit_exceeded",
+      "details": "daily_approved_amount 2973600 + amount 35000 > daily_amount_limit 3000000",
+      "operation_id": "op_143"
+    },
+    {
+      "goal": "volume_share_target",
+      "provider": "payflow",
+      "status": "unreachable_for_operation",
+      "target_pct": 25,
+      "current_attempt_share_pct": 4.83,
+      "reason": "daily_amount_limit_exceeded",
+      "details": "daily_approved_amount 2973600 + amount 35000 > daily_amount_limit 3000000",
+      "operation_id": "op_143"
+    },
+    {
+      "goal": "count_share_target",
+      "provider": "payflow",
+      "status": "unreachable_for_operation",
+      "target_pct": 35,
+      "current_attempt_share_pct": 22.58,
+      "reason": "bank_not_in_list",
+      "details": "банк tinkoff отсутствует в списке поддерживаемых банков провайдера",
+      "operation_id": "op_144"
+    },
+    {
+      "goal": "volume_share_target",
+      "provider": "payflow",
+      "status": "unreachable_for_operation",
+      "target_pct": 25,
+      "current_attempt_share_pct": 4.83,
+      "reason": "bank_not_in_list",
+      "details": "банк tinkoff отсутствует в списке поддерживаемых банков провайдера",
+      "operation_id": "op_144"
+    },
+    {
+      "goal": "count_share_target",
+      "provider": "vipay",
+      "status": "unreachable_for_operation",
+      "target_pct": 40,
+      "current_attempt_share_pct": 28.13,
+      "reason": "bank_not_in_list",
+      "details": "банк alfa отсутствует в списке поддерживаемых банков провайдера",
+      "operation_id": "op_145"
+    },
+    {
+      "goal": "volume_share_target",
+      "provider": "vipay",
+      "status": "unreachable_for_operation",
+      "target_pct": 50,
+      "current_attempt_share_pct": 19.03,
+      "reason": "bank_not_in_list",
+      "details": "банк alfa отсутствует в списке поддерживаемых банков провайдера",
+      "operation_id": "op_145"
+    },
+    {
+      "goal": "count_share_target",
+      "provider": "vipay",
+      "status": "unreachable_for_operation",
+      "target_pct": 40,
+      "current_attempt_share_pct": 28.13,
+      "reason": "amount_below_minimum",
+      "details": "900 < limit_amount_min 1000",
+      "operation_id": "op_146"
+    },
+    {
+      "goal": "volume_share_target",
+      "provider": "vipay",
+      "status": "unreachable_for_operation",
+      "target_pct": 50,
+      "current_attempt_share_pct": 19.03,
+      "reason": "amount_below_minimum",
+      "details": "900 < limit_amount_min 1000",
+      "operation_id": "op_146"
+    },
+    {
+      "goal": "count_share_target",
+      "provider": "payflow",
+      "status": "unreachable_for_operation",
+      "target_pct": 35,
+      "current_attempt_share_pct": 25,
+      "reason": "bank_not_in_list",
+      "details": "банк raiffeisen отсутствует в списке поддерживаемых банков провайдера",
+      "operation_id": "op_146"
+    },
+    {
+      "goal": "volume_share_target",
+      "provider": "payflow",
+      "status": "unreachable_for_operation",
+      "target_pct": 25,
+      "current_attempt_share_pct": 5.45,
+      "reason": "bank_not_in_list",
+      "details": "банк raiffeisen отсутствует в списке поддерживаемых банков провайдера",
+      "operation_id": "op_146"
+    },
+    {
+      "goal": "count_share_target",
+      "provider": "vipay",
+      "status": "unreachable_for_operation",
+      "target_pct": 40,
+      "current_attempt_share_pct": 27.27,
+      "reason": "bank_not_in_list",
+      "details": "банк raiffeisen отсутствует в списке поддерживаемых банков провайдера",
+      "operation_id": "op_147"
+    },
+    {
+      "goal": "volume_share_target",
+      "provider": "vipay",
+      "status": "unreachable_for_operation",
+      "target_pct": 50,
+      "current_attempt_share_pct": 18.97,
+      "reason": "bank_not_in_list",
+      "details": "банк raiffeisen отсутствует в списке поддерживаемых банков провайдера",
+      "operation_id": "op_147"
+    },
+    {
+      "goal": "count_share_target",
+      "provider": "payflow",
+      "status": "unreachable_for_operation",
+      "target_pct": 35,
+      "current_attempt_share_pct": 24.24,
+      "reason": "bank_not_in_list",
+      "details": "банк raiffeisen отсутствует в списке поддерживаемых банков провайдера",
+      "operation_id": "op_147"
+    },
+    {
+      "goal": "volume_share_target",
+      "provider": "payflow",
+      "status": "unreachable_for_operation",
+      "target_pct": 25,
+      "current_attempt_share_pct": 5.43,
+      "reason": "bank_not_in_list",
+      "details": "банк raiffeisen отсутствует в списке поддерживаемых банков провайдера",
+      "operation_id": "op_147"
+    },
+    {
+      "goal": "count_share_target",
+      "provider": "vipay",
+      "status": "unreachable_for_operation",
+      "target_pct": 40,
+      "current_attempt_share_pct": 26.47,
+      "reason": "bank_not_in_list",
+      "details": "банк alfa отсутствует в списке поддерживаемых банков провайдера",
+      "operation_id": "op_148"
+    },
+    {
+      "goal": "volume_share_target",
+      "provider": "vipay",
+      "status": "unreachable_for_operation",
+      "target_pct": 50,
+      "current_attempt_share_pct": 18.78,
+      "reason": "bank_not_in_list",
+      "details": "банк alfa отсутствует в списке поддерживаемых банков провайдера",
+      "operation_id": "op_148"
+    },
+    {
+      "goal": "count_share_target",
+      "provider": "vipay",
+      "status": "unreachable_for_operation",
+      "target_pct": 40,
+      "current_attempt_share_pct": 25.71,
+      "reason": "bank_not_in_list",
+      "details": "банк gazprombank отсутствует в списке поддерживаемых банков провайдера",
+      "operation_id": "op_149"
+    },
+    {
+      "goal": "volume_share_target",
+      "provider": "vipay",
+      "status": "unreachable_for_operation",
+      "target_pct": 50,
+      "current_attempt_share_pct": 17.86,
+      "reason": "bank_not_in_list",
+      "details": "банк gazprombank отсутствует в списке поддерживаемых банков провайдера",
+      "operation_id": "op_149"
+    },
+    {
+      "goal": "count_share_target",
+      "provider": "payflow",
+      "status": "unreachable_for_operation",
+      "target_pct": 35,
+      "current_attempt_share_pct": 25.71,
+      "reason": "amount_exceeds_limit",
+      "details": "80000 > limit_amount_max 50000",
+      "operation_id": "op_149"
+    },
+    {
+      "goal": "volume_share_target",
+      "provider": "payflow",
+      "status": "unreachable_for_operation",
+      "target_pct": 25,
+      "current_attempt_share_pct": 6.03,
+      "reason": "amount_exceeds_limit",
+      "details": "80000 > limit_amount_max 50000",
+      "operation_id": "op_149"
+    },
+    {
+      "goal": "count_share_target",
+      "provider": "vipay",
+      "status": "unreachable_for_operation",
+      "target_pct": 40,
+      "current_attempt_share_pct": 25,
+      "reason": "bank_not_in_list",
+      "details": "банк raiffeisen отсутствует в списке поддерживаемых банков провайдера",
+      "operation_id": "op_150"
+    },
+    {
+      "goal": "volume_share_target",
+      "provider": "vipay",
+      "status": "unreachable_for_operation",
+      "target_pct": 50,
+      "current_attempt_share_pct": 17.42,
+      "reason": "bank_not_in_list",
+      "details": "банк raiffeisen отсутствует в списке поддерживаемых банков провайдера",
+      "operation_id": "op_150"
+    },
+    {
+      "goal": "count_share_target",
+      "provider": "payflow",
+      "status": "unreachable_for_operation",
+      "target_pct": 35,
+      "current_attempt_share_pct": 25,
+      "reason": "daily_amount_limit_exceeded",
+      "details": "daily_approved_amount 2998600 + amount 42000 > daily_amount_limit 3000000",
+      "operation_id": "op_150"
+    },
+    {
+      "goal": "volume_share_target",
+      "provider": "payflow",
+      "status": "unreachable_for_operation",
+      "target_pct": 25,
+      "current_attempt_share_pct": 5.88,
+      "reason": "daily_amount_limit_exceeded",
+      "details": "daily_approved_amount 2998600 + amount 42000 > daily_amount_limit 3000000",
+      "operation_id": "op_150"
+    },
+    {
+      "goal": "count_share_target",
+      "provider": "payflow",
+      "status": "unreachable_for_operation",
+      "target_pct": 35,
+      "current_attempt_share_pct": 25,
+      "reason": "daily_amount_limit_exceeded",
+      "details": "daily_approved_amount 2998600 + amount 25000 > daily_amount_limit 3000000",
+      "operation_id": "op_151"
+    },
+    {
+      "goal": "volume_share_target",
+      "provider": "payflow",
+      "status": "unreachable_for_operation",
+      "target_pct": 25,
+      "current_attempt_share_pct": 5.88,
+      "reason": "daily_amount_limit_exceeded",
+      "details": "daily_approved_amount 2998600 + amount 25000 > daily_amount_limit 3000000",
+      "operation_id": "op_151"
+    },
+    {
+      "goal": "count_share_target",
+      "provider": "vipay",
+      "status": "unreachable_for_operation",
+      "target_pct": 40,
+      "current_attempt_share_pct": 24.32,
+      "reason": "bank_not_in_list",
+      "details": "банк raiffeisen отсутствует в списке поддерживаемых банков провайдера",
+      "operation_id": "op_152"
+    },
+    {
+      "goal": "volume_share_target",
+      "provider": "vipay",
+      "status": "unreachable_for_operation",
+      "target_pct": 50,
+      "current_attempt_share_pct": 17.26,
+      "reason": "bank_not_in_list",
+      "details": "банк raiffeisen отсутствует в списке поддерживаемых банков провайдера",
+      "operation_id": "op_152"
+    },
+    {
+      "goal": "count_share_target",
+      "provider": "payflow",
+      "status": "unreachable_for_operation",
+      "target_pct": 35,
+      "current_attempt_share_pct": 24.32,
+      "reason": "daily_amount_limit_exceeded",
+      "details": "daily_approved_amount 2998600 + amount 15000 > daily_amount_limit 3000000",
+      "operation_id": "op_152"
+    },
+    {
+      "goal": "volume_share_target",
+      "provider": "payflow",
+      "status": "unreachable_for_operation",
+      "target_pct": 25,
+      "current_attempt_share_pct": 5.83,
+      "reason": "daily_amount_limit_exceeded",
+      "details": "daily_approved_amount 2998600 + amount 15000 > daily_amount_limit 3000000",
+      "operation_id": "op_152"
+    },
+    {
+      "goal": "count_share_target",
+      "provider": "vipay",
+      "status": "unreachable_for_operation",
+      "target_pct": 40,
+      "current_attempt_share_pct": 23.68,
+      "reason": "bank_not_in_list",
+      "details": "банк raiffeisen отсутствует в списке поддерживаемых банков провайдера",
+      "operation_id": "op_153"
+    },
+    {
+      "goal": "volume_share_target",
+      "provider": "vipay",
+      "status": "unreachable_for_operation",
+      "target_pct": 50,
+      "current_attempt_share_pct": 17.24,
+      "reason": "bank_not_in_list",
+      "details": "банк raiffeisen отсутствует в списке поддерживаемых банков провайдера",
+      "operation_id": "op_153"
+    },
+    {
+      "goal": "count_share_target",
+      "provider": "payflow",
+      "status": "unreachable_for_operation",
+      "target_pct": 35,
+      "current_attempt_share_pct": 23.68,
+      "reason": "daily_amount_limit_exceeded",
+      "details": "daily_approved_amount 2998600 + amount 2000 > daily_amount_limit 3000000",
+      "operation_id": "op_153"
+    },
+    {
+      "goal": "volume_share_target",
+      "provider": "payflow",
+      "status": "unreachable_for_operation",
+      "target_pct": 25,
+      "current_attempt_share_pct": 5.82,
+      "reason": "daily_amount_limit_exceeded",
+      "details": "daily_approved_amount 2998600 + amount 2000 > daily_amount_limit 3000000",
+      "operation_id": "op_153"
+    },
+    {
+      "goal": "count_share_target",
+      "provider": "vipay",
+      "status": "unreachable_for_operation",
+      "target_pct": 40,
+      "current_attempt_share_pct": 23.08,
+      "reason": "bank_not_in_list",
+      "details": "банк raiffeisen отсутствует в списке поддерживаемых банков провайдера",
+      "operation_id": "op_154"
+    },
+    {
+      "goal": "volume_share_target",
+      "provider": "vipay",
+      "status": "unreachable_for_operation",
+      "target_pct": 50,
+      "current_attempt_share_pct": 16.82,
+      "reason": "bank_not_in_list",
+      "details": "банк raiffeisen отсутствует в списке поддерживаемых банков провайдера",
+      "operation_id": "op_154"
+    },
+    {
+      "goal": "count_share_target",
+      "provider": "payflow",
+      "status": "unreachable_for_operation",
+      "target_pct": 35,
+      "current_attempt_share_pct": 23.08,
+      "reason": "daily_amount_limit_exceeded",
+      "details": "daily_approved_amount 2998600 + amount 42000 > daily_amount_limit 3000000",
+      "operation_id": "op_154"
+    },
+    {
+      "goal": "volume_share_target",
+      "provider": "payflow",
+      "status": "unreachable_for_operation",
+      "target_pct": 25,
+      "current_attempt_share_pct": 5.68,
+      "reason": "daily_amount_limit_exceeded",
+      "details": "daily_approved_amount 2998600 + amount 42000 > daily_amount_limit 3000000",
+      "operation_id": "op_154"
+    },
+    {
+      "goal": "count_share_target",
+      "provider": "vipay",
+      "status": "unreachable_for_operation",
+      "target_pct": 40,
+      "current_attempt_share_pct": 22.5,
+      "reason": "bank_not_in_list",
+      "details": "банк alfa отсутствует в списке поддерживаемых банков провайдера",
+      "operation_id": "op_155"
+    },
+    {
+      "goal": "volume_share_target",
+      "provider": "vipay",
+      "status": "unreachable_for_operation",
+      "target_pct": 50,
+      "current_attempt_share_pct": 15.95,
+      "reason": "bank_not_in_list",
+      "details": "банк alfa отсутствует в списке поддерживаемых банков провайдера",
+      "operation_id": "op_155"
+    },
+    {
+      "goal": "count_share_target",
+      "provider": "payflow",
+      "status": "unreachable_for_operation",
+      "target_pct": 35,
+      "current_attempt_share_pct": 22.5,
+      "reason": "amount_exceeds_limit",
+      "details": "95000 > limit_amount_max 50000",
+      "operation_id": "op_155"
+    },
+    {
+      "goal": "volume_share_target",
+      "provider": "payflow",
+      "status": "unreachable_for_operation",
+      "target_pct": 25,
+      "current_attempt_share_pct": 5.39,
+      "reason": "amount_exceeds_limit",
+      "details": "95000 > limit_amount_max 50000",
+      "operation_id": "op_155"
+    },
+    {
+      "goal": "count_share_target",
+      "provider": "vipay",
+      "status": "unreachable_for_operation",
+      "target_pct": 40,
+      "current_attempt_share_pct": 22.5,
+      "reason": "amount_exceeds_limit",
+      "details": "150000 > limit_amount_max 100000",
+      "operation_id": "op_156"
+    },
+    {
+      "goal": "volume_share_target",
+      "provider": "vipay",
+      "status": "unreachable_for_operation",
+      "target_pct": 50,
+      "current_attempt_share_pct": 15.95,
+      "reason": "amount_exceeds_limit",
+      "details": "150000 > limit_amount_max 100000",
+      "operation_id": "op_156"
+    },
+    {
+      "goal": "count_share_target",
+      "provider": "payflow",
+      "status": "unreachable_for_operation",
+      "target_pct": 35,
+      "current_attempt_share_pct": 22.5,
+      "reason": "amount_exceeds_limit",
+      "details": "150000 > limit_amount_max 50000",
+      "operation_id": "op_156"
+    },
+    {
+      "goal": "volume_share_target",
+      "provider": "payflow",
+      "status": "unreachable_for_operation",
+      "target_pct": 25,
+      "current_attempt_share_pct": 5.39,
+      "reason": "amount_exceeds_limit",
+      "details": "150000 > limit_amount_max 50000",
+      "operation_id": "op_156"
+    },
+    {
+      "goal": "count_share_target",
+      "provider": "vipay",
+      "status": "unreachable_for_operation",
+      "target_pct": 40,
+      "current_attempt_share_pct": 22.5,
+      "reason": "bank_not_in_list",
+      "details": "банк gazprombank отсутствует в списке поддерживаемых банков провайдера",
+      "operation_id": "op_157"
+    },
+    {
+      "goal": "volume_share_target",
+      "provider": "vipay",
+      "status": "unreachable_for_operation",
+      "target_pct": 50,
+      "current_attempt_share_pct": 15.95,
+      "reason": "bank_not_in_list",
+      "details": "банк gazprombank отсутствует в списке поддерживаемых банков провайдера",
+      "operation_id": "op_157"
+    },
+    {
+      "goal": "count_share_target",
+      "provider": "payflow",
+      "status": "unreachable_for_operation",
+      "target_pct": 35,
+      "current_attempt_share_pct": 22.5,
+      "reason": "daily_amount_limit_exceeded",
+      "details": "daily_approved_amount 2998600 + amount 10000 > daily_amount_limit 3000000",
+      "operation_id": "op_157"
+    },
+    {
+      "goal": "volume_share_target",
+      "provider": "payflow",
+      "status": "unreachable_for_operation",
+      "target_pct": 25,
+      "current_attempt_share_pct": 5.39,
+      "reason": "daily_amount_limit_exceeded",
+      "details": "daily_approved_amount 2998600 + amount 10000 > daily_amount_limit 3000000",
+      "operation_id": "op_157"
+    },
+    {
+      "goal": "count_share_target",
+      "provider": "vipay",
+      "status": "unreachable_for_operation",
+      "target_pct": 40,
+      "current_attempt_share_pct": 21.95,
+      "reason": "bank_not_in_list",
+      "details": "банк gazprombank отсутствует в списке поддерживаемых банков провайдера",
+      "operation_id": "op_158"
+    },
+    {
+      "goal": "volume_share_target",
+      "provider": "vipay",
+      "status": "unreachable_for_operation",
+      "target_pct": 50,
+      "current_attempt_share_pct": 15.59,
+      "reason": "bank_not_in_list",
+      "details": "банк gazprombank отсутствует в списке поддерживаемых банков провайдера",
+      "operation_id": "op_158"
+    },
+    {
+      "goal": "count_share_target",
+      "provider": "payflow",
+      "status": "unreachable_for_operation",
+      "target_pct": 35,
+      "current_attempt_share_pct": 21.95,
+      "reason": "daily_amount_limit_exceeded",
+      "details": "daily_approved_amount 2998600 + amount 42000 > daily_amount_limit 3000000",
+      "operation_id": "op_158"
+    },
+    {
+      "goal": "volume_share_target",
+      "provider": "payflow",
+      "status": "unreachable_for_operation",
+      "target_pct": 25,
+      "current_attempt_share_pct": 5.27,
+      "reason": "daily_amount_limit_exceeded",
+      "details": "daily_approved_amount 2998600 + amount 42000 > daily_amount_limit 3000000",
+      "operation_id": "op_158"
+    },
+    {
+      "goal": "count_share_target",
+      "provider": "vipay",
+      "status": "unreachable_for_operation",
+      "target_pct": 40,
+      "current_attempt_share_pct": 21.43,
+      "reason": "bank_not_in_list",
+      "details": "банк gazprombank отсутствует в списке поддерживаемых банков провайдера",
+      "operation_id": "op_159"
+    },
+    {
+      "goal": "volume_share_target",
+      "provider": "vipay",
+      "status": "unreachable_for_operation",
+      "target_pct": 50,
+      "current_attempt_share_pct": 15.2,
+      "reason": "bank_not_in_list",
+      "details": "банк gazprombank отсутствует в списке поддерживаемых банков провайдера",
+      "operation_id": "op_159"
+    },
+    {
+      "goal": "count_share_target",
+      "provider": "payflow",
+      "status": "unreachable_for_operation",
+      "target_pct": 35,
+      "current_attempt_share_pct": 21.43,
+      "reason": "daily_amount_limit_exceeded",
+      "details": "daily_approved_amount 2998600 + amount 48000 > daily_amount_limit 3000000",
+      "operation_id": "op_159"
+    },
+    {
+      "goal": "volume_share_target",
+      "provider": "payflow",
+      "status": "unreachable_for_operation",
+      "target_pct": 25,
+      "current_attempt_share_pct": 5.13,
+      "reason": "daily_amount_limit_exceeded",
+      "details": "daily_approved_amount 2998600 + amount 48000 > daily_amount_limit 3000000",
+      "operation_id": "op_159"
+    },
+    {
+      "goal": "count_share_target",
+      "provider": "vipay",
+      "status": "unreachable_for_operation",
+      "target_pct": 40,
+      "current_attempt_share_pct": 20.93,
+      "reason": "amount_exceeds_limit",
+      "details": "120000 > limit_amount_max 100000",
+      "operation_id": "op_160"
+    },
+    {
+      "goal": "volume_share_target",
+      "provider": "vipay",
+      "status": "unreachable_for_operation",
+      "target_pct": 50,
+      "current_attempt_share_pct": 14.31,
+      "reason": "amount_exceeds_limit",
+      "details": "120000 > limit_amount_max 100000",
+      "operation_id": "op_160"
+    },
+    {
+      "goal": "count_share_target",
+      "provider": "payflow",
+      "status": "unreachable_for_operation",
+      "target_pct": 35,
+      "current_attempt_share_pct": 20.93,
+      "reason": "amount_exceeds_limit",
+      "details": "120000 > limit_amount_max 50000",
+      "operation_id": "op_160"
+    },
+    {
+      "goal": "volume_share_target",
+      "provider": "payflow",
+      "status": "unreachable_for_operation",
+      "target_pct": 25,
+      "current_attempt_share_pct": 4.83,
+      "reason": "amount_exceeds_limit",
+      "details": "120000 > limit_amount_max 50000",
+      "operation_id": "op_160"
+    },
+    {
+      "goal": "count_share_target",
+      "provider": "vipay",
+      "status": "unreachable_for_operation",
+      "target_pct": 40,
+      "current_attempt_share_pct": 20.45,
+      "reason": "amount_exceeds_limit",
+      "details": "150000 > limit_amount_max 100000",
+      "operation_id": "op_161"
+    },
+    {
+      "goal": "volume_share_target",
+      "provider": "vipay",
+      "status": "unreachable_for_operation",
+      "target_pct": 50,
+      "current_attempt_share_pct": 13.33,
+      "reason": "amount_exceeds_limit",
+      "details": "150000 > limit_amount_max 100000",
+      "operation_id": "op_161"
+    },
+    {
+      "goal": "count_share_target",
+      "provider": "payflow",
+      "status": "unreachable_for_operation",
+      "target_pct": 35,
+      "current_attempt_share_pct": 20.45,
+      "reason": "amount_exceeds_limit",
+      "details": "150000 > limit_amount_max 50000",
+      "operation_id": "op_161"
+    },
+    {
+      "goal": "volume_share_target",
+      "provider": "payflow",
+      "status": "unreachable_for_operation",
+      "target_pct": 25,
+      "current_attempt_share_pct": 4.5,
+      "reason": "amount_exceeds_limit",
+      "details": "150000 > limit_amount_max 50000",
+      "operation_id": "op_161"
+    },
+    {
+      "goal": "count_share_target",
+      "provider": "payflow",
+      "status": "unreachable_for_operation",
+      "target_pct": 35,
+      "current_attempt_share_pct": 20,
+      "reason": "daily_amount_limit_exceeded",
+      "details": "daily_approved_amount 2998600 + amount 30000 > daily_amount_limit 3000000",
+      "operation_id": "op_162"
+    },
+    {
+      "goal": "volume_share_target",
+      "provider": "payflow",
+      "status": "unreachable_for_operation",
+      "target_pct": 25,
+      "current_attempt_share_pct": 4.44,
+      "reason": "daily_amount_limit_exceeded",
+      "details": "daily_approved_amount 2998600 + amount 30000 > daily_amount_limit 3000000",
+      "operation_id": "op_162"
+    },
+    {
+      "goal": "count_share_target",
+      "provider": "vipay",
+      "status": "unreachable_for_operation",
+      "target_pct": 40,
+      "current_attempt_share_pct": 21.74,
+      "reason": "bank_not_in_list",
+      "details": "банк gazprombank отсутствует в списке поддерживаемых банков провайдера",
+      "operation_id": "op_163"
+    },
+    {
+      "goal": "volume_share_target",
+      "provider": "vipay",
+      "status": "unreachable_for_operation",
+      "target_pct": 50,
+      "current_attempt_share_pct": 14.24,
+      "reason": "bank_not_in_list",
+      "details": "банк gazprombank отсутствует в списке поддерживаемых банков провайдера",
+      "operation_id": "op_163"
+    },
+    {
+      "goal": "count_share_target",
+      "provider": "payflow",
+      "status": "unreachable_for_operation",
+      "target_pct": 35,
+      "current_attempt_share_pct": 19.57,
+      "reason": "daily_amount_limit_exceeded",
+      "details": "daily_approved_amount 2998600 + amount 40000 > daily_amount_limit 3000000",
+      "operation_id": "op_163"
+    },
+    {
+      "goal": "volume_share_target",
+      "provider": "payflow",
+      "status": "unreachable_for_operation",
+      "target_pct": 25,
+      "current_attempt_share_pct": 4.36,
+      "reason": "daily_amount_limit_exceeded",
+      "details": "daily_approved_amount 2998600 + amount 40000 > daily_amount_limit 3000000",
+      "operation_id": "op_163"
+    },
+    {
+      "goal": "count_share_target",
+      "provider": "vipay",
+      "status": "unreachable_for_operation",
+      "target_pct": 40,
+      "current_attempt_share_pct": 21.28,
+      "reason": "amount_below_minimum",
+      "details": "800 < limit_amount_min 1000",
+      "operation_id": "op_164"
+    },
+    {
+      "goal": "volume_share_target",
+      "provider": "vipay",
+      "status": "unreachable_for_operation",
+      "target_pct": 50,
+      "current_attempt_share_pct": 14.24,
+      "reason": "amount_below_minimum",
+      "details": "800 < limit_amount_min 1000",
+      "operation_id": "op_164"
+    },
+    {
+      "goal": "count_share_target",
+      "provider": "vipay",
+      "status": "unreachable_for_operation",
+      "target_pct": 40,
+      "current_attempt_share_pct": 20.83,
+      "reason": "bank_not_in_list",
+      "details": "банк gazprombank отсутствует в списке поддерживаемых банков провайдера",
+      "operation_id": "op_165"
+    },
+    {
+      "goal": "volume_share_target",
+      "provider": "vipay",
+      "status": "unreachable_for_operation",
+      "target_pct": 50,
+      "current_attempt_share_pct": 14.22,
+      "reason": "bank_not_in_list",
+      "details": "банк gazprombank отсутствует в списке поддерживаемых банков провайдера",
+      "operation_id": "op_165"
+    },
+    {
+      "goal": "count_share_target",
+      "provider": "payflow",
+      "status": "unreachable_for_operation",
+      "target_pct": 35,
+      "current_attempt_share_pct": 20.83,
+      "reason": "daily_amount_limit_exceeded",
+      "details": "daily_approved_amount 2999400 + amount 3000 > daily_amount_limit 3000000",
+      "operation_id": "op_165"
+    },
+    {
+      "goal": "volume_share_target",
+      "provider": "payflow",
+      "status": "unreachable_for_operation",
+      "target_pct": 25,
+      "current_attempt_share_pct": 4.39,
+      "reason": "daily_amount_limit_exceeded",
+      "details": "daily_approved_amount 2999400 + amount 3000 > daily_amount_limit 3000000",
+      "operation_id": "op_165"
+    },
+    {
+      "goal": "count_share_target",
+      "provider": "vipay",
+      "status": "unreachable_for_operation",
+      "target_pct": 40,
+      "current_attempt_share_pct": 20.41,
+      "reason": "amount_exceeds_limit",
+      "details": "120000 > limit_amount_max 100000",
+      "operation_id": "op_166"
+    },
+    {
+      "goal": "volume_share_target",
+      "provider": "vipay",
+      "status": "unreachable_for_operation",
+      "target_pct": 50,
+      "current_attempt_share_pct": 13.5,
+      "reason": "amount_exceeds_limit",
+      "details": "120000 > limit_amount_max 100000",
+      "operation_id": "op_166"
+    },
+    {
+      "goal": "count_share_target",
+      "provider": "payflow",
+      "status": "unreachable_for_operation",
+      "target_pct": 35,
+      "current_attempt_share_pct": 20.41,
+      "reason": "amount_exceeds_limit",
+      "details": "120000 > limit_amount_max 50000",
+      "operation_id": "op_166"
+    },
+    {
+      "goal": "volume_share_target",
+      "provider": "payflow",
+      "status": "unreachable_for_operation",
+      "target_pct": 25,
+      "current_attempt_share_pct": 4.17,
+      "reason": "amount_exceeds_limit",
+      "details": "120000 > limit_amount_max 50000",
+      "operation_id": "op_166"
+    },
+    {
+      "goal": "count_share_target",
+      "provider": "payflow",
+      "status": "unreachable_for_operation",
+      "target_pct": 35,
+      "current_attempt_share_pct": 20,
+      "reason": "daily_amount_limit_exceeded",
+      "details": "daily_approved_amount 2999400 + amount 25000 > daily_amount_limit 3000000",
+      "operation_id": "op_167"
+    },
+    {
+      "goal": "volume_share_target",
+      "provider": "payflow",
+      "status": "unreachable_for_operation",
+      "target_pct": 25,
+      "current_attempt_share_pct": 4.13,
+      "reason": "daily_amount_limit_exceeded",
+      "details": "daily_approved_amount 2999400 + amount 25000 > daily_amount_limit 3000000",
+      "operation_id": "op_167"
+    },
+    {
+      "goal": "count_share_target",
+      "provider": "payflow",
+      "status": "unreachable_for_operation",
+      "target_pct": 35,
+      "current_attempt_share_pct": 19.61,
+      "reason": "amount_exceeds_limit",
+      "details": "52000 > limit_amount_max 50000",
+      "operation_id": "op_168"
+    },
+    {
+      "goal": "volume_share_target",
+      "provider": "payflow",
+      "status": "unreachable_for_operation",
+      "target_pct": 25,
+      "current_attempt_share_pct": 4.04,
+      "reason": "amount_exceeds_limit",
+      "details": "52000 > limit_amount_max 50000",
+      "operation_id": "op_168"
+    },
+    {
+      "goal": "count_share_target",
+      "provider": "payflow",
+      "status": "unreachable_for_operation",
+      "target_pct": 35,
+      "current_attempt_share_pct": 19.23,
+      "reason": "daily_amount_limit_exceeded",
+      "details": "daily_approved_amount 2999400 + amount 10000 > daily_amount_limit 3000000",
+      "operation_id": "op_169"
+    },
+    {
+      "goal": "volume_share_target",
+      "provider": "payflow",
+      "status": "unreachable_for_operation",
+      "target_pct": 25,
+      "current_attempt_share_pct": 4.02,
+      "reason": "daily_amount_limit_exceeded",
+      "details": "daily_approved_amount 2999400 + amount 10000 > daily_amount_limit 3000000",
+      "operation_id": "op_169"
+    },
+    {
+      "goal": "count_share_target",
+      "provider": "payflow",
+      "status": "unreachable_for_operation",
+      "target_pct": 35,
+      "current_attempt_share_pct": 18.87,
+      "reason": "daily_amount_limit_exceeded",
+      "details": "daily_approved_amount 2999400 + amount 1500 > daily_amount_limit 3000000",
+      "operation_id": "op_170"
+    },
+    {
+      "goal": "volume_share_target",
+      "provider": "payflow",
+      "status": "unreachable_for_operation",
+      "target_pct": 25,
+      "current_attempt_share_pct": 4.02,
+      "reason": "daily_amount_limit_exceeded",
+      "details": "daily_approved_amount 2999400 + amount 1500 > daily_amount_limit 3000000",
+      "operation_id": "op_170"
+    },
+    {
+      "goal": "count_share_target",
+      "provider": "payflow",
+      "status": "unreachable_for_operation",
+      "target_pct": 35,
+      "current_attempt_share_pct": 18.52,
+      "reason": "daily_amount_limit_exceeded",
+      "details": "daily_approved_amount 2999400 + amount 3000 > daily_amount_limit 3000000",
+      "operation_id": "op_171"
+    },
+    {
+      "goal": "volume_share_target",
+      "provider": "payflow",
+      "status": "unreachable_for_operation",
+      "target_pct": 25,
+      "current_attempt_share_pct": 4.01,
+      "reason": "daily_amount_limit_exceeded",
+      "details": "daily_approved_amount 2999400 + amount 3000 > daily_amount_limit 3000000",
+      "operation_id": "op_171"
+    },
+    {
+      "goal": "count_share_target",
+      "provider": "payflow",
+      "status": "unreachable_for_operation",
+      "target_pct": 35,
+      "current_attempt_share_pct": 18.18,
+      "reason": "daily_amount_limit_exceeded",
+      "details": "daily_approved_amount 2999400 + amount 8000 > daily_amount_limit 3000000",
+      "operation_id": "op_172"
+    },
+    {
+      "goal": "volume_share_target",
+      "provider": "payflow",
+      "status": "unreachable_for_operation",
+      "target_pct": 25,
+      "current_attempt_share_pct": 4.0,
+      "reason": "daily_amount_limit_exceeded",
+      "details": "daily_approved_amount 2999400 + amount 8000 > daily_amount_limit 3000000",
+      "operation_id": "op_172"
+    },
+    {
+      "goal": "count_share_target",
+      "provider": "vipay",
+      "status": "unreachable_for_operation",
+      "target_pct": 40,
+      "current_attempt_share_pct": 28.57,
+      "reason": "bank_not_in_list",
+      "details": "банк alfa отсутствует в списке поддерживаемых банков провайдера",
+      "operation_id": "op_173"
+    },
+    {
+      "goal": "volume_share_target",
+      "provider": "vipay",
+      "status": "unreachable_for_operation",
+      "target_pct": 50,
+      "current_attempt_share_pct": 16.89,
+      "reason": "bank_not_in_list",
+      "details": "банк alfa отсутствует в списке поддерживаемых банков провайдера",
+      "operation_id": "op_173"
+    },
+    {
+      "goal": "count_share_target",
+      "provider": "payflow",
+      "status": "unreachable_for_operation",
+      "target_pct": 35,
+      "current_attempt_share_pct": 17.86,
+      "reason": "daily_amount_limit_exceeded",
+      "details": "daily_approved_amount 2999400 + amount 12000 > daily_amount_limit 3000000",
+      "operation_id": "op_173"
+    },
+    {
+      "goal": "volume_share_target",
+      "provider": "payflow",
+      "status": "unreachable_for_operation",
+      "target_pct": 25,
+      "current_attempt_share_pct": 3.98,
+      "reason": "daily_amount_limit_exceeded",
+      "details": "daily_approved_amount 2999400 + amount 12000 > daily_amount_limit 3000000",
+      "operation_id": "op_173"
+    },
+    {
+      "goal": "count_share_target",
+      "provider": "payflow",
+      "status": "unreachable_for_operation",
+      "target_pct": 35,
+      "current_attempt_share_pct": 17.54,
+      "reason": "daily_amount_limit_exceeded",
+      "details": "daily_approved_amount 2999400 + amount 8000 > daily_amount_limit 3000000",
+      "operation_id": "op_174"
+    },
+    {
+      "goal": "volume_share_target",
+      "provider": "payflow",
+      "status": "unreachable_for_operation",
+      "target_pct": 25,
+      "current_attempt_share_pct": 3.97,
+      "reason": "daily_amount_limit_exceeded",
+      "details": "daily_approved_amount 2999400 + amount 8000 > daily_amount_limit 3000000",
+      "operation_id": "op_174"
+    },
+    {
+      "goal": "count_share_target",
+      "provider": "vipay",
+      "status": "unreachable_for_operation",
+      "target_pct": 40,
+      "current_attempt_share_pct": 29.31,
+      "reason": "bank_not_in_list",
+      "details": "банк alfa отсутствует в списке поддерживаемых банков провайдера",
+      "operation_id": "op_175"
+    },
+    {
+      "goal": "volume_share_target",
+      "provider": "vipay",
+      "status": "unreachable_for_operation",
+      "target_pct": 50,
+      "current_attempt_share_pct": 17.09,
+      "reason": "bank_not_in_list",
+      "details": "банк alfa отсутствует в списке поддерживаемых банков провайдера",
+      "operation_id": "op_175"
+    },
+    {
+      "goal": "count_share_target",
+      "provider": "payflow",
+      "status": "unreachable_for_operation",
+      "target_pct": 35,
+      "current_attempt_share_pct": 17.24,
+      "reason": "daily_amount_limit_exceeded",
+      "details": "daily_approved_amount 2999400 + amount 10000 > daily_amount_limit 3000000",
+      "operation_id": "op_175"
+    },
+    {
+      "goal": "volume_share_target",
+      "provider": "payflow",
+      "status": "unreachable_for_operation",
+      "target_pct": 25,
+      "current_attempt_share_pct": 3.95,
+      "reason": "daily_amount_limit_exceeded",
+      "details": "daily_approved_amount 2999400 + amount 10000 > daily_amount_limit 3000000",
+      "operation_id": "op_175"
+    },
+    {
+      "goal": "count_share_target",
+      "provider": "vipay",
+      "status": "unreachable_for_operation",
+      "target_pct": 40,
+      "current_attempt_share_pct": 29.31,
+      "reason": "amount_below_minimum",
+      "details": "900 < limit_amount_min 1000",
+      "operation_id": "op_176"
+    },
+    {
+      "goal": "volume_share_target",
+      "provider": "vipay",
+      "status": "unreachable_for_operation",
+      "target_pct": 50,
+      "current_attempt_share_pct": 17.09,
+      "reason": "amount_below_minimum",
+      "details": "900 < limit_amount_min 1000",
+      "operation_id": "op_176"
+    },
+    {
+      "goal": "count_share_target",
+      "provider": "payflow",
+      "status": "unreachable_for_operation",
+      "target_pct": 35,
+      "current_attempt_share_pct": 17.24,
+      "reason": "daily_amount_limit_exceeded",
+      "details": "daily_approved_amount 2999400 + amount 900 > daily_amount_limit 3000000",
+      "operation_id": "op_176"
+    },
+    {
+      "goal": "volume_share_target",
+      "provider": "payflow",
+      "status": "unreachable_for_operation",
+      "target_pct": 25,
+      "current_attempt_share_pct": 3.95,
+      "reason": "daily_amount_limit_exceeded",
+      "details": "daily_approved_amount 2999400 + amount 900 > daily_amount_limit 3000000",
+      "operation_id": "op_176"
+    },
+    {
+      "goal": "count_share_target",
+      "provider": "vipay",
+      "status": "unreachable_for_operation",
+      "target_pct": 40,
+      "current_attempt_share_pct": 28.81,
+      "reason": "bank_not_in_list",
+      "details": "банк raiffeisen отсутствует в списке поддерживаемых банков провайдера",
+      "operation_id": "op_177"
+    },
+    {
+      "goal": "volume_share_target",
+      "provider": "vipay",
+      "status": "unreachable_for_operation",
+      "target_pct": 50,
+      "current_attempt_share_pct": 16.8,
+      "reason": "bank_not_in_list",
+      "details": "банк raiffeisen отсутствует в списке поддерживаемых банков провайдера",
+      "operation_id": "op_177"
+    },
+    {
+      "goal": "count_share_target",
+      "provider": "payflow",
+      "status": "unreachable_for_operation",
+      "target_pct": 35,
+      "current_attempt_share_pct": 16.95,
+      "reason": "daily_amount_limit_exceeded",
+      "details": "daily_approved_amount 2999400 + amount 42000 > daily_amount_limit 3000000",
+      "operation_id": "op_177"
+    },
+    {
+      "goal": "volume_share_target",
+      "provider": "payflow",
+      "status": "unreachable_for_operation",
+      "target_pct": 25,
+      "current_attempt_share_pct": 3.89,
+      "reason": "daily_amount_limit_exceeded",
+      "details": "daily_approved_amount 2999400 + amount 42000 > daily_amount_limit 3000000",
+      "operation_id": "op_177"
+    },
+    {
+      "goal": "count_share_target",
+      "provider": "vipay",
+      "status": "unreachable_for_operation",
+      "target_pct": 40,
+      "current_attempt_share_pct": 28.33,
+      "reason": "amount_exceeds_limit",
+      "details": "120000 > limit_amount_max 100000",
+      "operation_id": "op_178"
+    },
+    {
+      "goal": "volume_share_target",
+      "provider": "vipay",
+      "status": "unreachable_for_operation",
+      "target_pct": 50,
+      "current_attempt_share_pct": 16.05,
+      "reason": "amount_exceeds_limit",
+      "details": "120000 > limit_amount_max 100000",
+      "operation_id": "op_178"
+    },
+    {
+      "goal": "count_share_target",
+      "provider": "payflow",
+      "status": "unreachable_for_operation",
+      "target_pct": 35,
+      "current_attempt_share_pct": 16.67,
+      "reason": "amount_exceeds_limit",
+      "details": "120000 > limit_amount_max 50000",
+      "operation_id": "op_178"
+    },
+    {
+      "goal": "volume_share_target",
+      "provider": "payflow",
+      "status": "unreachable_for_operation",
+      "target_pct": 25,
+      "current_attempt_share_pct": 3.71,
+      "reason": "amount_exceeds_limit",
+      "details": "120000 > limit_amount_max 50000",
+      "operation_id": "op_178"
+    },
+    {
+      "goal": "count_share_target",
+      "provider": "vipay",
+      "status": "unreachable_for_operation",
+      "target_pct": 40,
+      "current_attempt_share_pct": 27.87,
+      "reason": "bank_not_in_list",
+      "details": "банк alfa отсутствует в списке поддерживаемых банков провайдера",
+      "operation_id": "op_179"
+    },
+    {
+      "goal": "volume_share_target",
+      "provider": "vipay",
+      "status": "unreachable_for_operation",
+      "target_pct": 50,
+      "current_attempt_share_pct": 16.04,
+      "reason": "bank_not_in_list",
+      "details": "банк alfa отсутствует в списке поддерживаемых банков провайдера",
+      "operation_id": "op_179"
+    },
+    {
+      "goal": "count_share_target",
+      "provider": "payflow",
+      "status": "unreachable_for_operation",
+      "target_pct": 35,
+      "current_attempt_share_pct": 16.39,
+      "reason": "daily_amount_limit_exceeded",
+      "details": "daily_approved_amount 2999400 + amount 1500 > daily_amount_limit 3000000",
+      "operation_id": "op_179"
+    },
+    {
+      "goal": "volume_share_target",
+      "provider": "payflow",
+      "status": "unreachable_for_operation",
+      "target_pct": 25,
+      "current_attempt_share_pct": 3.71,
+      "reason": "daily_amount_limit_exceeded",
+      "details": "daily_approved_amount 2999400 + amount 1500 > daily_amount_limit 3000000",
+      "operation_id": "op_179"
+    },
+    {
+      "goal": "count_share_target",
+      "provider": "vipay",
+      "status": "unreachable_for_operation",
+      "target_pct": 40,
+      "current_attempt_share_pct": 27.42,
+      "reason": "amount_exceeds_limit",
+      "details": "180000 > limit_amount_max 100000",
+      "operation_id": "op_180"
+    },
+    {
+      "goal": "volume_share_target",
+      "provider": "vipay",
+      "status": "unreachable_for_operation",
+      "target_pct": 50,
+      "current_attempt_share_pct": 15.03,
+      "reason": "amount_exceeds_limit",
+      "details": "180000 > limit_amount_max 100000",
+      "operation_id": "op_180"
+    },
+    {
+      "goal": "count_share_target",
+      "provider": "payflow",
+      "status": "unreachable_for_operation",
+      "target_pct": 35,
+      "current_attempt_share_pct": 16.13,
+      "reason": "amount_exceeds_limit",
+      "details": "180000 > limit_amount_max 50000",
+      "operation_id": "op_180"
+    },
+    {
+      "goal": "volume_share_target",
+      "provider": "payflow",
+      "status": "unreachable_for_operation",
+      "target_pct": 25,
+      "current_attempt_share_pct": 3.48,
+      "reason": "amount_exceeds_limit",
+      "details": "180000 > limit_amount_max 50000",
+      "operation_id": "op_180"
+    },
+    {
+      "goal": "count_share_target",
+      "provider": "payflow",
+      "status": "unreachable_for_operation",
+      "target_pct": 35,
+      "current_attempt_share_pct": 15.87,
+      "reason": "daily_amount_limit_exceeded",
+      "details": "daily_approved_amount 2999400 + amount 1500 > daily_amount_limit 3000000",
+      "operation_id": "op_181"
+    },
+    {
+      "goal": "volume_share_target",
+      "provider": "payflow",
+      "status": "unreachable_for_operation",
+      "target_pct": 25,
+      "current_attempt_share_pct": 3.48,
+      "reason": "daily_amount_limit_exceeded",
+      "details": "daily_approved_amount 2999400 + amount 1500 > daily_amount_limit 3000000",
+      "operation_id": "op_181"
+    },
+    {
+      "goal": "count_share_target",
+      "provider": "vipay",
+      "status": "unreachable_for_operation",
+      "target_pct": 40,
+      "current_attempt_share_pct": 28.57,
+      "reason": "bank_not_in_list",
+      "details": "банк gazprombank отсутствует в списке поддерживаемых банков провайдера",
+      "operation_id": "op_182"
+    },
+    {
+      "goal": "volume_share_target",
+      "provider": "vipay",
+      "status": "unreachable_for_operation",
+      "target_pct": 50,
+      "current_attempt_share_pct": 15.08,
+      "reason": "bank_not_in_list",
+      "details": "банк gazprombank отсутствует в списке поддерживаемых банков провайдера",
+      "operation_id": "op_182"
+    },
+    {
+      "goal": "count_share_target",
+      "provider": "payflow",
+      "status": "unreachable_for_operation",
+      "target_pct": 35,
+      "current_attempt_share_pct": 15.87,
+      "reason": "daily_amount_limit_exceeded",
+      "details": "daily_approved_amount 2999400 + amount 1500 > daily_amount_limit 3000000",
+      "operation_id": "op_182"
+    },
+    {
+      "goal": "volume_share_target",
+      "provider": "payflow",
+      "status": "unreachable_for_operation",
+      "target_pct": 25,
+      "current_attempt_share_pct": 3.48,
+      "reason": "daily_amount_limit_exceeded",
+      "details": "daily_approved_amount 2999400 + amount 1500 > daily_amount_limit 3000000",
+      "operation_id": "op_182"
+    },
+    {
+      "goal": "count_share_target",
+      "provider": "vipay",
+      "status": "unreachable_for_operation",
+      "target_pct": 40,
+      "current_attempt_share_pct": 28.13,
+      "reason": "bank_not_in_list",
+      "details": "банк raiffeisen отсутствует в списке поддерживаемых банков провайдера",
+      "operation_id": "op_183"
+    },
+    {
+      "goal": "volume_share_target",
+      "provider": "vipay",
+      "status": "unreachable_for_operation",
+      "target_pct": 50,
+      "current_attempt_share_pct": 14.87,
+      "reason": "bank_not_in_list",
+      "details": "банк raiffeisen отсутствует в списке поддерживаемых банков провайдера",
+      "operation_id": "op_183"
+    },
+    {
+      "goal": "count_share_target",
+      "provider": "payflow",
+      "status": "unreachable_for_operation",
+      "target_pct": 35,
+      "current_attempt_share_pct": 15.63,
+      "reason": "daily_amount_limit_exceeded",
+      "details": "daily_approved_amount 2999400 + amount 40000 > daily_amount_limit 3000000",
+      "operation_id": "op_183"
+    },
+    {
+      "goal": "volume_share_target",
+      "provider": "payflow",
+      "status": "unreachable_for_operation",
+      "target_pct": 25,
+      "current_attempt_share_pct": 3.43,
+      "reason": "daily_amount_limit_exceeded",
+      "details": "daily_approved_amount 2999400 + amount 40000 > daily_amount_limit 3000000",
+      "operation_id": "op_183"
+    },
+    {
+      "goal": "count_share_target",
+      "provider": "payflow",
+      "status": "unreachable_for_operation",
+      "target_pct": 35,
+      "current_attempt_share_pct": 15.38,
+      "reason": "daily_amount_limit_exceeded",
+      "details": "daily_approved_amount 2999400 + amount 1500 > daily_amount_limit 3000000",
+      "operation_id": "op_184"
+    },
+    {
+      "goal": "volume_share_target",
+      "provider": "payflow",
+      "status": "unreachable_for_operation",
+      "target_pct": 25,
+      "current_attempt_share_pct": 3.43,
+      "reason": "daily_amount_limit_exceeded",
+      "details": "daily_approved_amount 2999400 + amount 1500 > daily_amount_limit 3000000",
+      "operation_id": "op_184"
+    },
+    {
+      "goal": "count_share_target",
+      "provider": "payflow",
+      "status": "unreachable_for_operation",
+      "target_pct": 35,
+      "current_attempt_share_pct": 15.15,
+      "reason": "daily_amount_limit_exceeded",
+      "details": "daily_approved_amount 2999400 + amount 3000 > daily_amount_limit 3000000",
+      "operation_id": "op_185"
+    },
+    {
+      "goal": "volume_share_target",
+      "provider": "payflow",
+      "status": "unreachable_for_operation",
+      "target_pct": 25,
+      "current_attempt_share_pct": 3.42,
+      "reason": "daily_amount_limit_exceeded",
+      "details": "daily_approved_amount 2999400 + amount 3000 > daily_amount_limit 3000000",
+      "operation_id": "op_185"
+    },
+    {
+      "goal": "count_share_target",
+      "provider": "vipay",
+      "status": "unreachable_for_operation",
+      "target_pct": 40,
+      "current_attempt_share_pct": 28.36,
+      "reason": "bank_not_in_list",
+      "details": "банк raiffeisen отсутствует в списке поддерживаемых банков провайдера",
+      "operation_id": "op_186"
+    },
+    {
+      "goal": "volume_share_target",
+      "provider": "vipay",
+      "status": "unreachable_for_operation",
+      "target_pct": 50,
+      "current_attempt_share_pct": 14.47,
+      "reason": "bank_not_in_list",
+      "details": "банк raiffeisen отсутствует в списке поддерживаемых банков провайдера",
+      "operation_id": "op_186"
+    },
+    {
+      "goal": "count_share_target",
+      "provider": "payflow",
+      "status": "unreachable_for_operation",
+      "target_pct": 35,
+      "current_attempt_share_pct": 14.93,
+      "reason": "amount_exceeds_limit",
+      "details": "95000 > limit_amount_max 50000",
+      "operation_id": "op_186"
+    },
+    {
+      "goal": "volume_share_target",
+      "provider": "payflow",
+      "status": "unreachable_for_operation",
+      "target_pct": 25,
+      "current_attempt_share_pct": 3.32,
+      "reason": "amount_exceeds_limit",
+      "details": "95000 > limit_amount_max 50000",
+      "operation_id": "op_186"
+    },
+    {
+      "goal": "count_share_target",
+      "provider": "payflow",
+      "status": "unreachable_for_operation",
+      "target_pct": 35,
+      "current_attempt_share_pct": 14.71,
+      "reason": "daily_amount_limit_exceeded",
+      "details": "daily_approved_amount 2999400 + amount 8000 > daily_amount_limit 3000000",
+      "operation_id": "op_187"
+    },
+    {
+      "goal": "volume_share_target",
+      "provider": "payflow",
+      "status": "unreachable_for_operation",
+      "target_pct": 25,
+      "current_attempt_share_pct": 3.31,
+      "reason": "daily_amount_limit_exceeded",
+      "details": "daily_approved_amount 2999400 + amount 8000 > daily_amount_limit 3000000",
+      "operation_id": "op_187"
+    },
+    {
+      "goal": "count_share_target",
+      "provider": "payflow",
+      "status": "unreachable_for_operation",
+      "target_pct": 35,
+      "current_attempt_share_pct": 14.49,
+      "reason": "daily_amount_limit_exceeded",
+      "details": "daily_approved_amount 2999400 + amount 12000 > daily_amount_limit 3000000",
+      "operation_id": "op_188"
+    },
+    {
+      "goal": "volume_share_target",
+      "provider": "payflow",
+      "status": "unreachable_for_operation",
+      "target_pct": 25,
+      "current_attempt_share_pct": 3.29,
+      "reason": "daily_amount_limit_exceeded",
+      "details": "daily_approved_amount 2999400 + amount 12000 > daily_amount_limit 3000000",
+      "operation_id": "op_188"
+    },
+    {
+      "goal": "count_share_target",
+      "provider": "vipay",
+      "status": "unreachable_for_operation",
+      "target_pct": 40,
+      "current_attempt_share_pct": 30,
+      "reason": "bank_not_in_list",
+      "details": "банк alfa отсутствует в списке поддерживаемых банков провайдера",
+      "operation_id": "op_189"
+    },
+    {
+      "goal": "volume_share_target",
+      "provider": "vipay",
+      "status": "unreachable_for_operation",
+      "target_pct": 50,
+      "current_attempt_share_pct": 14.97,
+      "reason": "bank_not_in_list",
+      "details": "банк alfa отсутствует в списке поддерживаемых банков провайдера",
+      "operation_id": "op_189"
+    },
+    {
+      "goal": "count_share_target",
+      "provider": "payflow",
+      "status": "unreachable_for_operation",
+      "target_pct": 35,
+      "current_attempt_share_pct": 14.29,
+      "reason": "daily_amount_limit_exceeded",
+      "details": "daily_approved_amount 2999400 + amount 15000 > daily_amount_limit 3000000",
+      "operation_id": "op_189"
+    },
+    {
+      "goal": "volume_share_target",
+      "provider": "payflow",
+      "status": "unreachable_for_operation",
+      "target_pct": 25,
+      "current_attempt_share_pct": 3.28,
+      "reason": "daily_amount_limit_exceeded",
+      "details": "daily_approved_amount 2999400 + amount 15000 > daily_amount_limit 3000000",
+      "operation_id": "op_189"
+    },
+    {
+      "goal": "count_share_target",
+      "provider": "vipay",
+      "status": "unreachable_for_operation",
+      "target_pct": 40,
+      "current_attempt_share_pct": 30,
+      "reason": "amount_below_minimum",
+      "details": "900 < limit_amount_min 1000",
+      "operation_id": "op_190"
+    },
+    {
+      "goal": "volume_share_target",
+      "provider": "vipay",
+      "status": "unreachable_for_operation",
+      "target_pct": 50,
+      "current_attempt_share_pct": 14.97,
+      "reason": "amount_below_minimum",
+      "details": "900 < limit_amount_min 1000",
+      "operation_id": "op_190"
+    },
+    {
+      "goal": "count_share_target",
+      "provider": "payflow",
+      "status": "unreachable_for_operation",
+      "target_pct": 35,
+      "current_attempt_share_pct": 14.29,
+      "reason": "daily_amount_limit_exceeded",
+      "details": "daily_approved_amount 2999400 + amount 900 > daily_amount_limit 3000000",
+      "operation_id": "op_190"
+    },
+    {
+      "goal": "volume_share_target",
+      "provider": "payflow",
+      "status": "unreachable_for_operation",
+      "target_pct": 25,
+      "current_attempt_share_pct": 3.28,
+      "reason": "daily_amount_limit_exceeded",
+      "details": "daily_approved_amount 2999400 + amount 900 > daily_amount_limit 3000000",
+      "operation_id": "op_190"
+    },
+    {
+      "goal": "count_share_target",
+      "provider": "payflow",
+      "status": "unreachable_for_operation",
+      "target_pct": 35,
+      "current_attempt_share_pct": 14.08,
+      "reason": "daily_amount_limit_exceeded",
+      "details": "daily_approved_amount 2999400 + amount 8000 > daily_amount_limit 3000000",
+      "operation_id": "op_191"
+    },
+    {
+      "goal": "volume_share_target",
+      "provider": "payflow",
+      "status": "unreachable_for_operation",
+      "target_pct": 25,
+      "current_attempt_share_pct": 3.27,
+      "reason": "daily_amount_limit_exceeded",
+      "details": "daily_approved_amount 2999400 + amount 8000 > daily_amount_limit 3000000",
+      "operation_id": "op_191"
+    },
+    {
+      "goal": "count_share_target",
+      "provider": "vipay",
+      "status": "unreachable_for_operation",
+      "target_pct": 40,
+      "current_attempt_share_pct": 30.99,
+      "reason": "bank_not_in_list",
+      "details": "банк gazprombank отсутствует в списке поддерживаемых банков провайдера",
+      "operation_id": "op_192"
+    },
+    {
+      "goal": "volume_share_target",
+      "provider": "vipay",
+      "status": "unreachable_for_operation",
+      "target_pct": 50,
+      "current_attempt_share_pct": 15.19,
+      "reason": "bank_not_in_list",
+      "details": "банк gazprombank отсутствует в списке поддерживаемых банков провайдера",
+      "operation_id": "op_192"
+    },
+    {
+      "goal": "count_share_target",
+      "provider": "payflow",
+      "status": "unreachable_for_operation",
+      "target_pct": 35,
+      "current_attempt_share_pct": 14.08,
+      "reason": "amount_exceeds_limit",
+      "details": "55000 > limit_amount_max 50000",
+      "operation_id": "op_192"
+    },
+    {
+      "goal": "volume_share_target",
+      "provider": "payflow",
+      "status": "unreachable_for_operation",
+      "target_pct": 25,
+      "current_attempt_share_pct": 3.27,
+      "reason": "amount_exceeds_limit",
+      "details": "55000 > limit_amount_max 50000",
+      "operation_id": "op_192"
+    },
+    {
+      "goal": "count_share_target",
+      "provider": "vipay",
+      "status": "unreachable_for_operation",
+      "target_pct": 40,
+      "current_attempt_share_pct": 30.56,
+      "reason": "bank_not_in_list",
+      "details": "банк raiffeisen отсутствует в списке поддерживаемых банков провайдера",
+      "operation_id": "op_193"
+    },
+    {
+      "goal": "volume_share_target",
+      "provider": "vipay",
+      "status": "unreachable_for_operation",
+      "target_pct": 50,
+      "current_attempt_share_pct": 15.18,
+      "reason": "bank_not_in_list",
+      "details": "банк raiffeisen отсутствует в списке поддерживаемых банков провайдера",
+      "operation_id": "op_193"
+    },
+    {
+      "goal": "count_share_target",
+      "provider": "payflow",
+      "status": "unreachable_for_operation",
+      "target_pct": 35,
+      "current_attempt_share_pct": 13.89,
+      "reason": "daily_amount_limit_exceeded",
+      "details": "daily_approved_amount 2999400 + amount 2000 > daily_amount_limit 3000000",
+      "operation_id": "op_193"
+    },
+    {
+      "goal": "volume_share_target",
+      "provider": "payflow",
+      "status": "unreachable_for_operation",
+      "target_pct": 25,
+      "current_attempt_share_pct": 3.27,
+      "reason": "daily_amount_limit_exceeded",
+      "details": "daily_approved_amount 2999400 + amount 2000 > daily_amount_limit 3000000",
+      "operation_id": "op_193"
+    },
+    {
+      "goal": "count_share_target",
+      "provider": "vipay",
+      "status": "unreachable_for_operation",
+      "target_pct": 40,
+      "current_attempt_share_pct": 30.14,
+      "reason": "bank_not_in_list",
+      "details": "банк gazprombank отсутствует в списке поддерживаемых банков провайдера",
+      "operation_id": "op_194"
+    },
+    {
+      "goal": "volume_share_target",
+      "provider": "vipay",
+      "status": "unreachable_for_operation",
+      "target_pct": 50,
+      "current_attempt_share_pct": 15.17,
+      "reason": "bank_not_in_list",
+      "details": "банк gazprombank отсутствует в списке поддерживаемых банков провайдера",
+      "operation_id": "op_194"
+    },
+    {
+      "goal": "count_share_target",
+      "provider": "payflow",
+      "status": "unreachable_for_operation",
+      "target_pct": 35,
+      "current_attempt_share_pct": 13.7,
+      "reason": "daily_amount_limit_exceeded",
+      "details": "daily_approved_amount 2999400 + amount 3000 > daily_amount_limit 3000000",
+      "operation_id": "op_194"
+    },
+    {
+      "goal": "volume_share_target",
+      "provider": "payflow",
+      "status": "unreachable_for_operation",
+      "target_pct": 25,
+      "current_attempt_share_pct": 3.26,
+      "reason": "daily_amount_limit_exceeded",
+      "details": "daily_approved_amount 2999400 + amount 3000 > daily_amount_limit 3000000",
+      "operation_id": "op_194"
+    },
+    {
+      "goal": "count_share_target",
+      "provider": "payflow",
+      "status": "unreachable_for_operation",
+      "target_pct": 35,
+      "current_attempt_share_pct": 13.51,
+      "reason": "daily_amount_limit_exceeded",
+      "details": "daily_approved_amount 2999400 + amount 40000 > daily_amount_limit 3000000",
+      "operation_id": "op_195"
+    },
+    {
+      "goal": "volume_share_target",
+      "provider": "payflow",
+      "status": "unreachable_for_operation",
+      "target_pct": 25,
+      "current_attempt_share_pct": 3.22,
+      "reason": "daily_amount_limit_exceeded",
+      "details": "daily_approved_amount 2999400 + amount 40000 > daily_amount_limit 3000000",
+      "operation_id": "op_195"
+    },
+    {
+      "goal": "count_share_target",
+      "provider": "vipay",
+      "status": "unreachable_for_operation",
+      "target_pct": 40,
+      "current_attempt_share_pct": 30.67,
+      "reason": "bank_not_in_list",
+      "details": "банк gazprombank отсутствует в списке поддерживаемых банков провайдера",
+      "operation_id": "op_196"
+    },
+    {
+      "goal": "volume_share_target",
+      "provider": "vipay",
+      "status": "unreachable_for_operation",
+      "target_pct": 50,
+      "current_attempt_share_pct": 16.25,
+      "reason": "bank_not_in_list",
+      "details": "банк gazprombank отсутствует в списке поддерживаемых банков провайдера",
+      "operation_id": "op_196"
+    },
+    {
+      "goal": "count_share_target",
+      "provider": "payflow",
+      "status": "unreachable_for_operation",
+      "target_pct": 35,
+      "current_attempt_share_pct": 13.33,
+      "reason": "daily_amount_limit_exceeded",
+      "details": "daily_approved_amount 2999400 + amount 2000 > daily_amount_limit 3000000",
+      "operation_id": "op_196"
+    },
+    {
+      "goal": "volume_share_target",
+      "provider": "payflow",
+      "status": "unreachable_for_operation",
+      "target_pct": 25,
+      "current_attempt_share_pct": 3.22,
+      "reason": "daily_amount_limit_exceeded",
+      "details": "daily_approved_amount 2999400 + amount 2000 > daily_amount_limit 3000000",
+      "operation_id": "op_196"
+    },
+    {
+      "goal": "count_share_target",
+      "provider": "payflow",
+      "status": "unreachable_for_operation",
+      "target_pct": 35,
+      "current_attempt_share_pct": 13.16,
+      "reason": "daily_amount_limit_exceeded",
+      "details": "daily_approved_amount 2999400 + amount 8000 > daily_amount_limit 3000000",
+      "operation_id": "op_197"
+    },
+    {
+      "goal": "volume_share_target",
+      "provider": "payflow",
+      "status": "unreachable_for_operation",
+      "target_pct": 25,
+      "current_attempt_share_pct": 3.21,
+      "reason": "daily_amount_limit_exceeded",
+      "details": "daily_approved_amount 2999400 + amount 8000 > daily_amount_limit 3000000",
+      "operation_id": "op_197"
+    },
+    {
+      "goal": "count_share_target",
+      "provider": "vipay",
+      "status": "unreachable_for_operation",
+      "target_pct": 40,
+      "current_attempt_share_pct": 31.17,
+      "reason": "bank_not_in_list",
+      "details": "банк raiffeisen отсутствует в списке поддерживаемых банков провайдера",
+      "operation_id": "op_198"
+    },
+    {
+      "goal": "volume_share_target",
+      "provider": "vipay",
+      "status": "unreachable_for_operation",
+      "target_pct": 50,
+      "current_attempt_share_pct": 16.2,
+      "reason": "bank_not_in_list",
+      "details": "банк raiffeisen отсутствует в списке поддерживаемых банков провайдера",
+      "operation_id": "op_198"
+    },
+    {
+      "goal": "count_share_target",
+      "provider": "payflow",
+      "status": "unreachable_for_operation",
+      "target_pct": 35,
+      "current_attempt_share_pct": 12.99,
+      "reason": "amount_exceeds_limit",
+      "details": "52000 > limit_amount_max 50000",
+      "operation_id": "op_198"
+    },
+    {
+      "goal": "volume_share_target",
+      "provider": "payflow",
+      "status": "unreachable_for_operation",
+      "target_pct": 25,
+      "current_attempt_share_pct": 3.16,
+      "reason": "amount_exceeds_limit",
+      "details": "52000 > limit_amount_max 50000",
+      "operation_id": "op_198"
+    },
+    {
+      "goal": "count_share_target",
+      "provider": "vipay",
+      "status": "unreachable_for_operation",
+      "target_pct": 40,
+      "current_attempt_share_pct": 31.17,
+      "reason": "amount_below_minimum",
+      "details": "900 < limit_amount_min 1000",
+      "operation_id": "op_199"
+    },
+    {
+      "goal": "volume_share_target",
+      "provider": "vipay",
+      "status": "unreachable_for_operation",
+      "target_pct": 50,
+      "current_attempt_share_pct": 16.2,
+      "reason": "amount_below_minimum",
+      "details": "900 < limit_amount_min 1000",
+      "operation_id": "op_199"
+    },
+    {
+      "goal": "count_share_target",
+      "provider": "payflow",
+      "status": "unreachable_for_operation",
+      "target_pct": 35,
+      "current_attempt_share_pct": 12.99,
+      "reason": "daily_amount_limit_exceeded",
+      "details": "daily_approved_amount 2999400 + amount 900 > daily_amount_limit 3000000",
+      "operation_id": "op_199"
+    },
+    {
+      "goal": "volume_share_target",
+      "provider": "payflow",
+      "status": "unreachable_for_operation",
+      "target_pct": 25,
+      "current_attempt_share_pct": 3.16,
+      "reason": "daily_amount_limit_exceeded",
+      "details": "daily_approved_amount 2999400 + amount 900 > daily_amount_limit 3000000",
+      "operation_id": "op_199"
+    },
+    {
+      "goal": "count_share_target",
+      "provider": "vipay",
+      "status": "unreachable_for_operation",
+      "target_pct": 40,
+      "current_attempt_share_pct": 31.17,
+      "reason": "bank_not_in_list",
+      "details": "банк raiffeisen отсутствует в списке поддерживаемых банков провайдера",
+      "operation_id": "op_200"
+    },
+    {
+      "goal": "volume_share_target",
+      "provider": "vipay",
+      "status": "unreachable_for_operation",
+      "target_pct": 50,
+      "current_attempt_share_pct": 16.2,
+      "reason": "bank_not_in_list",
+      "details": "банк raiffeisen отсутствует в списке поддерживаемых банков провайдера",
+      "operation_id": "op_200"
+    },
+    {
+      "goal": "count_share_target",
+      "provider": "payflow",
+      "status": "unreachable_for_operation",
+      "target_pct": 35,
+      "current_attempt_share_pct": 12.99,
+      "reason": "daily_amount_limit_exceeded",
+      "details": "daily_approved_amount 2999400 + amount 30000 > daily_amount_limit 3000000",
+      "operation_id": "op_200"
+    },
+    {
+      "goal": "volume_share_target",
+      "provider": "payflow",
+      "status": "unreachable_for_operation",
+      "target_pct": 25,
+      "current_attempt_share_pct": 3.16,
+      "reason": "daily_amount_limit_exceeded",
+      "details": "daily_approved_amount 2999400 + amount 30000 > daily_amount_limit 3000000",
+      "operation_id": "op_200"
+    },
+    {
+      "provider": "vipay",
+      "goal": "target_distribution",
+      "unmet_dimensions": [
+        "count_share",
+        "volume_share"
+      ],
+      "count_delta_pct": -13.33,
+      "volume_delta_pct": -35.41,
+      "reason": "hard_constraints:bank_not_in_list",
+      "evidence_count": 41
+    },
+    {
+      "provider": "payflow",
+      "goal": "target_distribution",
+      "unmet_dimensions": [
+        "count_share",
+        "volume_share"
+      ],
+      "count_delta_pct": -23.89,
+      "volume_delta_pct": -22.16,
+      "reason": "hard_constraints:daily_amount_limit_exceeded",
+      "evidence_count": 40
+    }
+  ],
+  "history": {
+    "period": "2026-07-29",
+    "total_operations": 100,
+    "total_amount": 3391500.0,
+    "outcomes": {
+      "approved": {
+        "count": 68,
+        "share_pct": 68.0,
+        "amount": 2299000.0
+      },
+      "rejected": {
+        "count": 16,
+        "share_pct": 16.0,
+        "amount": 535000.0
+      },
+      "expired": {
+        "count": 16,
+        "share_pct": 16.0,
+        "amount": 557500.0
+      },
+      "approval_rate_pct": 68.0,
+      "failure_rate_pct": 32.0
+    },
+    "providers": {
+      "payflow": {
+        "operations": 19,
+        "amount": 287500.0,
+        "count_share_pct": 19.0,
+        "volume_share_pct": 8.48,
+        "approved_count": 9,
+        "rejected_count": 3,
+        "expired_count": 7,
+        "approval_rate_pct": 47.37,
+        "avg_latency_sec": 278.05,
+        "median_latency_sec": 105.0,
+        "p95_latency_sec": 859.0
+      },
+      "quickpay": {
+        "operations": 40,
+        "amount": 1885000.0,
+        "count_share_pct": 40.0,
+        "volume_share_pct": 55.58,
+        "approved_count": 27,
+        "rejected_count": 7,
+        "expired_count": 6,
+        "approval_rate_pct": 67.5,
+        "avg_latency_sec": 129.98,
+        "median_latency_sec": 61.0,
+        "p95_latency_sec": 522.0
+      },
+      "vipay": {
+        "operations": 41,
+        "amount": 1219000.0,
+        "count_share_pct": 41.0,
+        "volume_share_pct": 35.94,
+        "approved_count": 32,
+        "rejected_count": 6,
+        "expired_count": 3,
+        "approval_rate_pct": 78.05,
+        "avg_latency_sec": 87.29,
+        "median_latency_sec": 46.0,
+        "p95_latency_sec": 327.0
+      }
+    }
+  },
+  "recommendations": [
+    "payflow: дневной лимит использован на 100.0% (2 999 400 ₽ из 3 000 000 ₽, запас 600 ₽). Временно изменить traffic_percentage с 35.0% до 10.0% и перераспределить долю на quickpay до сброса дневного лимита.",
+    "Окна conversion_24h и исторического одобрения расходятся: payflow: 91.0% против 47.4% (+43.6 п.п., n=19); quickpay: 79.0% против 67.5% (+11.5 п.п., n=40). Временно снизить единый policy.weights.conversion с 1.50 до 0.75, пока окна метрик не сведены; это одно изменение политики, а не отдельная правка на каждого провайдера.",
+    "vipay: заявленная conversion_24h 0.87 не подтверждается историей — одобрено 78.0% из 41 исторической операции. Установить providers.vipay.conversion_24h в 0.810 (сжатая оценка: n=41 против априорного веса 20, сдвиг -6.0 п.п.) либо пересчитать метрику на едином окне.",
+    "payflow: заявленная conversion_24h 0.91 не подтверждается историей — одобрено 47.4% из 19 исторических операций. Установить providers.payflow.conversion_24h в 0.697 (сжатая оценка: n=19 против априорного веса 20, сдвиг -21.3 п.п.) либо пересчитать метрику на едином окне.",
+    "quickpay: заявленная conversion_24h 0.79 не подтверждается историей — одобрено 67.5% из 40 исторических операций. Установить providers.quickpay.conversion_24h в 0.713 (сжатая оценка: n=40 против априорного веса 20, сдвиг -7.7 п.п.) либо пересчитать метрику на едином окне.",
+    "Для базовой политики после снятия временных ограничений история 2026-07-29 показывает устойчивое отклонение долей: payflow: 19.0% при цели 35.0% (-16.0 п.п., n=19); quickpay: 40.0% при цели 25.0% (+15.0 п.п., n=40). Рассматривать только единый внешний вектор traffic_percentage vipay=40.0%, payflow=35.0%, quickpay=25.0% → vipay=41.0%, payflow=19.0%, quickpay=40.0%; не применять эти долгосрочные значения вместо временного ограничения ёмкости.",
+    "payflow: доля операций 13.0% при цели 35.0% (-22.0 п.п.); жёстким правилом daily_amount_limit_exceeded (исчерпан дневной лимит суммы) отклонено 40 операций. Цель недостижима без изменения ограничения: изменить daily_amount_limit с 3 000 000 ₽ на 3 633 200 ₽ (основание: текущий лимит плюс объём отклонённых выплат) либо признать достижимой долю 13.0% и снизить traffic_percentage до неё.",
+    "quickpay превышает цель: доля операций 55.8% при цели 25.0% (+30.8 п.п.), жёстко исключено 8 операций — ограничения этого не объясняют. Увеличить policy.weights.count_target_gain с 3.00 до 4.50, чтобы выравнивание долей сильнее влияло на выбор."
+  ],
+  "recommendation_details": [
+    {
+      "type": "capacity_pressure",
+      "severity": "critical",
+      "provider": "payflow",
+      "evidence": {
+        "utilization_pct": 99.98,
+        "used": 2999400.0,
+        "limit": 3000000.0,
+        "headroom": 600.0
+      },
+      "action": {
+        "parameter": "traffic_percentage",
+        "current": 35.0,
+        "proposed": 10.0,
+        "target_vector_before": {
+          "vipay": 40.0,
+          "payflow": 35.0,
+          "quickpay": 25.0
+        },
+        "target_vector_after": {
+          "vipay": 40.0,
+          "payflow": 10.0,
+          "quickpay": 50.0
+        },
+        "duration": "until_daily_limit_reset"
+      },
+      "expected_impact": "Снизить риск жёстких исключений по дневному лимиту и сохранить остаток ёмкости для подходящих выплат.",
+      "message": "payflow: дневной лимит использован на 100.0% (2 999 400 ₽ из 3 000 000 ₽, запас 600 ₽). Временно изменить traffic_percentage с 35.0% до 10.0% и перераспределить долю на quickpay до сброса дневного лимита."
+    },
+    {
+      "type": "conversion_drift",
+      "severity": "warning",
+      "provider": null,
+      "evidence": {
+        "providers": {
+          "payflow": {
+            "conversion_24h_pct": 91.0,
+            "historical_approval_rate_pct": 47.37,
+            "difference_pp": 43.63,
+            "historical_operations": 19
+          },
+          "quickpay": {
+            "conversion_24h_pct": 79.0,
+            "historical_approval_rate_pct": 67.5,
+            "difference_pp": 11.5,
+            "historical_operations": 40
+          }
+        }
+      },
+      "action": {
+        "parameter": "policy.weights.conversion",
+        "scope": "global_policy",
+        "current": 1.5,
+        "proposed": 0.75,
+        "until": "live_and_historical_metric_windows_are_reconciled"
+      },
+      "expected_impact": "Не дать метрике с несогласованным окном измерения доминировать при выборе провайдера.",
+      "message": "Окна conversion_24h и исторического одобрения расходятся: payflow: 91.0% против 47.4% (+43.6 п.п., n=19); quickpay: 79.0% против 67.5% (+11.5 п.п., n=40). Временно снизить единый policy.weights.conversion с 1.50 до 0.75, пока окна метрик не сведены; это одно изменение политики, а не отдельная правка на каждого провайдера."
+    },
+    {
+      "type": "conversion_calibration",
+      "severity": "advisory",
+      "provider": "vipay",
+      "evidence": {
+        "stated_conversion_24h": 0.87,
+        "historical_approval_rate_pct": 78.05,
+        "historical_operations": 41,
+        "prior_weight": 20.0,
+        "shrunk_conversion_24h": 0.81,
+        "shift_pp": -6.02
+      },
+      "action": {
+        "parameter": "providers.vipay.conversion_24h",
+        "current": 0.87,
+        "proposed": 0.81,
+        "method": "shrunk_historical_estimate"
+      },
+      "expected_impact": "Дать скорингу конверсию, подтверждённую наблюдениями, вместо заявленной провайдером.",
+      "message": "vipay: заявленная conversion_24h 0.87 не подтверждается историей — одобрено 78.0% из 41 исторической операции. Установить providers.vipay.conversion_24h в 0.810 (сжатая оценка: n=41 против априорного веса 20, сдвиг -6.0 п.п.) либо пересчитать метрику на едином окне."
+    },
+    {
+      "type": "conversion_calibration",
+      "severity": "advisory",
+      "provider": "payflow",
+      "evidence": {
+        "stated_conversion_24h": 0.91,
+        "historical_approval_rate_pct": 47.37,
+        "historical_operations": 19,
+        "prior_weight": 20.0,
+        "shrunk_conversion_24h": 0.697,
+        "shift_pp": -21.26
+      },
+      "action": {
+        "parameter": "providers.payflow.conversion_24h",
+        "current": 0.91,
+        "proposed": 0.697,
+        "method": "shrunk_historical_estimate"
+      },
+      "expected_impact": "Дать скорингу конверсию, подтверждённую наблюдениями, вместо заявленной провайдером.",
+      "message": "payflow: заявленная conversion_24h 0.91 не подтверждается историей — одобрено 47.4% из 19 исторических операций. Установить providers.payflow.conversion_24h в 0.697 (сжатая оценка: n=19 против априорного веса 20, сдвиг -21.3 п.п.) либо пересчитать метрику на едином окне."
+    },
+    {
+      "type": "conversion_calibration",
+      "severity": "advisory",
+      "provider": "quickpay",
+      "evidence": {
+        "stated_conversion_24h": 0.79,
+        "historical_approval_rate_pct": 67.5,
+        "historical_operations": 40,
+        "prior_weight": 20.0,
+        "shrunk_conversion_24h": 0.713,
+        "shift_pp": -7.67
+      },
+      "action": {
+        "parameter": "providers.quickpay.conversion_24h",
+        "current": 0.79,
+        "proposed": 0.713,
+        "method": "shrunk_historical_estimate"
+      },
+      "expected_impact": "Дать скорингу конверсию, подтверждённую наблюдениями, вместо заявленной провайдером.",
+      "message": "quickpay: заявленная conversion_24h 0.79 не подтверждается историей — одобрено 67.5% из 40 исторических операций. Установить providers.quickpay.conversion_24h в 0.713 (сжатая оценка: n=40 против априорного веса 20, сдвиг -7.7 п.п.) либо пересчитать метрику на едином окне."
+    },
+    {
+      "type": "historical_target_gap",
+      "severity": "advisory",
+      "provider": null,
+      "evidence": {
+        "providers": {
+          "payflow": {
+            "historical_count_share_pct": 19.0,
+            "historical_volume_share_pct": 8.48,
+            "target_pct": 35.0,
+            "delta_pct": -16.0,
+            "historical_operations": 19
+          },
+          "quickpay": {
+            "historical_count_share_pct": 40.0,
+            "historical_volume_share_pct": 55.58,
+            "target_pct": 25.0,
+            "delta_pct": 15.0,
+            "historical_operations": 40
+          }
+        },
+        "historical_total_operations": 100,
+        "period": "2026-07-29"
+      },
+      "action": {
+        "parameter": "traffic_percentage",
+        "scope": "external_vector",
+        "current": {
+          "vipay": 40.0,
+          "payflow": 35.0,
+          "quickpay": 25.0
+        },
+        "proposed": {
+          "vipay": 41.0,
+          "payflow": 19.0,
+          "quickpay": 40.0
+        },
+        "basis": "normalized_historical_external_count_share",
+        "horizon": "long_term_after_temporary_constraints"
+      },
+      "expected_impact": "Согласовать полный вектор целей с исторически достижимым распределением без противоречащих одиночных правок.",
+      "message": "Для базовой политики после снятия временных ограничений история 2026-07-29 показывает устойчивое отклонение долей: payflow: 19.0% при цели 35.0% (-16.0 п.п., n=19); quickpay: 40.0% при цели 25.0% (+15.0 п.п., n=40). Рассматривать только единый внешний вектор traffic_percentage vipay=40.0%, payflow=35.0%, quickpay=25.0% → vipay=41.0%, payflow=19.0%, quickpay=40.0%; не применять эти долгосрочные значения вместо временного ограничения ёмкости."
+    },
+    {
+      "type": "infeasible_count_target",
+      "severity": "warning",
+      "provider": "payflow",
+      "evidence": {
+        "actual_share_pct": 12.99,
+        "target_pct": 35.0,
+        "delta_pct": -22.01,
+        "blocking_rule": "daily_amount_limit_exceeded",
+        "blocked_operations": 40,
+        "shortfall_operations": 17,
+        "sample_operations": 77,
+        "confidence": "normal",
+        "historical_count_share_pct": 19.0
+      },
+      "action": {
+        "parameter": "daily_amount_limit",
+        "current": 3000000,
+        "proposed": 3633200.0,
+        "direction": "increase",
+        "blocking_rule": "daily_amount_limit_exceeded",
+        "alternative": {
+          "parameter": "traffic_percentage",
+          "current": 35.0,
+          "proposed": 12.99
+        }
+      },
+      "expected_impact": "Снять реальное ограничение или зафиксировать достижимую цель вместо недостижимой.",
+      "message": "payflow: доля операций 13.0% при цели 35.0% (-22.0 п.п.); жёстким правилом daily_amount_limit_exceeded (исчерпан дневной лимит суммы) отклонено 40 операций. Цель недостижима без изменения ограничения: изменить daily_amount_limit с 3 000 000 ₽ на 3 633 200 ₽ (основание: текущий лимит плюс объём отклонённых выплат) либо признать достижимой долю 13.0% и снизить traffic_percentage до неё."
+    },
+    {
+      "type": "count_share_above_target",
+      "severity": "advisory",
+      "provider": "quickpay",
+      "evidence": {
+        "actual_share_pct": 55.84,
+        "target_pct": 25.0,
+        "delta_pct": 30.84,
+        "hard_exclusion_operations": 8,
+        "sample_operations": 77,
+        "confidence": "normal",
+        "historical_count_share_pct": 40.0
+      },
+      "action": {
+        "parameter": "policy.weights.count_target_gain",
+        "current": 3.0,
+        "proposed": 4.5,
+        "direction": "increase"
+      },
+      "expected_impact": "Усилить притяжение к целевым долям там, где выбор определяется скорингом, а не ограничениями.",
+      "message": "quickpay превышает цель: доля операций 55.8% при цели 25.0% (+30.8 п.п.), жёстко исключено 8 операций — ограничения этого не объясняют. Увеличить policy.weights.count_target_gain с 3.00 до 4.50, чтобы выравнивание долей сильнее влияло на выбор."
+    }
+  ],
+  "routing_attempts": {
+    "attempt_count_by_provider": {
+      "payflow": 11,
+      "vipay": 31,
+      "quickpay": 53,
+      "spacepayments": 13
+    },
+    "attempt_volume_by_provider": {
+      "payflow": 124400,
+      "vipay": 680500,
+      "quickpay": 2884500,
+      "spacepayments": 347100
+    },
+    "total_attempts": 108,
+    "total_attempt_volume": 4036500,
+    "final_count_by_provider": {
+      "payflow": 10,
+      "vipay": 24,
+      "quickpay": 43,
+      "spacepayments": 13
+    },
+    "final_volume_by_provider": {
+      "payflow": 99400,
+      "vipay": 510000,
+      "quickpay": 2539000,
+      "spacepayments": 347100
+    },
+    "total_final_assignments": 90,
+    "total_final_volume": 3495500,
+    "external_count_by_provider": {
+      "payflow": 10,
+      "vipay": 24,
+      "quickpay": 43
+    },
+    "external_volume_by_provider": {
+      "payflow": 99400,
+      "vipay": 510000,
+      "quickpay": 2539000
+    },
+    "total_external_assignments": 77,
+    "total_external_volume": 3148400,
+    "fallback_assignments": 13,
+    "fallback_volume": 347100,
+    "unroutable_operations": 0
+  }
+}
